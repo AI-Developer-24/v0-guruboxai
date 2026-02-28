@@ -9,20 +9,26 @@
 
 ## 目标
 
-实现 AI 分析引擎，生成 300 个产品机会，包括多模型支持、6 阶段 Pipeline、任务队列和成本控制。
+实现 AI 分析引擎，生成 300 个产品机会，包括多模型支持、10 阶段 Pipeline、任务队列和成本控制。
 
 ---
 
-## AI Pipeline 6 阶段
+## AI Pipeline 10 阶段
+
+基于 `InsightPrompt.md` 的 10 大信号源和交叉验证要求，将分析流程拆分为 10 个阶段：
 
 | 阶段 | 名称 | 用时 | 推荐模型 | 输出 |
 |------|------|------|---------|------|
-| 1 | Understanding | 3-8s | gpt-3.5-turbo | 行业理解、用户意图 |
-| 2 | Analyzing | 3-8s | gpt-3.5-turbo | 行业结构、市场空间 |
-| 3 | Scanning | 3-8s | gpt-4 / claude-3-opus | 灵感来源、信号数据 |
-| 4 | Generating | 30-120s | gpt-4 / claude-3-opus | 300 个完整机会数据 |
-| 5 | Scoring | 3-8s | gpt-3.5-turbo | 各维度得分 |
-| 6 | Finalizing | 3-8s | gpt-4 / claude-3-opus | 专家摘要、统计数据 |
+| 1 | Input Understanding | 3-5s | gpt-3.5-turbo | 关键概念、目标用户、核心问题 |
+| 2 | Market Analysis | 3-5s | gpt-3.5-turbo | 行业结构、市场规模、关键玩家 |
+| 3 | Category Planning | 2-4s | gpt-4 | 50 个机会类别定义 |
+| 4 | Reddit Signals | 8-12s | gpt-4 | Reddit 社区痛点和需求 |
+| 5 | App Store Signals | 8-12s | gpt-4 | App Store 差评分析 |
+| 6 | Workflow Signals | 8-12s | gpt-4 | 工作流复杂度信号 |
+| 7 | Additional Signals | 8-12s | gpt-4 | 其他 7 大信号源整合 |
+| 8 | Opportunity Generation | 60-120s | gpt-4 / claude-3-opus | 300 个机会数据 |
+| 9 | Cross-Validation | 5-10s | gpt-3.5-turbo | 信号交叉验证（每机会≥3） |
+| 10 | Final Scoring & Summary | 5-10s | gpt-4 | 评分、专家摘要 |
 
 ---
 
