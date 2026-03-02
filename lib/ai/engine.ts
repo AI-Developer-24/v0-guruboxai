@@ -186,7 +186,7 @@ export class AIEngine {
       .from('tasks')
       .select('stages_completed')
       .eq('id', taskId)
-      .single()
+      .maybeSingle()
 
     const stagesCompleted = [...(task?.stages_completed || []), stage]
 

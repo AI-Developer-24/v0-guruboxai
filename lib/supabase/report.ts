@@ -10,7 +10,7 @@ export async function getReportById(id: string) {
     .from('reports')
     .select('*')
     .eq('id', id)
-    .single()
+    .maybeSingle()
 
   return { report: data, error }
 }

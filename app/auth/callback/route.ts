@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
@@ -40,8 +41,8 @@ export async function GET(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
 
     if (user) {
-      // Ensure user record exists in users table
-      const { error: upsertError } = await supabase
+      // Ensure user record exists in users table using admin client (bypasses RLS)
+      const { error: upsertError } = await supabaseAdmin
         .from('users')
         .upsert({
           id: user.id,

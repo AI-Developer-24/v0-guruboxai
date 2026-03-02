@@ -28,16 +28,15 @@ export async function getServerUser(): Promise<User | null> {
     .from('users')
     .select('*')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   if (userData) {
     return userData as User
   }
 
-  // Return basic user info
+  // Return basic user info from Auth if not found in database
   return {
     id: user.id,
-    google_id: user.id,
     email: user.email!,
     name: user.user_metadata.full_name || user.email?.split('@')[0],
     avatar: user.user_metadata.avatar_url || '',

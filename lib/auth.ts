@@ -42,21 +42,20 @@ export async function getCurrentUser() {
     .from('users')
     .select('*')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
-  if (userError) {
-    // If extended user info doesn't exist, use Auth user info
-    return {
-      id: user.id,
-      google_id: user.id,
-      email: user.email!,
-      name: user.user_metadata.full_name || user.email?.split('@')[0],
-      avatar: user.user_metadata.avatar_url || '',
-      language: 'en' as const,
-    } as User
+  if (userData) {
+    return userData as User
   }
 
-  return userData as User
+  // If extended user info doesn't exist, return basic info from Auth
+  return {
+    id: user.id,
+    email: user.email!,
+    name: user.user_metadata.full_name || user.email?.split('@')[0],
+    avatar: user.user_metadata.avatar_url || '',
+    language: 'en' as const,
+  } as User
 }
 
 /**

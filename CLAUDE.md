@@ -75,7 +75,7 @@ npm run worker   # Start BullMQ worker (run separately from dev server)
 ### Data Models (lib/types.ts)
 
 **Core Entities:**
-- `User`: id, google_id, email, name, avatar, language
+- `User`: id, email, name, avatar, language
 - `Report`: id, user_id, input_text, status, analysis_time_sec, total_opportunities, premium_ratio, summary_text, created_at, is_deleted
 - `Task`: id, user_id, report_id, status, current_stage, stages_completed, created_at
 - `Opportunity`: Detailed product opportunity with scoring metrics (monetization, industry_size, competition, mvp_difficulty, final_score)

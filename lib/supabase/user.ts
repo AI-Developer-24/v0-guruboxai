@@ -1,4 +1,4 @@
-import { supabase } from '../supabase'
+import { supabase, supabaseAdmin } from '../supabase'
 import type { Database } from '../supabase-types'
 
 type User = Database['public']['Tables']['users']['Row']
@@ -10,7 +10,7 @@ export async function getUserById(id: string) {
     .from('users')
     .select('*')
     .eq('id', id)
-    .single()
+    .maybeSingle()
 
   return { user: data, error }
 }
@@ -20,13 +20,14 @@ export async function getUserByEmail(email: string) {
     .from('users')
     .select('*')
     .eq('email', email)
-    .single()
+    .maybeSingle()
 
   return { user: data, error }
 }
 
 export async function upsertUser(user: UserInsert) {
-  const { data, error } = await supabase
+  // Use supabaseAdmin (service role) to bypass RLS for user creation
+  const { data, error } = await supabaseAdmin
     .from('users')
     .upsert(user, {
       onConflict: 'id',

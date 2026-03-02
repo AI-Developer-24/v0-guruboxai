@@ -56,31 +56,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const loadUser = async (userId: string) => {
-    const { data: userData } = await supabase
+    const { data: userData, error } = await supabase
       .from('users')
       .select('*')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
 
     if (userData) {
       setUser(userData as AppUser)
     } else {
-      // Fallback to session user info
+      // User not found in database, create from auth session
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
-        const newUser: AppUser = {
+        const newUser = {
           id: user.id,
-          google_id: user.id,
           email: user.email!,
           name: user.user_metadata.full_name || user.email?.split('@')[0] || '',
           avatar: user.user_metadata.avatar_url || '',
-          language: 'en',
+          language: 'en' as const,
         }
-        setUser(newUser)
+        setUser(newUser as AppUser)
 
         // Create user record in database
         const { upsertUser } = await import("@/lib/supabase/user")
-        await upsertUser(newUser)
+        const { error: upsertError } = await upsertUser(newUser)
+        if (upsertError) {
+          console.error('Failed to create user record:', upsertError)
+        }
       }
     }
   }

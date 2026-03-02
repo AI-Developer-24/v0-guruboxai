@@ -10,7 +10,7 @@ export async function getTaskById(id: string) {
     .from('tasks')
     .select('*')
     .eq('id', id)
-    .single()
+    .maybeSingle()
 
   return { task: data, error }
 }
@@ -21,7 +21,7 @@ export async function getUserRunningTask(userId: string) {
     .select('*')
     .eq('user_id', userId)
     .eq('status', 'running')
-    .single()
+    .maybeSingle()
 
   return { task: data, error }
 }

@@ -13,7 +13,6 @@ export type ReportStatus = "generating" | "completed" | "deleted"
 
 export interface User {
   id: string
-  google_id: string
   email: string
   name: string | null
   avatar: string | null

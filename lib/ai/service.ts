@@ -18,7 +18,7 @@ export class AIService {
       .select('id, report_id')
       .eq('user_id', userId)
       .eq('status', 'running')
-      .single()
+      .maybeSingle()
 
     if (runningTask) {
       throw new Error('CONCURRENT_TASK_LIMIT')
