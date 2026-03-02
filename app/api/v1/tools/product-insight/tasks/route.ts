@@ -11,6 +11,7 @@ import {
   unauthorizedResponse,
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
+import { aiService } from '@/lib/ai/service'
 
 // Enhanced validation schema with additional checks
 const EnhancedCreateTaskSchema = CreateTaskSchema.refine(
@@ -82,52 +83,22 @@ export async function POST(request: Request) {
       })
     }
 
-    // Create report
-    const { data: report, error: reportError } = await supabase
-      .from('reports')
-      .insert({
-        user_id: user.id,
-        input_text,
-        status: 'generating',
-      })
-      .select()
-      .single()
-
-    if (reportError) {
-      console.error('Report creation error:', reportError)
-      return internalErrorResponse('Failed to create report')
-    }
-
-    // Create task
-    const { data: task, error: taskError } = await supabase
-      .from('tasks')
-      .insert({
-        user_id: user.id,
-        report_id: report.id,
-        status: 'pending',
-        current_stage: 'understanding',
-      })
-      .select()
-      .single()
-
-    if (taskError) {
-      // Rollback report
-      await supabase.from('reports').delete().eq('id', report.id)
-      console.error('Task creation error:', taskError)
-      return internalErrorResponse('Failed to create task')
-    }
-
-    // TODO: Add to queue (Phase 4)
-    // await analysisQueue.add('analyze', { taskId: task.id, reportId: report.id })
+    // Start analysis via AI service (adds to queue)
+    const result = await aiService.startAnalysis(input_text, user.id)
 
     return successResponse({
-      task_id: task.id,
-      report_id: report.id,
-      status: task.status,
+      task_id: result.taskId,
+      report_id: result.reportId,
+      status: 'pending',
     })
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return unauthorizedResponse()
+    }
+    if (error instanceof Error && error.message === 'CONCURRENT_TASK_LIMIT') {
+      return concurrentTaskLimitResponse({
+        message: 'You already have a task running',
+      })
     }
     console.error('Create task error:', error)
     return internalErrorResponse()
