@@ -1,3 +1,5 @@
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { CreateTaskSchema } from '@/lib/validation/schemas'
@@ -10,7 +12,6 @@ import {
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
 import { aiService } from '@/lib/ai/service'
-import { supabaseAdmin } from '@/lib/supabase'
 
 // Enhanced validation schema with additional checks
 const EnhancedCreateTaskSchema = CreateTaskSchema.refine(
@@ -32,6 +33,17 @@ export async function POST(request: Request) {
   try {
     // Verify authentication
     const user = await requireAuth()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookies().get(name)?.value
+          },
+        },
+      }
+    )
 
     // Parse and validate request body
     const body = await request.json()
@@ -57,7 +69,7 @@ export async function POST(request: Request) {
     }
 
     // Check concurrent task limit
-    const { data: runningTask } = await supabaseAdmin
+    const { data: runningTask } = await supabase
       .from('tasks')
       .select('id, report_id')
       .eq('user_id', user.id)

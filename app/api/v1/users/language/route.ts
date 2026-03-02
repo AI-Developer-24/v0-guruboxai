@@ -1,3 +1,5 @@
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { LanguageSchema } from '@/lib/validation/schemas'
@@ -8,7 +10,6 @@ import {
   unauthorizedResponse,
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
-import { supabaseAdmin } from '@/lib/supabase'
 
 const UpdateLanguageSchema = z.object({
   language: LanguageSchema,
@@ -17,6 +18,17 @@ const UpdateLanguageSchema = z.object({
 export async function PUT(request: Request) {
   try {
     const user = await requireAuth()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookies().get(name)?.value
+          },
+        },
+      }
+    )
 
     // Parse and validate request body
     const body = await request.json()
@@ -32,7 +44,7 @@ export async function PUT(request: Request) {
     const { language } = validation.data
 
     // Update user language
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('users')
       .update({ language })
       .eq('id', user.id)

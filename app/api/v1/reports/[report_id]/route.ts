@@ -1,3 +1,5 @@
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import {
   successResponse,
@@ -6,7 +8,6 @@ import {
   unauthorizedResponse,
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
-import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(
   request: Request,
@@ -14,11 +15,22 @@ export async function GET(
 ) {
   try {
     const user = await requireAuth()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookies().get(name)?.value
+          },
+        },
+      }
+    )
 
     const reportId = params.report_id
 
     // Get report with ownership check
-    const { data: report, error } = await supabaseAdmin
+    const { data: report, error } = await supabase
       .from('reports')
       .select('*')
       .eq('id', reportId)
@@ -31,13 +43,13 @@ export async function GET(
     }
 
     // Get opportunity count
-    const { count } = await supabaseAdmin
+    const { count } = await supabase
       .from('opportunities')
       .select('*', { count: 'exact', head: true })
       .eq('report_id', reportId)
 
     // Get premium opportunity count
-    const { count: premiumCount } = await supabaseAdmin
+    const { count: premiumCount } = await supabase
       .from('opportunities')
       .select('*', { count: 'exact', head: true })
       .eq('report_id', reportId)
@@ -69,11 +81,22 @@ export async function DELETE(
 ) {
   try {
     const user = await requireAuth()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookies().get(name)?.value
+          },
+        },
+      }
+    )
 
     const reportId = params.report_id
 
     // Soft delete report
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('reports')
       .update({ is_deleted: true })
       .eq('id', reportId)

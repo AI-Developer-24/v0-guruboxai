@@ -1,3 +1,5 @@
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import {
   successResponse,
@@ -6,7 +8,6 @@ import {
   unauthorizedResponse,
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
-import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(
   request: Request,
@@ -14,9 +15,20 @@ export async function GET(
 ) {
   try {
     const user = await requireAuth()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookies().get(name)?.value
+          },
+        },
+      }
+    )
 
     // Verify report ownership
-    const { data: report, error: reportError } = await supabaseAdmin
+    const { data: report, error: reportError } = await supabase
       .from('reports')
       .select('id, user_id')
       .eq('id', params.report_id)
@@ -41,7 +53,7 @@ export async function GET(
     const to = from + size - 1
 
     // Build query
-    let query = supabaseAdmin
+    let query = supabase
       .from('opportunities')
       .select('*', { count: 'exact' })
       .eq('report_id', params.report_id)

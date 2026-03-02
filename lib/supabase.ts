@@ -1,8 +1,7 @@
-import { createBrowserClient } from '@supabase/ssr'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { Database } from './supabase-types'
 
-// Client Supabase instance (for client components - using createBrowserClient for cookie-based auth)
+// Client Supabase instance (for client components)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -12,23 +11,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   )
 }
 
-export const createClientComponentClient = () => {
-  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
-}
-
-// Legacy export for backward compatibility - use createClientComponentClient() instead
-// This is for client-side auth operations in the auth provider
-let _browserClient: SupabaseClient<Database> | null = null
-
-export const getBrowserClient = () => {
-  if (!_browserClient) {
-    _browserClient = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
-  }
-  return _browserClient
-}
-
-// For use in non-React contexts (e.g., API routes, server components)
-// Use createServerClient from @supabase/ssr instead
+export const supabase: SupabaseClient<Database> = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+})
 
 // Server Supabase instance (using service role key, bypasses RLS)
 // Lazy-loaded to avoid requiring service role key on client-side

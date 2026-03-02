@@ -1,13 +1,11 @@
-import { getBrowserClient } from '../supabase'
+import { supabase } from '../supabase'
 import type { Database } from '../supabase-types'
-import type { SupabaseClient } from '@supabase/supabase-js'
 
 type User = Database['public']['Tables']['users']['Row']
 type UserInsert = Database['public']['Tables']['users']['Insert']
 type UserUpdate = Database['public']['Tables']['users']['Update']
 
 export async function getUserById(id: string) {
-  const supabase = getBrowserClient()
   const { data, error } = await supabase
     .from('users')
     .select('*')
@@ -18,7 +16,6 @@ export async function getUserById(id: string) {
 }
 
 export async function getUserByEmail(email: string) {
-  const supabase = getBrowserClient()
   const { data, error } = await supabase
     .from('users')
     .select('*')
@@ -29,7 +26,6 @@ export async function getUserByEmail(email: string) {
 }
 
 export async function upsertUser(user: UserInsert) {
-  const supabase = getBrowserClient()
   const { data, error } = await supabase
     .from('users')
     .upsert(user, {
@@ -43,7 +39,6 @@ export async function upsertUser(user: UserInsert) {
 }
 
 export async function updateUser(id: string, updates: UserUpdate) {
-  const supabase = getBrowserClient()
   const { data, error } = await supabase
     .from('users')
     .update(updates)

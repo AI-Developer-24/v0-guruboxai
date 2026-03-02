@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
 import type { User, Session } from "@supabase/supabase-js"
-import { getBrowserClient } from "@/lib/supabase"
+import { supabase } from "@/lib/supabase"
 import type { AppUser } from "@/lib/types"
 
 interface AuthContextType {
@@ -25,7 +25,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
-      const supabase = getBrowserClient()
       const { data: { session } } = await supabase.auth.getSession()
 
       if (session) {
@@ -39,7 +38,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     getInitialSession()
 
     // Listen for auth state changes
-    const supabase = getBrowserClient()
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session)
 
@@ -58,7 +56,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const loadUser = async (userId: string) => {
-    const supabase = getBrowserClient()
     const { data: userData } = await supabase
       .from('users')
       .select('*')
@@ -89,9 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const login = useCallback(async () => {
-    console.log('[AUTH PROVIDER] Starting Google OAuth login...')
-    const supabase = getBrowserClient()
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
@@ -102,8 +97,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     })
 
-    console.log('[AUTH PROVIDER] OAuth result:', { data, error })
-
     if (error) {
       console.error('Sign in error:', error)
       throw error
@@ -111,7 +104,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
-    const supabase = getBrowserClient()
     const { error } = await supabase.auth.signOut()
     if (error) {
       console.error('Sign out error:', error)
@@ -124,7 +116,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setLanguage = useCallback(async (language: string) => {
     if (!user) return
 
-    const supabase = getBrowserClient()
     const { error } = await supabase
       .from('users')
       .update({ language })
