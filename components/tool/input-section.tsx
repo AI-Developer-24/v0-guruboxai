@@ -22,9 +22,17 @@ export function InputSection() {
   const router = useRouter()
 
   const handleStartAnalysis = useCallback(async () => {
+    console.log('[InputSection] handleStartAnalysis called', {
+      hasInput: !!input.trim(),
+      hasUser: !!user,
+      userId: user?.id,
+      authLoading,
+    })
+
     if (!input.trim()) return
 
     if (!user) {
+      console.log('[InputSection] No user, showing login dialog')
       setPendingStart(true)
       setShowLogin(true)
       return
@@ -33,16 +41,32 @@ export function InputSection() {
     setLoading(true)
 
     try {
+      console.log('[InputSection] Starting analysis request', {
+        input_text: input,
+        userId: user.id,
+      })
+
       const response = await api.post<{ task_id: string; report_id: string }>(
         '/tools/product-insight/tasks',
         { input_text: input }
       )
 
+      console.log('[InputSection] Analysis started successfully', response)
+
       toast.success(t("analysis_started") || "Analysis started!")
 
       router.push(`/analysis/${response.task_id}`)
     } catch (error) {
+      console.error('[InputSection] Analysis failed', error)
+
       if (error instanceof ApiError) {
+        console.error('[InputSection] ApiError details', {
+          code: error.code,
+          message: error.message,
+          status: error.status,
+          details: error.details,
+        })
+
         if (error.code === 'CONCURRENT_TASK_LIMIT') {
           toast.error(t("error_concurrent_task") || "You already have an analysis running", {
             description: t("error_wait_complete") || "Please wait for it to complete",
@@ -60,7 +84,7 @@ export function InputSection() {
     } finally {
       setLoading(false)
     }
-  }, [input, user, router, t])
+  }, [input, user, router, t, authLoading])
 
   const handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion)

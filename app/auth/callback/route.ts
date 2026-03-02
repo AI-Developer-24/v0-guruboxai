@@ -3,45 +3,73 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
+  console.log('[Auth Callback] GET /auth/callback called')
+
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
   const next = requestUrl.searchParams.get('next') || '/tools/product-insight'
 
+  console.log('[Auth Callback] Params', { code: !!code, next })
+
   if (code) {
+    console.log('[Auth Callback] Creating response and server client...')
+
+    // Create response FIRST
+    const response = NextResponse.redirect(new URL(next, requestUrl.origin))
+
     // Create Supabase client for server-side
+    // IMPORTANT: set/remove cookies on RESPONSE, not request
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
           get(name: string) {
-            return request.cookies.get(name)?.value
+            const value = request.cookies.get(name)?.value
+            console.log(`[Auth Callback] Get cookie ${name}:`, value ? 'found' : 'not found')
+            return value
           },
           set(name: string, value: string, options: any) {
-            request.cookies.set(name, value)
+            console.log(`[Auth Callback] Set cookie ${name} on response`)
+            response.cookies.set({ name, value, ...options })
           },
           remove(name: string, options: any) {
-            request.cookies.delete(name)
+            console.log(`[Auth Callback] Remove cookie ${name} from response`)
+            response.cookies.delete({ name, ...options })
           },
         },
       }
     )
 
     // Exchange code for session
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    console.log('[Auth Callback] Exchanging code for session...')
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
-      console.error('Auth error:', error)
-      return NextResponse.redirect(
+      console.error('[Auth Callback] Auth error:', error)
+      // Return error response
+      const errorResponse = NextResponse.redirect(
         new URL('/auth/error', requestUrl.origin)
       )
+      return errorResponse
     }
+
+    console.log('[Auth Callback] Session exchange successful', {
+      hasSession: !!data.session,
+      hasUser: !!data.user,
+    })
 
     // Get user info
     const { data: { user } } = await supabase.auth.getUser()
 
+    console.log('[Auth Callback] Get user result', {
+      hasUser: !!user,
+      userId: user?.id,
+    })
+
     if (user) {
       // Ensure user record exists in users table using admin client (bypasses RLS)
+      console.log('[Auth Callback] Upserting user to database...')
       const { error: upsertError } = await supabaseAdmin
         .from('users')
         .upsert({
@@ -54,11 +82,19 @@ export async function GET(request: NextRequest) {
         })
 
       if (upsertError) {
-        console.error('User upsert error:', upsertError)
+        console.error('[Auth Callback] User upsert error:', upsertError)
+      } else {
+        console.log('[Auth Callback] User upsert successful')
       }
     }
+
+    console.log('[Auth Callback] Response cookies:', response.cookies.getAll())
+    console.log('[Auth Callback] Redirecting to:', next)
+
+    return response
   }
 
+  console.log('[Auth Callback] No code, redirecting to:', next)
   // Redirect to target page
   return NextResponse.redirect(new URL(next, requestUrl.origin))
 }

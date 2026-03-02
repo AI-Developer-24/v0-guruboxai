@@ -1,3 +1,4 @@
+import { createBrowserClient } from '@supabase/ssr'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { Database } from './supabase-types'
 
@@ -11,12 +12,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
   )
 }
 
-export const supabase: SupabaseClient<Database> = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-})
+// Use createBrowserClient from @supabase/ssr for proper cookie-based auth
+export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
 
 // Server Supabase instance (using service role key, bypasses RLS)
 // Lazy-loaded to avoid requiring service role key on client-side

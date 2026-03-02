@@ -2,6 +2,8 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
+  console.log('[Middleware] Processing request:', req.nextUrl.pathname)
+
   const res = NextResponse.next()
 
   // Create Supabase client for middleware
@@ -27,10 +29,16 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession()
 
+  console.log('[Middleware] Session check', {
+    hasSession: !!session,
+    userId: session?.user?.id,
+  })
+
   const isAccountPage = req.nextUrl.pathname.startsWith('/account')
 
   // Protect /account route
   if (isAccountPage && !session) {
+    console.log('[Middleware] No session, redirecting from account page')
     const redirectUrl = new URL('/tools/product-insight', req.url)
     return NextResponse.redirect(redirectUrl)
   }

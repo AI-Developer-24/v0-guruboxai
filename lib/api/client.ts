@@ -24,7 +24,9 @@ class ApiClient {
       })
     }
 
-    const response = await fetch(url.toString())
+    const response = await fetch(url.toString(), {
+      credentials: 'include',
+    })
     return this.handleResponse<T>(response)
   }
 
@@ -32,11 +34,25 @@ class ApiClient {
    * POST request
    */
   async post<T>(path: string, body?: any): Promise<T> {
+    console.log('[ApiClient] POST request', {
+      url: `${this.baseUrl}${path}`,
+      body,
+      hasCredentials: true,
+    })
+
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: body ? JSON.stringify(body) : undefined,
     })
+
+    console.log('[ApiClient] POST response', {
+      url: `${this.baseUrl}${path}`,
+      status: response.status,
+      ok: response.ok,
+    })
+
     return this.handleResponse<T>(response)
   }
 
@@ -47,6 +63,7 @@ class ApiClient {
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: body ? JSON.stringify(body) : undefined,
     })
     return this.handleResponse<T>(response)
@@ -58,6 +75,7 @@ class ApiClient {
   async delete<T>(path: string): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: 'DELETE',
+      credentials: 'include',
     })
     return this.handleResponse<T>(response)
   }
