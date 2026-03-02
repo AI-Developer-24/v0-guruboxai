@@ -5,27 +5,37 @@ import { Database } from './supabase-types'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-export const supabase: SupabaseClient<Database> = supabaseUrl && supabaseAnonKey
-  ? createClient<Database>(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-      },
-    })
-  : (null as unknown as SupabaseClient<Database>)
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    'Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your .env.local file.'
+  )
+}
+
+export const supabase: SupabaseClient<Database> = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+})
 
 // Server Supabase instance (using service role key, bypasses RLS)
-export const supabaseAdmin: SupabaseClient<Database> = supabaseUrl && process.env.SUPABASE_SERVICE_ROLE_KEY
-  ? createClient<Database>(
-      supabaseUrl,
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-      {
-        auth: {
-          persistSession: false,
-        },
-      }
-    )
-  : (null as unknown as SupabaseClient<Database>)
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!serviceRoleKey) {
+  throw new Error(
+    'Missing Supabase service role key. Please set SUPABASE_SERVICE_ROLE_KEY in your .env.local file.'
+  )
+}
+
+export const supabaseAdmin: SupabaseClient<Database> = createClient<Database>(
+  supabaseUrl,
+  serviceRoleKey,
+  {
+    auth: {
+      persistSession: false,
+    },
+  }
+)
 
 // Type exports
 export type { Database }
