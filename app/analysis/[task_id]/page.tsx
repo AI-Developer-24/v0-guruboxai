@@ -1,144 +1,144 @@
 "use client"
 
-import { useEffect, useState, useRef, useCallback } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useI18n } from "@/components/i18n/i18n-provider"
 import { AnalysisSteps } from "@/components/analysis/analysis-steps"
 import { ScanningAnimation } from "@/components/analysis/scanning-animation"
-import { ANALYSIS_STAGES, STAGE_DURATION_MIN, STAGE_DURATION_MAX } from "@/lib/constants"
+import { ANALYSIS_STAGES } from "@/lib/constants"
+import { api, ApiError, type TaskStatusResponse } from "@/lib/api/client"
 import type { AnalysisStage } from "@/lib/types"
-import { getOpportunitiesForReport } from "@/lib/mock-data"
+import Link from "next/link"
+import { AlertCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
-const EXPERT_SUMMARY = `## Industry Landscape
-
-The market you've described shows strong signals of emerging demand with relatively low competitive density. Current AI adoption in this segment remains below 20%, creating substantial windows for first movers with differentiated solutions.
-
-## Key Demand Gaps
-
-Our analysis reveals three primary unmet needs: (1) affordable, domain-specific AI automation that reduces manual workload by 50%+, (2) intelligent decision-support tools that synthesize fragmented data sources into actionable insights, and (3) seamless integration layers that connect existing workflows without requiring technical expertise.
-
-## Core Opportunity Directions
-
-The highest-scoring opportunities cluster around **intelligent workflow automation** and **AI-powered analytics dashboards** — two areas where target users report spending 30-45% of their time on low-value repetitive tasks. Solutions combining these capabilities with mobile-first UX show the strongest product-market fit signals.
-
-## Risk Considerations
-
-Key risks include rapid platform commoditization as major AI providers expand their native toolsets, regulatory uncertainty around AI-generated outputs in professional contexts, and the ongoing challenge of achieving domain-specific accuracy without extensive proprietary training data.`
+// Stage key mapping for the API
+const STAGE_KEY_MAP: Record<string, AnalysisStage> = {
+  'understanding': 'understanding',
+  'analyzing': 'analyzing',
+  'scanning': 'scanning',
+  'generating': 'generating',
+  'scoring': 'scoring',
+  'finalizing': 'finalizing',
+}
 
 export default function AnalysisPage() {
   const params = useParams()
   const router = useRouter()
   const taskId = params.task_id as string
-  const { getTask, updateTask, updateReport } = useAuth()
+  const { user } = useAuth()
   const { t } = useI18n()
 
   const [currentStageIndex, setCurrentStageIndex] = useState(0)
   const [completedStages, setCompletedStages] = useState<AnalysisStage[]>([])
   const [isComplete, setIsComplete] = useState(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const startTimeRef = useRef<number>(Date.now())
-  const hasInitialized = useRef(false)
+  const [hasError, setHasError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const hasStartedPolling = useRef(false)
 
-  // Get task info from localStorage
-  const taskInfo = typeof window !== "undefined"
-    ? JSON.parse(localStorage.getItem(`gurubox_task_${taskId}`) ?? "{}")
-    : {}
+  // Convert API stage key to our stage index
+  const getStageIndex = (stageKey: string): number => {
+    const stageKeys = Object.keys(STAGE_KEY_MAP)
+    return stageKeys.indexOf(stageKey)
+  }
 
-  const task = getTask(taskId)
-  const currentStage = ANALYSIS_STAGES[currentStageIndex]?.id ?? "understanding"
+  // Poll task status from API
+  useEffect(() => {
+    if (!user || hasStartedPolling.current) return
 
-  const advanceStage = useCallback(() => {
-    setCurrentStageIndex((prev) => {
-      const next = prev + 1
-      const completedStageId = ANALYSIS_STAGES[prev]?.id
-      if (completedStageId) {
-        setCompletedStages((c) => [...c, completedStageId])
-      }
+    hasStartedPolling.current = true
 
-      if (next >= ANALYSIS_STAGES.length) {
-        setIsComplete(true)
-        // Update task status
-        if (taskId && taskInfo?.reportId) {
-          const elapsed = Math.round((Date.now() - startTimeRef.current) / 1000)
-          // Generate opportunities for this report
-          getOpportunitiesForReport(taskInfo.reportId)
+    const pollTaskStatus = async () => {
+      try {
+        const data = await api.get<TaskStatusResponse>(`/tasks/${taskId}`)
 
-          updateTask(taskId, {
-            status: "completed",
-            current_stage: "finalizing",
-            stages_completed: ANALYSIS_STAGES.map((s) => s.id),
-          })
+        // Update completed stages
+        const apiCompletedStages = data.stages_completed || []
+        const completedStageKeys = apiCompletedStages
+          .map((key) => STAGE_KEY_MAP[key])
+          .filter(Boolean) as AnalysisStage[]
 
-          // Update report via a localStorage flag the report page can pick up
-          localStorage.setItem(`gurubox_report_ready_${taskInfo.reportId}`, JSON.stringify({
-            analysisTimeSec: elapsed,
-            inputText: taskInfo.inputText,
-            summaryText: EXPERT_SUMMARY,
-          }))
+        setCompletedStages(completedStageKeys)
+
+        // Update current stage
+        const currentStageKey = data.current_stage || 'understanding'
+        const stageIdx = getStageIndex(currentStageKey)
+        if (stageIdx >= 0) {
+          setCurrentStageIndex(stageIdx)
         }
-        return prev
+
+        // Check if task is complete
+        if (data.status === 'completed' && data.report_status === 'completed') {
+          setIsComplete(true)
+          if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current)
+          }
+
+          // Redirect to report page after a short delay
+          const redirectTimer = setTimeout(() => {
+            router.push(`/report/${taskId}`)
+          }, 2000)
+
+          return () => clearTimeout(redirectTimer)
+        }
+
+        // Check if task failed
+        if (data.status === 'failed' || data.report_status === 'failed') {
+          setHasError(true)
+          setErrorMessage(t("analysis_failed") || "Analysis failed. Please try again.")
+          if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current)
+          }
+        }
+      } catch (error) {
+        if (error instanceof ApiError) {
+          if (error.status === 404) {
+            setHasError(true)
+            setErrorMessage(t("error_task_not_found") || "Task not found.")
+          } else if (error.status === 401) {
+            setHasError(true)
+            setErrorMessage(t("error_unauthorized") || "Please sign in to view this analysis.")
+          } else {
+            console.error('Poll error:', error)
+          }
+        }
       }
-      return next
-    })
-  }, [taskId, taskInfo, updateTask])
-
-  useEffect(() => {
-    if (hasInitialized.current) return
-    hasInitialized.current = true
-
-    // Check if this task was already complete
-    if (task?.status === "completed") {
-      setIsComplete(true)
-      setCompletedStages(ANALYSIS_STAGES.map((s) => s.id))
-      setCurrentStageIndex(ANALYSIS_STAGES.length - 1)
-      return
     }
 
-    // Restore saved progress
-    const savedProgress = localStorage.getItem(`gurubox_analysis_progress_${taskId}`)
-    if (savedProgress) {
-      const progress = JSON.parse(savedProgress)
-      setCurrentStageIndex(progress.currentStageIndex ?? 0)
-      setCompletedStages(progress.completedStages ?? [])
-      startTimeRef.current = progress.startTime ?? Date.now()
-    } else {
-      startTimeRef.current = Date.now()
-    }
-  }, [taskId, task?.status])
+    // Initial poll
+    pollTaskStatus()
 
-  // Auto-advance stages
-  useEffect(() => {
-    if (isComplete) return
-
-    const duration = STAGE_DURATION_MIN + Math.random() * (STAGE_DURATION_MAX - STAGE_DURATION_MIN)
-
-    timerRef.current = setTimeout(() => {
-      advanceStage()
-    }, duration)
-
-    // Save progress
-    localStorage.setItem(`gurubox_analysis_progress_${taskId}`, JSON.stringify({
-      currentStageIndex,
-      completedStages,
-      startTime: startTimeRef.current,
-    }))
+    // Set up polling interval (every 2 seconds)
+    pollIntervalRef.current = setInterval(pollTaskStatus, 2000)
 
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current)
+      }
     }
-  }, [currentStageIndex, isComplete, taskId, completedStages, advanceStage])
+  }, [taskId, user, router, t])
 
-  // Auto-redirect on complete
-  useEffect(() => {
-    if (!isComplete || !taskInfo?.reportId) return
+  // Show error state
+  if (hasError) {
+    return (
+      <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center gap-4 px-4 page-fade">
+        <div className="flex items-center gap-3 text-destructive">
+          <AlertCircle className="h-8 w-8" />
+          <p className="text-lg font-medium">{errorMessage}</p>
+        </div>
+        <Button
+          onClick={() => router.push('/tools/product-insight')}
+          variant="outline"
+        >
+          {t("back_to_tools") || "Back to Tools"}
+        </Button>
+      </div>
+    )
+  }
 
-    const timer = setTimeout(() => {
-      router.push(`/report/${taskInfo.reportId}`)
-    }, 2000)
-
-    return () => clearTimeout(timer)
-  }, [isComplete, taskInfo?.reportId, router])
+  const currentStage = ANALYSIS_STAGES[currentStageIndex]?.id ?? "understanding"
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center px-4 py-16 page-fade">
@@ -148,11 +148,6 @@ export default function AnalysisPage() {
           <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
             {isComplete ? t("analysis_complete") : t("analysis_title")}
           </h1>
-          {taskInfo?.inputText && (
-            <p className="mt-2 text-sm text-muted-foreground truncate max-w-md mx-auto">
-              {taskInfo.inputText}
-            </p>
-          )}
           {isComplete && (
             <p className="mt-2 text-sm text-primary">
               {t("analysis_redirecting")}
