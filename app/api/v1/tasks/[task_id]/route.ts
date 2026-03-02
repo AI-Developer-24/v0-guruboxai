@@ -11,11 +11,12 @@ import { requireAuth } from '@/lib/api/auth'
 
 export async function GET(
   request: Request,
-  { params }: { params: { task_id: string } }
+  { params }: { params: Promise<{ task_id: string }> }
 ) {
   try {
     const user = await requireAuth()
     const cookieStore = await cookies()
+    const { task_id: taskId } = await params
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -27,8 +28,6 @@ export async function GET(
         },
       }
     )
-
-    const taskId = params.task_id
 
     // Get task with ownership check
     const { data: task, error } = await supabase

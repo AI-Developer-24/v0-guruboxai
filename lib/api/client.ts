@@ -14,17 +14,23 @@ class ApiClient {
    * GET request
    */
   async get<T>(path: string, params?: Record<string, any>): Promise<T> {
-    const url = new URL(path, window.location.origin + this.baseUrl)
+    // Build URL with proper path concatenation
+    let fullPath = `${this.baseUrl}${path}`
 
     if (params) {
+      const searchParams = new URLSearchParams()
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          url.searchParams.append(key, String(value))
+          searchParams.append(key, String(value))
         }
       })
+      const queryString = searchParams.toString()
+      if (queryString) {
+        fullPath += `?${queryString}`
+      }
     }
 
-    const response = await fetch(url.toString(), {
+    const response = await fetch(fullPath, {
       credentials: 'include',
     })
     return this.handleResponse<T>(response)
@@ -100,7 +106,13 @@ class ApiClient {
     }
 
     if (contentType?.includes('application/json')) {
-      return response.json() as Promise<T>
+      const json = await response.json()
+      // Extract data from wrapped response: { data: T } -> T
+      // But preserve structure for paginated responses: { data: T[], meta: {...} }
+      if (json && typeof json === 'object' && 'data' in json && !('meta' in json)) {
+        return json.data as T
+      }
+      return json as T
     }
 
     return response.text() as unknown as Promise<T>

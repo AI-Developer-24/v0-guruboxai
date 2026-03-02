@@ -11,11 +11,12 @@ import { requireAuth } from '@/lib/api/auth'
 
 export async function GET(
   request: Request,
-  { params }: { params: { report_id: string } }
+  { params }: { params: Promise<{ report_id: string }> }
 ) {
   try {
     const user = await requireAuth()
     const cookieStore = await cookies()
+    const { report_id: reportId } = await params
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -32,7 +33,7 @@ export async function GET(
     const { data: report, error: reportError } = await supabase
       .from('reports')
       .select('id, user_id')
-      .eq('id', params.report_id)
+      .eq('id', reportId)
       .eq('user_id', user.id)
       .eq('is_deleted', false)
       .single()
@@ -57,7 +58,7 @@ export async function GET(
     let query = supabase
       .from('opportunities')
       .select('*', { count: 'exact' })
-      .eq('report_id', params.report_id)
+      .eq('report_id', reportId)
       .order(sortBy, { ascending: sortOrder === 'asc' })
 
     if (category) {

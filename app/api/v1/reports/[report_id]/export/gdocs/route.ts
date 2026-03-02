@@ -4,14 +4,15 @@ import { requireAuth } from '@/lib/api/auth'
 
 export async function POST(
   request: Request,
-  { params }: { params: { report_id: string } }
+  { params }: { params: Promise<{ report_id: string }> }
 ) {
   try {
     // Verify authentication
     await requireAuth()
+    const { report_id } = await params
 
     // TODO: Implement Google Docs export logic (Phase 6)
-    // const docUrl = await exportToGDocs(params.report_id)
+    // const docUrl = await exportToGDocs(report_id)
 
     return notImplementedResponse('Google Docs export is not yet implemented')
   } catch (error) {

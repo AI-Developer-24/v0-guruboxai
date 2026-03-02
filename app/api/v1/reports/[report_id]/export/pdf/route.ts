@@ -4,14 +4,15 @@ import { requireAuth } from '@/lib/api/auth'
 
 export async function POST(
   request: Request,
-  { params }: { params: { report_id: string } }
+  { params }: { params: Promise<{ report_id: string }> }
 ) {
   try {
     // Verify authentication
     await requireAuth()
+    const { report_id } = await params
 
     // TODO: Implement PDF export logic (Phase 6)
-    // const pdfBuffer = await generatePDF(params.report_id)
+    // const pdfBuffer = await generatePDF(report_id)
 
     return notImplementedResponse('PDF export is not yet implemented')
   } catch (error) {
