@@ -1,4 +1,4 @@
-import { supabase, supabaseAdmin } from '../supabase'
+import { supabase } from '../supabase'
 import type { Database } from '../supabase-types'
 
 type User = Database['public']['Tables']['users']['Row']
@@ -26,15 +26,16 @@ export async function getUserByEmail(email: string) {
 }
 
 export async function upsertUser(user: UserInsert) {
-  // Use supabaseAdmin (service role) to bypass RLS for user creation
-  const { data, error } = await supabaseAdmin
+  // Use regular supabase client (works on both client and server)
+  // RLS policies should allow users to insert/update their own records
+  const { data, error } = await supabase
     .from('users')
     .upsert(user, {
       onConflict: 'id',
       ignoreDuplicates: false,
     })
     .select()
-    .single()
+    .maybeSingle()
 
   return { user: data, error }
 }

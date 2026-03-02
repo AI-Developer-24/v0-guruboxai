@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { unauthorizedResponse } from './response'
 
 export async function getAuthenticatedUser() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -35,8 +35,8 @@ export async function requireAuth() {
   return user
 }
 
-export function createSupabaseClient() {
-  const cookieStore = cookies()
+export async function createSupabaseClient() {
+  const cookieStore = await cookies()
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

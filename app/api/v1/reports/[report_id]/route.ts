@@ -11,23 +11,23 @@ import { requireAuth } from '@/lib/api/auth'
 
 export async function GET(
   request: Request,
-  { params }: { params: { report_id: string } }
+  { params }: { params: Promise<{ report_id: string }> }
 ) {
   try {
     const user = await requireAuth()
+    const cookieStore = await cookies()
+    const { report_id: reportId } = await params
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
           get(name: string) {
-            return cookies().get(name)?.value
+            return cookieStore.get(name)?.value
           },
         },
       }
     )
-
-    const reportId = params.report_id
 
     // Get report with ownership check
     const { data: report, error } = await supabase
@@ -77,23 +77,23 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { report_id: string } }
+  { params }: { params: Promise<{ report_id: string }> }
 ) {
   try {
     const user = await requireAuth()
+    const cookieStore = await cookies()
+    const { report_id: reportId } = await params
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
           get(name: string) {
-            return cookies().get(name)?.value
+            return cookieStore.get(name)?.value
           },
         },
       }
     )
-
-    const reportId = params.report_id
 
     // Soft delete report
     const { data, error } = await supabase

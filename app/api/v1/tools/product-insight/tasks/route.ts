@@ -33,13 +33,14 @@ export async function POST(request: Request) {
   try {
     // Verify authentication
     const user = await requireAuth()
+    const cookieStore = await cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
           get(name: string) {
-            return cookies().get(name)?.value
+            return cookieStore.get(name)?.value
           },
         },
       }
