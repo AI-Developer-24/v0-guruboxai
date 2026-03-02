@@ -1,0 +1,135 @@
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
+import { z } from 'zod'
+import { CreateTaskSchema } from '@/lib/validation/schemas'
+import {
+  successResponse,
+  validationErrorResponse,
+  concurrentTaskLimitResponse,
+  internalErrorResponse,
+  unauthorizedResponse,
+} from '@/lib/api/response'
+import { requireAuth } from '@/lib/api/auth'
+
+// Enhanced validation schema with additional checks
+const EnhancedCreateTaskSchema = CreateTaskSchema.refine(
+  (value) => {
+    const trimmed = value.input_text.trim()
+    const specialChars = /[<>{}|\\^`]/g
+    const cleanLength = trimmed.replace(specialChars, '').length
+    return cleanLength > trimmed.length * 0.5
+  },
+  {
+    message: 'Input contains too many special characters. Please use plain text.',
+    path: ['input_text'],
+  }
+)
+
+const forbiddenWords = ['xxx', 'porn', 'illegal', 'hack']
+
+export async function POST(request: Request) {
+  try {
+    // Verify authentication
+    const user = await requireAuth()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookies().get(name)?.value
+          },
+        },
+      }
+    )
+
+    // Parse and validate request body
+    const body = await request.json()
+    const validation = EnhancedCreateTaskSchema.safeParse(body)
+
+    if (!validation.success) {
+      return validationErrorResponse(
+        'Invalid input',
+        validation.error.errors
+      )
+    }
+
+    const { input_text } = validation.data
+    const trimmedInput = input_text.trim()
+
+    // Check for forbidden words
+    const hasForbiddenWord = forbiddenWords.some(word =>
+      trimmedInput.toLowerCase().includes(word)
+    )
+
+    if (hasForbiddenWord) {
+      return validationErrorResponse('Input contains inappropriate content')
+    }
+
+    // Check concurrent task limit
+    const { data: runningTask } = await supabase
+      .from('tasks')
+      .select('id, report_id')
+      .eq('user_id', user.id)
+      .eq('status', 'running')
+      .maybeSingle()
+
+    if (runningTask) {
+      return concurrentTaskLimitResponse({
+        task_id: runningTask.id,
+        report_id: runningTask.report_id,
+      })
+    }
+
+    // Create report
+    const { data: report, error: reportError } = await supabase
+      .from('reports')
+      .insert({
+        user_id: user.id,
+        input_text,
+        status: 'generating',
+      })
+      .select()
+      .single()
+
+    if (reportError) {
+      console.error('Report creation error:', reportError)
+      return internalErrorResponse('Failed to create report')
+    }
+
+    // Create task
+    const { data: task, error: taskError } = await supabase
+      .from('tasks')
+      .insert({
+        user_id: user.id,
+        report_id: report.id,
+        status: 'pending',
+        current_stage: 'understanding',
+      })
+      .select()
+      .single()
+
+    if (taskError) {
+      // Rollback report
+      await supabase.from('reports').delete().eq('id', report.id)
+      console.error('Task creation error:', taskError)
+      return internalErrorResponse('Failed to create task')
+    }
+
+    // TODO: Add to queue (Phase 4)
+    // await analysisQueue.add('analyze', { taskId: task.id, reportId: report.id })
+
+    return successResponse({
+      task_id: task.id,
+      report_id: report.id,
+      status: task.status,
+    })
+  } catch (error) {
+    if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+      return unauthorizedResponse()
+    }
+    console.error('Create task error:', error)
+    return internalErrorResponse()
+  }
+}

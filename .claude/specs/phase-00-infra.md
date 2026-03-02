@@ -20,7 +20,7 @@
 
 ```bash
 npm install @supabase/supabase-js \
-            @supabase/auth-helpers-nextjs \
+            @supabase/ssr \
             next-auth@beta \
             @auth/core \
             openai \
@@ -37,10 +37,10 @@ npm install @supabase/supabase-js \
 | 包名 | 用途 | 版本要求 |
 |------|------|---------|
 | @supabase/supabase-js | Supabase 客户端 | latest |
-| @supabase/auth-helpers-nextjs | Next.js Auth Helpers | latest |
+| @supabase/ssr | Supabase SSR helpers (replaces deprecated auth-helpers) | latest |
 | next-auth@beta | NextAuth v5 (beta) | latest beta |
 | @auth/core | Auth.js 核心 | latest |
-| openai | OpenAI API SDK | latest |
+| openai | OpenAI API SDK (兼容 DashScope) | latest |
 | @anthropic-ai/sdk | Anthropic Claude SDK | latest |
 | @react-pdf/renderer | PDF 生成 | latest |
 | googleapis | Google Docs API | latest |
@@ -77,7 +77,12 @@ OPENAI_API_KEY=
 # Anthropic
 ANTHROPIC_API_KEY=
 
-# Default Model (gpt-4, gpt-3.5-turbo, claude-3-opus, claude-3-haiku)
+# Alibaba Cloud DashScope (Qwen3-Max, Qwen3.5-Plus, etc.)
+# 获取地址: https://bailian.console.aliyun.com/
+DASHSCOPE_API_KEY=
+DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+
+# Default Model (gpt-4, gpt-3.5-turbo, claude-3-opus, claude-3-haiku, qwen3-max, qwen3.5-plus)
 DEFAULT_MODEL=gpt-4
 
 # ========================================
@@ -165,7 +170,20 @@ cp .env.example .env.local
    - API Keys → Create Key
    - 复制生成的 key
 
-#### 3.5 Redis 实例配置
+#### 3.5 Alibaba Cloud DashScope API Key 获取 (Qwen3-Max)
+
+1. 访问 https://bailian.console.aliyun.com/
+2. 注册/登录阿里云账号
+3. 开通 Model Studio 服务:
+   - 进入控制台 → 点击「开通服务」
+4. 获取 API Key:
+   - 右上角「API-KEY 管理」
+   - 点击「创建 API Key」
+   - 复制生成的密钥
+
+**注意**: DashScope API 使用 OpenAI 兼容格式，可复用 `openai` 包，只需指定不同的 `base_url`。
+
+#### 3.6 Redis 实例配置
 
 **选项 A: 本地 Redis（开发环境）**
 
@@ -196,7 +214,7 @@ redis-cli ping
 3. 获取 REST API URL 或 Redis URL
 4. 复制 Redis URL 到 `.env.local`
 
-#### 3.6 Google Docs API 凭证
+#### 3.7 Google Docs API 凭证
 
 1. 在 Google Cloud Console 中启用 Google Docs API:
    - APIs & Services → Library → 搜索 "Google Docs API" → Enable
@@ -238,6 +256,8 @@ const required = [
 const optional = [
   'OPENAI_API_KEY',
   'ANTHROPIC_API_KEY',
+  'DASHSCOPE_API_KEY',
+  'DASHSCOPE_BASE_URL',
   'DEFAULT_MODEL',
   'GOOGLE_DOCS_CREDENTIALS',
 ]
@@ -357,8 +377,9 @@ testConnection()
 - [ ] Supabase 项目创建成功并获取到 URL 和 Keys
 - [ ] Redis 连接测试成功
 - [ ] Google OAuth 凭证获取完成并配置到 Supabase
-- [ ] OpenAI API Key 获取
+- [ ] OpenAI API Key 获取（至少配置一个 AI 模型）
 - [ ] Anthropic API Key 获取（可选）
+- [ ] Alibaba Cloud DashScope API Key 获取（可选，用于 Qwen3-Max）
 - [ ] Google Docs Service Account 凭证获取（可选）
 
 ---

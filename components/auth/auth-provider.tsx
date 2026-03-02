@@ -1,113 +1,144 @@
 "use client"
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
-import type { User, Report, Task } from "@/lib/types"
-import { MOCK_USER, MOCK_REPORTS, MOCK_TASKS, MOCK_OPPORTUNITIES, getOpportunitiesForReport } from "@/lib/mock-data"
+import type { User, Session } from "@supabase/supabase-js"
+import { supabase } from "@/lib/supabase"
+import type { AppUser } from "@/lib/types"
+import { upsertUser } from "@/lib/supabase/user"
 
 interface AuthContextType {
-  user: User | null
+  user: AppUser | null
+  session: Session | null
   isLoggedIn: boolean
-  login: () => void
-  logout: () => void
-  reports: Report[]
-  tasks: Task[]
-  runningTask: Task | null
-  addReport: (report: Report) => void
-  updateReport: (reportId: string, updates: Partial<Report>) => void
-  addTask: (task: Task) => void
-  updateTask: (taskId: string, updates: Partial<Task>) => void
-  deleteReport: (reportId: string) => void
-  getReport: (reportId: string) => Report | undefined
-  getTask: (taskId: string) => Task | undefined
+  loading: boolean
+  login: () => Promise<void>
+  logout: () => Promise<void>
+  setLanguage: (language: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [reports, setReports] = useState<Report[]>([])
-  const [tasks, setTasks] = useState<Task[]>([])
+  const [user, setUser] = useState<AppUser | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const saved = localStorage.getItem("gurubox_auth")
-    if (saved === "true") {
-      setUser(MOCK_USER)
-      setReports([...MOCK_REPORTS])
-      setTasks([...MOCK_TASKS])
+    // Get initial session
+    const getInitialSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (session) {
+        await loadUser(session.user.id)
+      }
+
+      setSession(session)
+      setLoading(false)
+    }
+
+    getInitialSession()
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session)
+
+      if (session?.user) {
+        await loadUser(session.user.id)
+      } else {
+        setUser(null)
+      }
+
+      setLoading(false)
+    })
+
+    return () => {
+      subscription.unsubscribe()
     }
   }, [])
 
-  const login = useCallback(() => {
-    setUser(MOCK_USER)
-    setReports([...MOCK_REPORTS])
-    setTasks([...MOCK_TASKS])
-    localStorage.setItem("gurubox_auth", "true")
+  const loadUser = async (userId: string) => {
+    const { data: userData } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single()
+
+    if (userData) {
+      setUser(userData as AppUser)
+    } else {
+      // Fallback to session user info
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const newUser: AppUser = {
+          id: user.id,
+          google_id: user.id,
+          email: user.email!,
+          name: user.user_metadata.full_name || user.email?.split('@')[0] || '',
+          avatar: user.user_metadata.avatar_url || '',
+          language: 'en',
+        }
+        setUser(newUser)
+
+        // Create user record in database
+        await upsertUser(newUser)
+      }
+    }
+  }
+
+  const login = useCallback(async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    })
+
+    if (error) {
+      console.error('Sign in error:', error)
+      throw error
+    }
   }, [])
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('Sign out error:', error)
+      throw error
+    }
     setUser(null)
-    setReports([])
-    setTasks([])
-    localStorage.removeItem("gurubox_auth")
+    setSession(null)
   }, [])
 
-  const runningTask = tasks.find((t) => t.status === "running") ?? null
+  const setLanguage = useCallback(async (language: string) => {
+    if (!user) return
 
-  const addReport = useCallback((report: Report) => {
-    setReports((prev) => [report, ...prev])
-  }, [])
+    const { error } = await supabase
+      .from('users')
+      .update({ language })
+      .eq('id', user.id)
 
-  const updateReport = useCallback((reportId: string, updates: Partial<Report>) => {
-    setReports((prev) =>
-      prev.map((r) => (r.id === reportId ? { ...r, ...updates } : r))
-    )
-  }, [])
+    if (error) {
+      console.error('Language update error:', error)
+      throw error
+    }
 
-  const addTask = useCallback((task: Task) => {
-    setTasks((prev) => [task, ...prev])
-  }, [])
-
-  const updateTask = useCallback((taskId: string, updates: Partial<Task>) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
-    )
-  }, [])
-
-  const deleteReport = useCallback((reportId: string) => {
-    setReports((prev) =>
-      prev.map((r) =>
-        r.id === reportId ? { ...r, is_deleted: true, status: "deleted" as const } : r
-      )
-    )
-  }, [])
-
-  const getReport = useCallback(
-    (reportId: string) => reports.find((r) => r.id === reportId),
-    [reports]
-  )
-
-  const getTask = useCallback(
-    (taskId: string) => tasks.find((t) => t.id === taskId),
-    [tasks]
-  )
+    setUser({ ...user, language: language as AppUser['language'] })
+  }, [user])
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        session,
         isLoggedIn: !!user,
+        loading,
         login,
         logout,
-        reports,
-        tasks,
-        runningTask,
-        addReport,
-        updateReport,
-        addTask,
-        updateTask,
-        deleteReport,
-        getReport,
-        getTask,
+        setLanguage,
       }}
     >
       {children}
