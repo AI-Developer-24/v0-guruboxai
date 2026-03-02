@@ -1,5 +1,3 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import {
   successResponse,
@@ -8,6 +6,7 @@ import {
   unauthorizedResponse,
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(
   request: Request,
@@ -15,22 +14,11 @@ export async function GET(
 ) {
   try {
     const user = await requireAuth()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookies().get(name)?.value
-          },
-        },
-      }
-    )
 
     const taskId = params.task_id
 
     // Get task with ownership check
-    const { data: task, error } = await supabase
+    const { data: task, error } = await supabaseAdmin
       .from('tasks')
       .select('*')
       .eq('id', taskId)
@@ -42,7 +30,7 @@ export async function GET(
     }
 
     // Get related report status
-    const { data: report } = await supabase
+    const { data: report } = await supabaseAdmin
       .from('reports')
       .select('status')
       .eq('id', task.report_id)

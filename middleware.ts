@@ -2,7 +2,11 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
+  const res = NextResponse.next({
+    request: {
+      headers: req.headers,
+    },
+  })
 
   // Create Supabase client for middleware
   const supabase = createServerClient(
@@ -10,22 +14,29 @@ export async function middleware(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return req.cookies.get(name)?.value
+        getAll() {
+          return req.cookies.getAll()
         },
-        set(name: string, value: string, options: any) {
-          res.cookies.set({ name, value, ...options })
-        },
-        remove(name: string, options: any) {
-          res.cookies.delete({ name, ...options })
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            res.cookies.set({ name, value, ...options })
+          })
         },
       },
     }
   )
 
+  // This will refresh the session if needed
   const {
     data: { session },
   } = await supabase.auth.getSession()
+
+  // Debug logging for API and analysis routes
+  if (req.nextUrl.pathname.includes('api') || req.nextUrl.pathname.includes('analysis')) {
+    console.log('[MIDDLEWARE] Path:', req.nextUrl.pathname)
+    console.log('[MIDDLEWARE] Session exists:', !!session, 'User:', session?.user?.id)
+    console.log('[MIDDLEWARE] Cookies:', req.cookies.getAll().map(c => c.name))
+  }
 
   const isAccountPage = req.nextUrl.pathname.startsWith('/account')
 

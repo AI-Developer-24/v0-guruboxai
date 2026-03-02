@@ -1,5 +1,3 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import {
   successResponse,
@@ -7,21 +5,11 @@ import {
   unauthorizedResponse,
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(request: Request) {
   try {
     const user = await requireAuth()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookies().get(name)?.value
-          },
-        },
-      }
-    )
 
     // Parse query parameters
     const { searchParams } = new URL(request.url)
@@ -34,7 +22,7 @@ export async function GET(request: Request) {
     const to = from + size - 1
 
     // Build query
-    let query = supabase
+    let query = supabaseAdmin
       .from('reports')
       .select('*', { count: 'exact' })
       .eq('user_id', user.id)
