@@ -19,23 +19,39 @@ export const supabase: SupabaseClient<Database> = createClient<Database>(supabas
 })
 
 // Server Supabase instance (using service role key, bypasses RLS)
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+// Lazy-loaded to avoid requiring service role key on client-side
+let _supabaseAdmin: SupabaseClient<Database> | null = null
 
-if (!serviceRoleKey) {
-  throw new Error(
-    'Missing Supabase service role key. Please set SUPABASE_SERVICE_ROLE_KEY in your .env.local file.'
-  )
-}
+export function getSupabaseAdmin(): SupabaseClient<Database> {
+  if (_supabaseAdmin) {
+    return _supabaseAdmin
+  }
 
-export const supabaseAdmin: SupabaseClient<Database> = createClient<Database>(
-  supabaseUrl,
-  serviceRoleKey,
-  {
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!serviceRoleKey) {
+    throw new Error(
+      'Missing Supabase service role key. Please set SUPABASE_SERVICE_ROLE_KEY in your .env.local file.'
+    )
+  }
+
+  _supabaseAdmin = createClient<Database>(supabaseUrl, serviceRoleKey, {
     auth: {
       persistSession: false,
     },
-  }
-)
+  })
+
+  return _supabaseAdmin
+}
+
+// Convenience export for backward compatibility (lazily initialized)
+export const supabaseAdmin: SupabaseClient<Database> = new Proxy({} as SupabaseClient<Database>, {
+  get(target, prop) {
+    const admin = getSupabaseAdmin()
+    const value = (admin as any)[prop]
+    return typeof value === 'function' ? value.bind(admin) : value
+  },
+})
 
 // Type exports
 export type { Database }
