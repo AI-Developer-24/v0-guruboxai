@@ -35,14 +35,13 @@ export class AnthropicProvider extends AIProvider {
     }
   }
 
-  *stream(messages: Message[], options: ChatOptions = {}): Generator<string> {
-    const stream = this.client.messages.create({
+  async *stream(messages: Message[], options: ChatOptions = {}): AsyncGenerator<string> {
+    const stream = await this.client.messages.stream({
       model: options.model || 'claude-3-opus-20240229',
       max_tokens: options.maxTokens || 4096,
       temperature: options.temperature ?? 0.7,
       messages: messages.filter(m => m.role !== 'system'),
       system: messages.find(m => m.role === 'system')?.content,
-      stream: true,
     })
 
     for await (const event of stream) {

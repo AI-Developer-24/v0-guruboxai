@@ -12,38 +12,69 @@ export interface AnalysisJobData {
   userId: string
 }
 
+console.log('[Worker] Initializing analysis worker...')
+
 export const analysisWorker = new Worker<AnalysisJobData>(
   'analysis-queue',
   async (job: Job<AnalysisJobData>) => {
     const { input, taskId, reportId, userId } = job.data
 
-    console.log(`Starting analysis job: ${taskId}`)
+    console.log(`[Worker] ========================================`)
+    console.log(`[Worker] Starting analysis job`)
+    console.log(`[Worker]   Task ID: ${taskId}`)
+    console.log(`[Worker]   Report ID: ${reportId}`)
+    console.log(`[Worker]   User ID: ${userId}`)
+    console.log(`[Worker]   Input: ${input.substring(0, 100)}...`)
+    console.log(`[Worker] ========================================`)
 
     try {
       // Mark task as running
-      await supabaseAdmin
+      console.log(`[Worker] Marking task as running...`)
+      const { error: updateError } = await supabaseAdmin
         .from('tasks')
         .update({ status: 'running', updated_at: new Date().toISOString() })
         .eq('id', taskId)
 
+      if (updateError) {
+        console.error(`[Worker] Failed to mark task as running:`, updateError)
+      } else {
+        console.log(`[Worker] Task marked as running`)
+      }
+
       // Execute AI analysis
+      console.log(`[Worker] Starting AI engine analysis...`)
       await aiEngine.analyze(input, taskId, reportId)
 
-      console.log(`Analysis job completed: ${taskId}`)
+      console.log(`[Worker] ========================================`)
+      console.log(`[Worker] Analysis job completed: ${taskId}`)
+      console.log(`[Worker] ========================================`)
     } catch (error) {
-      console.error(`Analysis job failed: ${taskId}`, error)
+      console.error(`[Worker] ========================================`)
+      console.error(`[Worker] Analysis job FAILED: ${taskId}`)
+      console.error(`[Worker] Error:`, error)
+      console.error(`[Worker] ========================================`)
 
       // Mark task as failed
-      await supabaseAdmin
+      console.log(`[Worker] Marking task as failed...`)
+      const { error: taskError } = await supabaseAdmin
         .from('tasks')
         .update({ status: 'failed', updated_at: new Date().toISOString() })
         .eq('id', taskId)
 
+      if (taskError) {
+        console.error(`[Worker] Failed to mark task as failed:`, taskError)
+      }
+
       // Mark report as failed
-      await supabaseAdmin
+      console.log(`[Worker] Marking report as failed...`)
+      const { error: reportError } = await supabaseAdmin
         .from('reports')
         .update({ status: 'failed' })
         .eq('id', reportId)
+
+      if (reportError) {
+        console.error(`[Worker] Failed to mark report as failed:`, reportError)
+      }
 
       throw error
     }
@@ -61,16 +92,26 @@ export const analysisWorker = new Worker<AnalysisJobData>(
 
 // Worker event listeners
 analysisWorker.on('completed', (job) => {
-  console.log(`Job completed: ${job.id}`)
+  console.log(`[Worker.Event] Job completed: ${job.id}`)
 })
 
 analysisWorker.on('failed', (job, err) => {
-  console.error(`Job failed: ${job?.id}`, err.message)
+  console.error(`[Worker.Event] Job failed: ${job?.id}`, err.message)
 })
 
 analysisWorker.on('error', (err) => {
-  console.error('Worker error:', err)
+  console.error('[Worker.Event] Worker error:', err)
 })
+
+analysisWorker.on('active', (job) => {
+  console.log(`[Worker.Event] Job started processing: ${job.id}`)
+})
+
+analysisWorker.on('stalled', (jobId) => {
+  console.warn(`[Worker.Event] Job stalled: ${jobId}`)
+})
+
+console.log('[Worker] Analysis worker initialized and ready')
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {

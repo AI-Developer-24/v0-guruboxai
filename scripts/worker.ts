@@ -4,7 +4,8 @@
  * Run this separately from the Next.js dev server to handle background jobs
  *
  * Usage:
- *   npx tsx scripts/worker.ts
+ *   npm run worker
+ *   or: npx tsx --env-file=.env.local scripts/worker.ts
  */
 
 import { analysisWorker } from '../lib/queue/worker'

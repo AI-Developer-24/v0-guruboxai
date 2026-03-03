@@ -39,8 +39,8 @@ export class DashScopeProvider extends AIProvider {
     }
   }
 
-  *stream(messages: Message[], options: ChatOptions = {}): Generator<string> {
-    const stream = this.client.chat.completions.create({
+  async *stream(messages: Message[], options: ChatOptions = {}): AsyncGenerator<string> {
+    const stream = await this.client.chat.completions.create({
       model: options.model || 'qwen-max',
       messages,
       temperature: options.temperature ?? 0.7,

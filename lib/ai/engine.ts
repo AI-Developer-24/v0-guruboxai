@@ -17,7 +17,11 @@ export class AIEngine {
     const cheapModel = process.env.CHEAP_MODEL || 'gpt-3.5-turbo'
     const premiumModel = process.env.PREMIUM_MODEL || defaultModel
 
+    console.log(`[AIEngine] Starting analysis for task: ${taskId}, report: ${reportId}`)
+    console.log(`[AIEngine] Models - default: ${defaultModel}, cheap: ${cheapModel}, premium: ${premiumModel}`)
+
     // Stage 1: Understanding
+    console.log(`[AIEngine] Stage 1/6: Understanding - START`)
     await this.updateTaskStage(taskId, 'understanding')
     const understanding = await this.callAI(
       PROMPTS.understanding(input),
@@ -26,8 +30,10 @@ export class AIEngine {
     )
     results.understanding = understanding
     await this.completeStage(taskId, 'understanding')
+    console.log(`[AIEngine] Stage 1/6: Understanding - COMPLETE`)
 
     // Stage 2: Analyzing
+    console.log(`[AIEngine] Stage 2/6: Analyzing - START`)
     await this.updateTaskStage(taskId, 'analyzing')
     const analysis = await this.callAI(
       PROMPTS.analyzing(JSON.stringify(understanding)),
@@ -36,8 +42,10 @@ export class AIEngine {
     )
     results.analysis = analysis
     await this.completeStage(taskId, 'analyzing')
+    console.log(`[AIEngine] Stage 2/6: Analyzing - COMPLETE`)
 
     // Stage 3: Scanning
+    console.log(`[AIEngine] Stage 3/6: Scanning - START`)
     await this.updateTaskStage(taskId, 'scanning')
     const signals = await this.callAI(
       PROMPTS.scanning(input),
@@ -46,12 +54,15 @@ export class AIEngine {
     )
     results.signals = signals
     await this.completeStage(taskId, 'scanning')
+    console.log(`[AIEngine] Stage 3/6: Scanning - COMPLETE`)
 
     // Stage 4: Generating (6 batches)
+    console.log(`[AIEngine] Stage 4/6: Generating - START`)
     await this.updateTaskStage(taskId, 'generating')
     const opportunities: any[] = []
 
     for (let batch = 1; batch <= 6; batch++) {
+      console.log(`[AIEngine] Stage 4/6: Generating batch ${batch}/6 - START`)
       const batchOpportunities = await this.callAI(
         PROMPTS.generating(batch, 6, input, JSON.stringify(signals)),
         { model: premiumModel, temperature: 0.8 },
@@ -65,11 +76,14 @@ export class AIEngine {
       }))
 
       opportunities.push(...indexed)
+      console.log(`[AIEngine] Stage 4/6: Generating batch ${batch}/6 - COMPLETE (${indexed.length} opportunities)`)
     }
     results.opportunities = opportunities
     await this.completeStage(taskId, 'generating')
+    console.log(`[AIEngine] Stage 4/6: Generating - COMPLETE (total: ${opportunities.length} opportunities)`)
 
     // Stage 5: Scoring
+    console.log(`[AIEngine] Stage 5/6: Scoring - START`)
     await this.updateTaskStage(taskId, 'scoring')
     const scored = await this.callAI(
       PROMPTS.scoring(opportunities),
@@ -78,8 +92,10 @@ export class AIEngine {
     )
     results.scored = scored
     await this.completeStage(taskId, 'scoring')
+    console.log(`[AIEngine] Stage 5/6: Scoring - COMPLETE`)
 
     // Stage 6: Finalizing
+    console.log(`[AIEngine] Stage 6/6: Finalizing - START`)
     await this.updateTaskStage(taskId, 'finalizing')
     const finalData = await this.callAI(
       PROMPTS.finalizing(scored, input),
@@ -89,7 +105,9 @@ export class AIEngine {
     results.finalizing = finalData
 
     // Save opportunities to database
+    console.log(`[AIEngine] Saving ${scored.length} opportunities to database...`)
     await this.saveOpportunities(reportId, scored)
+    console.log(`[AIEngine] Opportunities saved successfully`)
 
     // Update report
     const analysisTime = Math.floor((Date.now() - startTime) / 1000)
@@ -98,6 +116,7 @@ export class AIEngine {
     const premiumCount = scored.filter((o: any) => o.final_score > 80).length
     const premiumRatio = premiumCount / scored.length
 
+    console.log(`[AIEngine] Updating report status to completed...`)
     await supabaseAdmin
       .from('reports')
       .update({
@@ -109,13 +128,16 @@ export class AIEngine {
       .eq('id', reportId)
 
     // Update task status
+    console.log(`[AIEngine] Updating task status to completed...`)
     await supabaseAdmin
       .from('tasks')
       .update({ status: 'completed', updated_at: new Date().toISOString() })
       .eq('id', taskId)
 
     await this.completeStage(taskId, 'finalizing')
+    console.log(`[AIEngine] Stage 6/6: Finalizing - COMPLETE`)
 
+    console.log(`[AIEngine] Analysis completed for task: ${taskId}, total time: ${analysisTime}s`)
     return results
   }
 
@@ -130,6 +152,8 @@ export class AIEngine {
     const model = options.model || 'gpt-4'
     const provider = getProviderForModel(model)
 
+    console.log(`[AIEngine.callAI] Calling model: ${model}, temperature: ${options.temperature ?? 0.7}`)
+
     const messages: Message[] = [
       { role: 'system', content: 'You are a helpful AI assistant. Always respond with valid JSON.' },
       { role: 'user', content: prompt },
@@ -141,6 +165,8 @@ export class AIEngine {
       maxTokens: 4096,
     })
 
+    console.log(`[AIEngine.callAI] Response received, length: ${response.content.length} chars`)
+
     // Parse JSON
     let jsonContent: any
     try {
@@ -150,17 +176,20 @@ export class AIEngine {
                        [null, response.content]
 
       jsonContent = JSON.parse(jsonMatch[1] || response.content)
+      console.log(`[AIEngine.callAI] JSON parsed successfully`)
     } catch (error) {
-      console.error('Failed to parse AI response:', response.content)
+      console.error('[AIEngine.callAI] Failed to parse AI response:', response.content.substring(0, 500))
       throw new Error('Invalid AI response format')
     }
 
     // Validate schema
     try {
-      return schema.parse(jsonContent)
+      const validated = schema.parse(jsonContent)
+      console.log(`[AIEngine.callAI] Schema validation passed`)
+      return validated
     } catch (error) {
-      console.error('Validation error:', error)
-      console.error('Invalid data:', jsonContent)
+      console.error('[AIEngine.callAI] Validation error:', error)
+      console.error('[AIEngine.callAI] Invalid data:', JSON.stringify(jsonContent).substring(0, 500))
       throw new Error('AI response validation failed')
     }
   }
@@ -169,34 +198,52 @@ export class AIEngine {
    * Update task current stage
    */
   private async updateTaskStage(taskId: string, stage: string) {
-    await supabaseAdmin
+    console.log(`[AIEngine.updateTaskStage] Updating task ${taskId} to stage: ${stage}`)
+    const { error } = await supabaseAdmin
       .from('tasks')
       .update({
         current_stage: stage,
         updated_at: new Date().toISOString(),
       })
       .eq('id', taskId)
+
+    if (error) {
+      console.error(`[AIEngine.updateTaskStage] Failed to update stage:`, error)
+    } else {
+      console.log(`[AIEngine.updateTaskStage] Stage updated successfully: ${stage}`)
+    }
   }
 
   /**
    * Mark stage as completed
    */
   private async completeStage(taskId: string, stage: string) {
-    const { data: task } = await supabaseAdmin
+    console.log(`[AIEngine.completeStage] Marking stage as completed: ${stage}`)
+    const { data: task, error: fetchError } = await supabaseAdmin
       .from('tasks')
       .select('stages_completed')
       .eq('id', taskId)
       .maybeSingle()
 
+    if (fetchError) {
+      console.error(`[AIEngine.completeStage] Failed to fetch task:`, fetchError)
+    }
+
     const stagesCompleted = [...(task?.stages_completed || []), stage]
 
-    await supabaseAdmin
+    const { error } = await supabaseAdmin
       .from('tasks')
       .update({
         stages_completed: stagesCompleted,
         updated_at: new Date().toISOString(),
       })
       .eq('id', taskId)
+
+    if (error) {
+      console.error(`[AIEngine.completeStage] Failed to update stages_completed:`, error)
+    } else {
+      console.log(`[AIEngine.completeStage] Stage completed: ${stage}, all completed: [${stagesCompleted.join(', ')}]`)
+    }
   }
 
   /**

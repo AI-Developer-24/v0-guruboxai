@@ -38,8 +38,8 @@ export abstract class AIProvider {
   /**
    * Streaming chat completion (for real-time output)
    */
-  abstract *stream(
+  abstract stream(
     messages: Message[],
     options?: ChatOptions
-  ): Generator<string, void, unknown>
+  ): AsyncGenerator<string, void, unknown>
 }

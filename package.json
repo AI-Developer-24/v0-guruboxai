@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "worker": "tsx scripts/worker.ts"
+    "worker": "tsx --env-file=.env.local scripts/worker.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

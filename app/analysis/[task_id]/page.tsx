@@ -49,10 +49,18 @@ export default function AnalysisPage() {
     if (!user || hasStartedPolling.current) return
 
     hasStartedPolling.current = true
+    console.log(`[AnalysisPage] Starting polling for task: ${taskId}`)
 
     const pollTaskStatus = async () => {
+      console.log(`[AnalysisPage] Polling task status: ${taskId}`)
       try {
         const data = await api.get<TaskStatusResponse>(`/tasks/${taskId}`)
+        console.log(`[AnalysisPage] Task status response:`, {
+          status: data.status,
+          current_stage: data.current_stage,
+          stages_completed: data.stages_completed,
+          report_status: data.report_status,
+        })
 
         // Update completed stages
         const apiCompletedStages = data.stages_completed || []
@@ -71,6 +79,7 @@ export default function AnalysisPage() {
 
         // Check if task is complete
         if (data.status === 'completed' && data.report_status === 'completed') {
+          console.log(`[AnalysisPage] Task completed! Redirecting to report...`)
           setIsComplete(true)
           if (pollIntervalRef.current) {
             clearInterval(pollIntervalRef.current)
@@ -86,6 +95,7 @@ export default function AnalysisPage() {
 
         // Check if task failed
         if (data.status === 'failed' || data.report_status === 'failed') {
+          console.error(`[AnalysisPage] Task failed!`)
           setHasError(true)
           setErrorMessage(t("analysis_failed") || "Analysis failed. Please try again.")
           if (pollIntervalRef.current) {
@@ -93,6 +103,7 @@ export default function AnalysisPage() {
           }
         }
       } catch (error) {
+        console.error(`[AnalysisPage] Poll error:`, error)
         if (error instanceof ApiError) {
           if (error.status === 404) {
             setHasError(true)
@@ -101,19 +112,22 @@ export default function AnalysisPage() {
             setHasError(true)
             setErrorMessage(t("error_unauthorized") || "Please sign in to view this analysis.")
           } else {
-            console.error('Poll error:', error)
+            console.error('[AnalysisPage] Poll error:', error)
           }
         }
       }
     }
 
     // Initial poll
+    console.log(`[AnalysisPage] Performing initial poll...`)
     pollTaskStatus()
 
     // Set up polling interval (every 2 seconds)
+    console.log(`[AnalysisPage] Setting up polling interval (2s)`)
     pollIntervalRef.current = setInterval(pollTaskStatus, 2000)
 
     return () => {
+      console.log(`[AnalysisPage] Cleaning up polling`)
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current)
       }
