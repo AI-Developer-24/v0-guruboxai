@@ -58,7 +58,7 @@ export function getDefaultProvider() {
     })
   }
 
-  if (defaultModel.startsWith('qwen-')) {
+  if (defaultModel.startsWith('qwen')) {
     const apiKey = process.env.DASHSCOPE_API_KEY
     if (!apiKey) {
       throw new Error('DASHSCOPE_API_KEY not set')
@@ -76,6 +76,10 @@ export function getDefaultProvider() {
 
 // Get provider for specific model name
 export function getProviderForModel(model: string) {
+  if (!model) {
+    throw new Error('Model name is required')
+  }
+
   if (model.startsWith('gpt-')) {
     const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
@@ -92,7 +96,7 @@ export function getProviderForModel(model: string) {
     return createProvider({ type: 'anthropic', apiKey, model })
   }
 
-  if (model.startsWith('qwen-')) {
+  if (model.startsWith('qwen')) {
     const apiKey = process.env.DASHSCOPE_API_KEY
     if (!apiKey) {
       throw new Error('DASHSCOPE_API_KEY not set')

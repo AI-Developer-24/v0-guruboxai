@@ -13,9 +13,9 @@ export class AIEngine {
     const results: Record<string, any> = {}
 
     // Get default model from env, with fallbacks
-    const defaultModel = process.env.DEFAULT_MODEL || 'gpt-4'
-    const cheapModel = process.env.CHEAP_MODEL || 'gpt-3.5-turbo'
-    const premiumModel = process.env.PREMIUM_MODEL || defaultModel
+    const defaultModel = process.env.DEFAULT_MODEL
+    const cheapModel = process.env.CHEAP_MODEL
+    const premiumModel = process.env.PREMIUM_MODEL
 
     console.log(`[AIEngine] Starting analysis for task: ${taskId}, report: ${reportId}`)
     console.log(`[AIEngine] Models - default: ${defaultModel}, cheap: ${cheapModel}, premium: ${premiumModel}`)
@@ -149,7 +149,10 @@ export class AIEngine {
     options: { model?: string; temperature?: number },
     schema: z.ZodSchema<T>
   ): Promise<T> {
-    const model = options.model || 'gpt-4'
+    const model = options.model || process.env.DEFAULT_MODEL || 'qwen3-max'
+    if (!model) {
+      throw new Error('No model specified and DEFAULT_MODEL not set')
+    }
     const provider = getProviderForModel(model)
 
     console.log(`[AIEngine.callAI] Calling model: ${model}, temperature: ${options.temperature ?? 0.7}`)
@@ -198,52 +201,34 @@ export class AIEngine {
    * Update task current stage
    */
   private async updateTaskStage(taskId: string, stage: string) {
-    console.log(`[AIEngine.updateTaskStage] Updating task ${taskId} to stage: ${stage}`)
-    const { error } = await supabaseAdmin
+    await supabaseAdmin
       .from('tasks')
       .update({
         current_stage: stage,
         updated_at: new Date().toISOString(),
       })
       .eq('id', taskId)
-
-    if (error) {
-      console.error(`[AIEngine.updateTaskStage] Failed to update stage:`, error)
-    } else {
-      console.log(`[AIEngine.updateTaskStage] Stage updated successfully: ${stage}`)
-    }
   }
 
   /**
    * Mark stage as completed
    */
   private async completeStage(taskId: string, stage: string) {
-    console.log(`[AIEngine.completeStage] Marking stage as completed: ${stage}`)
-    const { data: task, error: fetchError } = await supabaseAdmin
+    const { data: task } = await supabaseAdmin
       .from('tasks')
       .select('stages_completed')
       .eq('id', taskId)
       .maybeSingle()
 
-    if (fetchError) {
-      console.error(`[AIEngine.completeStage] Failed to fetch task:`, fetchError)
-    }
-
     const stagesCompleted = [...(task?.stages_completed || []), stage]
 
-    const { error } = await supabaseAdmin
+    await supabaseAdmin
       .from('tasks')
       .update({
         stages_completed: stagesCompleted,
         updated_at: new Date().toISOString(),
       })
       .eq('id', taskId)
-
-    if (error) {
-      console.error(`[AIEngine.completeStage] Failed to update stages_completed:`, error)
-    } else {
-      console.log(`[AIEngine.completeStage] Stage completed: ${stage}, all completed: [${stagesCompleted.join(', ')}]`)
-    }
   }
 
   /**

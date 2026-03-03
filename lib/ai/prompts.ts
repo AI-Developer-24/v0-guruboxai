@@ -126,7 +126,7 @@ Based on the signal analysis:
 ${signals}
 
 Requirements:
-1. Generate 50 UNIQUE AI Native Mobile-First product opportunities
+1. Generate 5 UNIQUE AI Native Mobile-First product opportunities
 2. Each opportunity must have 3+ signal source cross-validation
 3. Each must be:
    - Mobile-first design
