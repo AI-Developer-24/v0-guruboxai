@@ -63,8 +63,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false)
     })
 
+    // Listen for popup auth success message
+    const handlePopupMessage = async (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return
+      if (event.data?.type === 'GOOGLE_AUTH_SUCCESS') {
+        console.log('[AuthProvider] Received popup auth success message')
+        // Refresh session to get the new auth state
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          setSession(session)
+          await loadUser(session.user.id)
+        }
+      }
+    }
+
+    window.addEventListener('message', handlePopupMessage)
+
     return () => {
       subscription.unsubscribe()
+      window.removeEventListener('message', handlePopupMessage)
     }
   }, [])
 
@@ -101,10 +118,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const login = useCallback(async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        skipBrowserRedirect: true,
+        redirectTo: `${window.location.origin}/auth/callback?popup=true`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
@@ -115,6 +133,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) {
       console.error('Sign in error:', error)
       throw error
+    }
+
+    if (data.url) {
+      // Open OAuth in a popup window
+      const width = 500
+      const height = 600
+      const left = window.screenX + (window.outerWidth - width) / 2
+      const top = window.screenY + (window.outerHeight - height) / 2
+
+      window.open(
+        data.url,
+        'google-auth',
+        `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,resizable=yes,scrollbars=yes`
+      )
     }
   }, [])
 

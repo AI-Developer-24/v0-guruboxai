@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowRight, Loader2 } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
@@ -17,38 +17,37 @@ export function InputSection() {
   const [showLogin, setShowLogin] = useState(false)
   const [pendingStart, setPendingStart] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { user, session, loading: authLoading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const { t } = useI18n()
   const router = useRouter()
 
-  const handleStartAnalysis = useCallback(async () => {
-    console.log('[InputSection] handleStartAnalysis called', {
-      hasInput: !!input.trim(),
-      hasUser: !!user,
-      userId: user?.id,
-      authLoading,
-    })
+  // Use ref to track previous user state and avoid stale closures
+  const prevUserRef = useRef<typeof user>(null)
+  const inputRef = useRef(input)
+  const pendingStartRef = useRef(pendingStart)
 
-    if (!input.trim()) return
+  // Keep refs in sync
+  useEffect(() => {
+    inputRef.current = input
+  }, [input])
 
-    if (!user) {
-      console.log('[InputSection] No user, showing login dialog')
-      setPendingStart(true)
-      setShowLogin(true)
-      return
-    }
+  useEffect(() => {
+    pendingStartRef.current = pendingStart
+  }, [pendingStart])
 
+  // Function to start analysis (doesn't depend on user directly)
+  const startAnalysis = useCallback(async (inputText: string, userId: string) => {
     setLoading(true)
 
     try {
       console.log('[InputSection] Starting analysis request', {
-        input_text: input,
-        userId: user.id,
+        input_text: inputText,
+        userId,
       })
 
       const response = await api.post<{ task_id: string; report_id: string }>(
         '/tools/product-insight/tasks',
-        { input_text: input }
+        { input_text: inputText }
       )
 
       console.log('[InputSection] Analysis started successfully', response)
@@ -84,19 +83,47 @@ export function InputSection() {
     } finally {
       setLoading(false)
     }
-  }, [input, user, router, t, authLoading])
+  }, [router, t])
+
+  // Continue analysis after successful login
+  useEffect(() => {
+    // Only trigger when user changes from null to a valid user
+    if (prevUserRef.current === null && user && pendingStartRef.current) {
+      console.log('[InputSection] User logged in, continuing with pending analysis')
+      setPendingStart(false)
+      // Small delay to ensure auth state is fully propagated
+      setTimeout(() => {
+        const currentInput = inputRef.current
+        if (currentInput.trim()) {
+          startAnalysis(currentInput, user.id)
+        }
+      }, 100)
+    }
+    prevUserRef.current = user
+  }, [user, startAnalysis])
+
+  const handleStartAnalysis = useCallback(async () => {
+    console.log('[InputSection] handleStartAnalysis called', {
+      hasInput: !!input.trim(),
+      hasUser: !!user,
+      userId: user?.id,
+      authLoading,
+    })
+
+    if (!input.trim()) return
+
+    if (!user) {
+      console.log('[InputSection] No user, showing login dialog')
+      setPendingStart(true)
+      setShowLogin(true)
+      return
+    }
+
+    await startAnalysis(input, user.id)
+  }, [input, user, authLoading, startAnalysis])
 
   const handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion)
-  }
-
-  const handleLoginSuccess = () => {
-    if (pendingStart) {
-      setPendingStart(false)
-      setTimeout(() => {
-        handleStartAnalysis()
-      }, 100)
-    }
   }
 
   return (
@@ -161,7 +188,6 @@ export function InputSection() {
       <LoginDialog
         open={showLogin}
         onOpenChange={setShowLogin}
-        onLoginSuccess={handleLoginSuccess}
       />
     </div>
   )

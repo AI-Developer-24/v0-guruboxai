@@ -7,15 +7,19 @@ export async function GET(request: NextRequest) {
 
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
+  const isPopup = requestUrl.searchParams.get('popup') === 'true'
   const next = requestUrl.searchParams.get('next') || '/tools/product-insight'
 
-  console.log('[Auth Callback] Params', { code: !!code, next })
+  console.log('[Auth Callback] Params', { code: !!code, next, isPopup })
 
   if (code) {
     console.log('[Auth Callback] Creating response and server client...')
 
+    // Determine redirect target based on popup mode
+    const redirectTarget = isPopup ? '/auth/popup-success' : next
+
     // Create response FIRST
-    const response = NextResponse.redirect(new URL(next, requestUrl.origin))
+    const response = NextResponse.redirect(new URL(redirectTarget, requestUrl.origin))
 
     // Create Supabase client for server-side
     // IMPORTANT: set/remove cookies on RESPONSE, not request
@@ -89,7 +93,7 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('[Auth Callback] Response cookies:', response.cookies.getAll())
-    console.log('[Auth Callback] Redirecting to:', next)
+    console.log('[Auth Callback] Redirecting to:', redirectTarget)
 
     return response
   }

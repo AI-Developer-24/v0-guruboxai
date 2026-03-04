@@ -1,10 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { User, LogOut } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useI18n } from "@/components/i18n/i18n-provider"
+import { LoginDialog } from "@/components/auth/login-dialog"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -22,7 +24,8 @@ import { SUPPORTED_LANGUAGES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 
 export function Navbar() {
-  const { user, isLoggedIn, login, logout, loading, setLanguage } = useAuth()
+  const [showLogin, setShowLogin] = useState(false)
+  const { user, isLoggedIn, logout, loading, setLanguage } = useAuth()
   const { t, locale, setLocale } = useI18n()
 
   const handleLanguageChange = async (langCode: string) => {
@@ -121,7 +124,7 @@ export function Navbar() {
             <Button
               variant="default"
               size="sm"
-              onClick={login}
+              onClick={() => setShowLogin(true)}
               className="btn-glow"
             >
               {t("nav_login")}
@@ -129,6 +132,8 @@ export function Navbar() {
           )}
         </div>
       </nav>
+
+      <LoginDialog open={showLogin} onOpenChange={setShowLogin} />
     </header>
   )
 }
