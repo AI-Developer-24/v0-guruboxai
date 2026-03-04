@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Loader2 } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useI18n } from "@/components/i18n/i18n-provider"
@@ -21,8 +21,15 @@ export function LanguageSwitch() {
   const { t, locale, setLocale: setI18nLocale } = useI18n()
   const [loading, setLoading] = useState(false)
 
-  // Get user language or fallback to current i18n locale
-  const currentLanguage = user?.language || locale
+  // Sync user's language preference from database to i18n state on mount
+  useEffect(() => {
+    if (user?.language && user.language !== locale) {
+      setI18nLocale(user.language)
+    }
+  }, [user?.language, locale, setI18nLocale])
+
+  // Use i18n locale as the source of truth for current language
+  const currentLanguage = locale
 
   async function handleLanguageChange(code: string) {
     const newLocale = code as Language
