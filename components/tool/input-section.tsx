@@ -88,7 +88,6 @@ export function InputSection() {
 
   const handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion)
-    setTimeout(() => handleStartAnalysis(), 100)
   }
 
   const handleLoginSuccess = () => {
