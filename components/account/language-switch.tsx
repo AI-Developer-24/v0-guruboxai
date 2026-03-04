@@ -12,12 +12,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { SUPPORTED_LANGUAGES } from "@/lib/constants"
-import { api, ApiError } from "@/lib/api/client"
 import { toast } from "sonner"
 import type { Language } from "@/lib/types"
 
 export function LanguageSwitch() {
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, setLanguage } = useAuth()
   const { t, locale, setLocale: setI18nLocale } = useI18n()
   const [loading, setLoading] = useState(false)
 
@@ -37,9 +36,9 @@ export function LanguageSwitch() {
 
     setLoading(true)
     try {
-      // Update user language in database if logged in
+      // Update user language in database and local state
       if (user) {
-        await api.put('/users/language', { language: newLocale })
+        await setLanguage(newLocale)
       }
 
       // Update local i18n state
@@ -47,11 +46,7 @@ export function LanguageSwitch() {
 
       toast.success(t("language_updated") || "Language updated")
     } catch (error) {
-      if (error instanceof ApiError) {
-        toast.error(error.message || t("error_language_update") || "Failed to update language")
-      } else {
-        toast.error(t("error_language_update") || "Failed to update language")
-      }
+      toast.error(t("error_language_update") || "Failed to update language")
     } finally {
       setLoading(false)
     }

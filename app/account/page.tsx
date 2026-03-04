@@ -9,16 +9,19 @@ import { LanguageSwitch } from "@/components/account/language-switch"
 import { HistoryTable } from "@/components/account/history-table"
 
 export default function AccountPage() {
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, loading } = useAuth()
   const { t } = useI18n()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    // Only redirect after auth loading is complete and user is not logged in
+    if (!loading && !isLoggedIn) {
       router.push("/tools/product-insight")
     }
-  }, [isLoggedIn, router])
+  }, [isLoggedIn, loading, router])
 
+  // Wait for auth to load before making any decision
+  if (loading) return null
   if (!isLoggedIn) return null
 
   return (
