@@ -109,6 +109,12 @@ type TranslationKeys = {
   footer_privacy: string
   footer_terms: string
   footer_copyright: string
+  // Google OAuth
+  google_auth_success: string
+  google_auth_failed: string
+  popup_blocked: string
+  oauth_init_failed: string
+  waiting_for_google_auth: string
 }
 
 const en: TranslationKeys = {
@@ -209,6 +215,11 @@ const en: TranslationKeys = {
   footer_privacy: "Privacy Policy",
   footer_terms: "Terms of Service",
   footer_copyright: "GuruBox.ai. All rights reserved.",
+  google_auth_success: "Google authorization successful!",
+  google_auth_failed: "Google authorization failed. Please try again.",
+  popup_blocked: "Popup blocked. Please allow popups for this site.",
+  oauth_init_failed: "Failed to initiate Google authorization.",
+  waiting_for_google_auth: "Waiting for Google authorization...",
 }
 
 const zh: TranslationKeys = {
@@ -309,6 +320,11 @@ const zh: TranslationKeys = {
   footer_privacy: "隐私政策",
   footer_terms: "服务条款",
   footer_copyright: "GuruBox.ai. 保留所有权利。",
+  google_auth_success: "Google 授权成功！",
+  google_auth_failed: "Google 授权失败，请重试。",
+  popup_blocked: "弹窗被阻止，请允许此网站的弹窗。",
+  oauth_init_failed: "无法启动 Google 授权。",
+  waiting_for_google_auth: "等待 Google 授权...",
 }
 
 const de: TranslationKeys = {
@@ -409,6 +425,11 @@ const de: TranslationKeys = {
   footer_privacy: "Datenschutzrichtlinie",
   footer_terms: "Nutzungsbedingungen",
   footer_copyright: "GuruBox.ai. Alle Rechte vorbehalten.",
+  google_auth_success: "Google-Autorisierung erfolgreich!",
+  google_auth_failed: "Google-Autorisierung fehlgeschlagen.",
+  popup_blocked: "Popup blockiert. Please allow popups for this site.",
+  oauth_init_failed: "Failed to initiate Google authorization.",
+  waiting_for_google_auth: "Waiting for Google authorization...",
 }
 
 const fr: TranslationKeys = {
@@ -509,6 +530,11 @@ const fr: TranslationKeys = {
   footer_privacy: "Politique de confidentialite",
   footer_terms: "Conditions d'utilisation",
   footer_copyright: "GuruBox.ai. Tous droits reserves.",
+  google_auth_success: "Autorisation Google reussie !",
+  google_auth_failed: "Autorisation Google echouee. Veuillez reessayer.",
+  popup_blocked: "Popup bloque. Veuillez autoriser les popups pour ce site.",
+  oauth_init_failed: "Echec de l'initialisation de l'autorisation Google.",
+  waiting_for_google_auth: "En attente de l'autorisation Google...",
 }
 
 const it: TranslationKeys = {
@@ -609,6 +635,11 @@ const it: TranslationKeys = {
   footer_privacy: "Informativa sulla privacy",
   footer_terms: "Termini di servizio",
   footer_copyright: "GuruBox.ai. Tutti i diritti riservati.",
+  google_auth_success: "Autorizzazione Google riuscita!",
+  google_auth_failed: "Autorizzazione Google fallita. Riprova.",
+  popup_blocked: "Popup bloccato. Si prega di consentire i popup per questo sito.",
+  oauth_init_failed: "Impossibile avviare l'autorizzazione Google.",
+  waiting_for_google_auth: "In attesa dell'autorizzazione Google...",
 }
 
 const es: TranslationKeys = {
@@ -709,6 +740,11 @@ const es: TranslationKeys = {
   footer_privacy: "Politica de privacidad",
   footer_terms: "Terminos de servicio",
   footer_copyright: "GuruBox.ai. Todos los derechos reservados.",
+  google_auth_success: "Autorizacion de Google exitosa!",
+  google_auth_failed: "Autorizacion de Google fallida. Intente de nuevo.",
+  popup_blocked: "Popup bloqueado. Permita los popups para este sitio.",
+  oauth_init_failed: "Error al iniciar la autorizacion de Google.",
+  waiting_for_google_auth: "Esperando autorizacion de Google...",
 }
 
 const pt: TranslationKeys = {
@@ -809,6 +845,11 @@ const pt: TranslationKeys = {
   footer_privacy: "Politica de Privacidade",
   footer_terms: "Termos de Servico",
   footer_copyright: "GuruBox.ai. Todos os direitos reservados.",
+  google_auth_success: "Autorizacao do Google bem-sucedida!",
+  google_auth_failed: "Autorizacao do Google falhou. Tente novamente.",
+  popup_blocked: "Popup bloqueado. Permita os popups para este site.",
+  oauth_init_failed: "Falha ao iniciar autorizacao do Google.",
+  waiting_for_google_auth: "Aguardando autorizacao do Google...",
 }
 
 export const translations: Record<Language, TranslationKeys> = {

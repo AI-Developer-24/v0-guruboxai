@@ -82,6 +82,7 @@ export const ErrorCodeSchema = z.enum([
   'CONCURRENT_TASK_LIMIT',
   'INTERNAL_ERROR',
   'NOT_IMPLEMENTED',
+  'GOOGLE_AUTH_REQUIRED',
 ])
 
 export type ErrorCode = z.infer<typeof ErrorCodeSchema>

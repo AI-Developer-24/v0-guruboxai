@@ -64,3 +64,16 @@ export function internalErrorResponse(message = 'Internal server error'): NextRe
 export function notImplementedResponse(message = 'Feature not yet implemented'): NextResponse<ApiResponse> {
   return errorResponse('NOT_IMPLEMENTED', message, 501)
 }
+
+export function googleAuthRequiredResponse(authUrl: string): NextResponse<ApiResponse<{ auth_url: string }>> {
+  return NextResponse.json(
+    {
+      error: {
+        code: 'GOOGLE_AUTH_REQUIRED',
+        message: 'Google authorization required',
+      },
+      data: { auth_url: authUrl },
+    },
+    { status: 401 }
+  )
+}

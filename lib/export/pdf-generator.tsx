@@ -1,0 +1,407 @@
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  Font,
+  pdf,
+} from '@react-pdf/renderer'
+import { getSupabaseAdmin } from '../supabase'
+import type { Database } from '../supabase-types'
+
+type Report = Database['public']['Tables']['reports']['Row']
+type Opportunity = Database['public']['Tables']['opportunities']['Row']
+
+// Register Inter font for professional appearance
+Font.register({
+  family: 'Inter',
+  fonts: [
+    {
+      src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff',
+      fontWeight: 400,
+    },
+    {
+      src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hjp-Ek-_EeA.woff',
+      fontWeight: 600,
+    },
+  ],
+})
+
+const styles = StyleSheet.create({
+  page: {
+    padding: 40,
+    fontFamily: 'Inter',
+    fontSize: 10,
+    lineHeight: 1.5,
+  },
+  header: {
+    marginBottom: 30,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 600,
+    marginBottom: 8,
+    color: '#1f2937',
+  },
+  subtitle: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: 600,
+    marginBottom: 12,
+    color: '#1f2937',
+  },
+  summaryText: {
+    fontSize: 11,
+    lineHeight: 1.7,
+    color: '#374151',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 24,
+  },
+  statCard: {
+    width: '30%',
+    padding: 12,
+    marginRight: '3%',
+    marginBottom: 12,
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
+  },
+  statLabel: {
+    fontSize: 9,
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: 600,
+    color: '#1f2937',
+  },
+  opportunityCard: {
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  opportunityHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  opportunityName: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: '#1f2937',
+    flex: 1,
+  },
+  premiumBadge: {
+    backgroundColor: '#fef3c7',
+    color: '#92400e',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    fontSize: 8,
+    fontWeight: 600,
+  },
+  opportunityCategory: {
+    fontSize: 8,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  fieldLabel: {
+    fontSize: 9,
+    fontWeight: 600,
+    color: '#6b7280',
+    marginBottom: 2,
+  },
+  fieldValue: {
+    fontSize: 9,
+    color: '#374151',
+    marginBottom: 6,
+  },
+  scoresRow: {
+    flexDirection: 'row',
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+  },
+  scoreItem: {
+    flex: 1,
+  },
+  scoreLabel: {
+    fontSize: 8,
+    color: '#6b7280',
+  },
+  scoreValue: {
+    fontSize: 10,
+    fontWeight: 600,
+    color: '#1f2937',
+  },
+  scoreValuePremium: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: '#92400e',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 40,
+    right: 40,
+    textAlign: 'center',
+    fontSize: 8,
+    color: '#9ca3af',
+  },
+})
+
+interface ReportDocumentProps {
+  report: Report
+  opportunities: Opportunity[]
+}
+
+/**
+ * Cover page with summary
+ */
+function CoverPage({ report }: { report: Report }) {
+  const premiumCount = Math.round(report.premium_ratio * report.total_opportunities)
+  const analysisMinutes = Math.round(report.analysis_time_sec / 60)
+
+  return (
+    <Page size="A4" style={styles.page}>
+      <View style={styles.header}>
+        <Text style={styles.title}>AI Product Insight Report</Text>
+        <Text style={styles.subtitle}>
+          {new Date(report.created_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Analysis Direction</Text>
+        <Text style={styles.summaryText}>{report.input_text}</Text>
+      </View>
+
+      <View style={styles.statsGrid}>
+        <View style={styles.statCard}>
+          <Text style={styles.statLabel}>Total Opportunities</Text>
+          <Text style={styles.statValue}>{report.total_opportunities}</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statLabel}>Premium Opportunities</Text>
+          <Text style={styles.statValue}>{premiumCount}</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statLabel}>Analysis Time</Text>
+          <Text style={styles.statValue}>{analysisMinutes}m</Text>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Executive Summary</Text>
+        <Text style={styles.summaryText}>{report.summary_text}</Text>
+      </View>
+
+      <Text style={styles.footer}>Generated by GuruBox.ai</Text>
+    </Page>
+  )
+}
+
+/**
+ * Opportunities list page
+ */
+function OpportunitiesPage({
+  opportunities,
+  pageNumber,
+  totalPages,
+}: {
+  opportunities: Opportunity[]
+  pageNumber: number
+  totalPages: number
+}) {
+  return (
+    <Page size="A4" style={styles.page}>
+      <View style={styles.header}>
+        <Text style={{ fontSize: 14, fontWeight: 600, color: '#1f2937' }}>
+          Opportunities
+        </Text>
+        <Text style={styles.subtitle}>Page {pageNumber}</Text>
+      </View>
+
+      {opportunities.map((opportunity) => (
+        <View key={opportunity.id} style={styles.opportunityCard}>
+          <View style={styles.opportunityHeader}>
+            <Text style={styles.opportunityName}>
+              {opportunity.index_number}. {opportunity.name}
+            </Text>
+            {opportunity.final_score >= 80 && (
+              <View style={styles.premiumBadge}>
+                <Text>PREMIUM</Text>
+              </View>
+            )}
+          </View>
+          {opportunity.category && (
+            <Text style={styles.opportunityCategory}>{opportunity.category}</Text>
+          )}
+
+          {opportunity.core_users && (
+            <View>
+              <Text style={styles.fieldLabel}>Core Users</Text>
+              <Text style={styles.fieldValue}>{opportunity.core_users}</Text>
+            </View>
+          )}
+
+          {opportunity.pain_points && (
+            <View>
+              <Text style={styles.fieldLabel}>Pain Points</Text>
+              <Text style={styles.fieldValue}>{opportunity.pain_points}</Text>
+            </View>
+          )}
+
+          {opportunity.ai_solution && (
+            <View>
+              <Text style={styles.fieldLabel}>AI Solution</Text>
+              <Text style={styles.fieldValue}>{opportunity.ai_solution}</Text>
+            </View>
+          )}
+
+          {opportunity.inspiration_source && (
+            <View>
+              <Text style={styles.fieldLabel}>Inspiration</Text>
+              <Text style={styles.fieldValue}>{opportunity.inspiration_source}</Text>
+            </View>
+          )}
+
+          <View style={styles.scoresRow}>
+            <View style={styles.scoreItem}>
+              <Text style={styles.scoreLabel}>Monetization</Text>
+              <Text style={styles.scoreValue}>{opportunity.monetization_score}</Text>
+            </View>
+            <View style={styles.scoreItem}>
+              <Text style={styles.scoreLabel}>Market Size</Text>
+              <Text style={styles.scoreValue}>{opportunity.industry_size_score}</Text>
+            </View>
+            <View style={styles.scoreItem}>
+              <Text style={styles.scoreLabel}>Competition</Text>
+              <Text style={styles.scoreValue}>{opportunity.competition_score}</Text>
+            </View>
+            <View style={styles.scoreItem}>
+              <Text style={styles.scoreLabel}>MVP Diff</Text>
+              <Text style={styles.scoreValue}>{opportunity.mvp_difficulty_score}</Text>
+            </View>
+            <View style={styles.scoreItem}>
+              <Text style={styles.scoreLabel}>Final</Text>
+              <Text
+                style={
+                  opportunity.final_score >= 80
+                    ? styles.scoreValuePremium
+                    : styles.scoreValue
+                }
+              >
+                {opportunity.final_score}
+              </Text>
+            </View>
+          </View>
+        </View>
+      ))}
+
+      <Text style={styles.footer}>
+        Page {pageNumber} of {totalPages} | Generated by GuruBox.ai
+      </Text>
+    </Page>
+  )
+}
+
+/**
+ * PDF Document component
+ */
+function ReportDocument({ report, opportunities }: ReportDocumentProps) {
+  // Split opportunities into pages (about 6-8 per page for detailed view)
+  const OPPS_PER_PAGE = 7
+  const pages: Opportunity[][] = []
+
+  for (let i = 0; i < opportunities.length; i += OPPS_PER_PAGE) {
+    pages.push(opportunities.slice(i, i + OPPS_PER_PAGE))
+  }
+
+  // Ensure at least one page even if empty
+  if (pages.length === 0) {
+    pages.push([])
+  }
+
+  const totalPages = pages.length + 1 // +1 for cover page
+
+  return (
+    <Document>
+      <CoverPage report={report} />
+      {pages.map((pageOpportunities, idx) => (
+        <OpportunitiesPage
+          key={`page-${idx}`}
+          opportunities={pageOpportunities}
+          pageNumber={idx + 2}
+          totalPages={totalPages}
+        />
+      ))}
+    </Document>
+  )
+}
+
+/**
+ * Generate PDF buffer for a report
+ */
+export async function generatePDF(reportId: string): Promise<Buffer> {
+  const supabaseAdmin = getSupabaseAdmin()
+
+  // Fetch report data
+  const { data: report, error: reportError } = await supabaseAdmin
+    .from('reports')
+    .select('*')
+    .eq('id', reportId)
+    .single()
+
+  if (reportError || !report) {
+    throw new Error('Report not found')
+  }
+
+  // Fetch all opportunities (sorted by final_score descending)
+  const { data: opportunities, error: oppsError } = await supabaseAdmin
+    .from('opportunities')
+    .select('*')
+    .eq('report_id', reportId)
+    .order('final_score', { ascending: false })
+
+  if (oppsError) {
+    throw new Error('Failed to fetch opportunities')
+  }
+
+  // Generate PDF
+  const blob = await pdf(
+    <ReportDocument report={report} opportunities={opportunities || []} />
+  ).toBlob()
+
+  // Convert Blob to Buffer
+  const arrayBuffer = await blob.arrayBuffer()
+  return Buffer.from(arrayBuffer)
+}
+
+/**
+ * Get filename for PDF download
+ */
+export function getPDFFileName(reportId: string): string {
+  return `gurubox-report-${reportId.slice(0, 8)}.pdf`
+}
