@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   title: 'GuruBox.ai - AI Product Insight',
   description: 'Expert-level AI opportunity discovery. Enter your product direction and receive 300 evaluated opportunities.',
   generator: 'GuruBox.ai',
+  icons: {
+    icon: '/images/logo.jpg',
+    apple: '/images/logo.jpg',
+  },
 }
 
 export const viewport: Viewport = {
