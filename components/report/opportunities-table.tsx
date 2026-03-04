@@ -14,14 +14,14 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { PAGE_SIZE } from "@/lib/constants"
-import type { Opportunity } from "@/lib/types"
 import type { OpportunityResponse } from "@/lib/api/client"
 import { cn } from "@/lib/utils"
 
 interface OpportunitiesTableProps {
-  opportunities: (Opportunity | OpportunityResponse)[]
+  opportunities: OpportunityResponse[]
   page?: number
   totalPages?: number
+  totalCount?: number
   onPageChange?: (page: number) => void
 }
 
@@ -45,6 +45,7 @@ export function OpportunitiesTable({
   opportunities,
   page: externalPage,
   totalPages: externalTotalPages,
+  totalCount: externalTotalCount,
   onPageChange
 }: OpportunitiesTableProps) {
   const { t } = useI18n()
@@ -56,6 +57,9 @@ export function OpportunitiesTable({
 
   // Calculate total pages if not provided externally
   const totalPages = externalTotalPages ?? Math.ceil(opportunities.length / PAGE_SIZE)
+
+  // Calculate total count for display
+  const totalCount = externalTotalCount ?? opportunities.length
 
   // Paginate data if no external pagination
   const pageData = useMemo(() => {
@@ -97,16 +101,16 @@ export function OpportunitiesTable({
                   {opp.name}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-xs whitespace-normal leading-relaxed">
-                  {('core_users' in opp) ? opp.core_users : (opp.target_user_segments?.join(', ') || '-')}
+                  {opp.core_users || '-'}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-xs whitespace-normal leading-relaxed max-w-[220px]">
-                  {('pain_points' in opp) ? opp.pain_points : (opp.key_pain_points?.join(', ') || '-')}
+                  {opp.pain_points || '-'}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-xs whitespace-normal leading-relaxed max-w-[200px]">
-                  {('user_demands' in opp) ? opp.user_demands : '-'}
+                  {opp.user_demands || '-'}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-xs whitespace-normal leading-relaxed max-w-[220px]">
-                  {('ai_solution' in opp) ? opp.ai_solution : (opp.core_ai_capabilities?.join(', ') || '-')}
+                  {opp.ai_solution || '-'}
                 </TableCell>
                 <TableCell className="text-right">
                   <ScoreBadge score={opp.final_score} />
@@ -120,11 +124,7 @@ export function OpportunitiesTable({
       {/* Pagination */}
       <div className="flex items-center justify-between px-1">
         <p className="text-sm text-muted-foreground tabular-nums">
-          {t("report_page_info", {
-            start: (page - 1) * PAGE_SIZE + 1,
-            end: Math.min(page * PAGE_SIZE, opportunities.length),
-            total: opportunities.length
-          }) || `${t("report_col_index")} ${(page - 1) * PAGE_SIZE + 1}-${Math.min(page * PAGE_SIZE, opportunities.length)} ${t("report_page_of")} ${opportunities.length}`}
+          {totalCount} {t("report_total_opportunities").toLowerCase()}
         </p>
         <div className="flex items-center gap-2">
           <Button
@@ -138,7 +138,7 @@ export function OpportunitiesTable({
             {t("previous")}
           </Button>
           <span className="text-sm text-muted-foreground tabular-nums">
-            {page} {t("report_page_of")} {totalPages}
+            {page} / {totalPages}
           </span>
           <Button
             variant="outline"

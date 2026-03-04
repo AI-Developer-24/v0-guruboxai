@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useI18n } from "@/components/i18n/i18n-provider"
@@ -34,6 +34,8 @@ export default function AnalysisPage() {
   const [completedStages, setCompletedStages] = useState<AnalysisStage[]>([])
   const [reportId, setReportId] = useState<string>('')
   const [isComplete, setIsComplete] = useState(false)
+  // Use ref to store reportId to avoid stale closure in redirect
+  const reportIdRef = useRef<string>('')
   const [isCancelled, setIsCancelled] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
   const [hasError, setHasError] = useState(false)
@@ -72,8 +74,11 @@ export default function AnalysisPage() {
     if (task.status === 'completed') {
       console.log('[AnalysisPage] Task completed, redirecting...')
       setIsComplete(true)
+      // Use ref to get the latest reportId to avoid stale closure
+      const currentReportId = reportIdRef.current
+      console.log('[AnalysisPage] Redirecting to report:', currentReportId || taskId)
       setTimeout(() => {
-        router.push(`/report/${reportId || taskId}`)
+        router.push(`/report/${currentReportId || taskId}`)
       }, 2000)
     } else if (task.status === 'cancelled') {
       setIsCancelled(true)
@@ -133,6 +138,8 @@ export default function AnalysisPage() {
 
         const reportData = task.reports as { id: string; status: string }
         setReportId(reportData.id)
+        reportIdRef.current = reportData.id
+        console.log('[AnalysisPage] Report ID set:', reportData.id)
 
         // Update UI with initial data
         updateUI(task)
