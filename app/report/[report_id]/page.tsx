@@ -13,7 +13,6 @@ import { TOTAL_OPPORTUNITIES } from "@/lib/constants"
 import Link from "next/link"
 import { Loader2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
 
 const PAGE_SIZE = 20
 
@@ -92,19 +91,6 @@ export default function ReportPage() {
       loadOpportunities()
     }
   }, [page, report, loadOpportunities])
-
-  // Handle delete
-  const handleDelete = async () => {
-    if (!confirm(t("report_delete_confirm") || "Are you sure you want to delete this report?")) return
-
-    try {
-      await api.delete(`/reports/${reportId}`)
-      toast.success(t("report_deleted") || "Report deleted")
-      router.push("/account")
-    } catch (error) {
-      toast.error(t("error_delete_report") || "Failed to delete report")
-    }
-  }
 
   // Loading state
   if (loading) {
@@ -190,7 +176,7 @@ export default function ReportPage() {
         />
 
         {/* Export buttons */}
-        <ExportButtons reportId={reportId} onDelete={handleDelete} />
+        <ExportButtons reportId={reportId} />
 
         {/* Opportunities table */}
         <OpportunitiesTable

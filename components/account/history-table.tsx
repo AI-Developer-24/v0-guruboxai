@@ -25,6 +25,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip"
 import { api, ApiError, type ReportResponse } from "@/lib/api/client"
 
 const PAGE_SIZE = 20
@@ -150,16 +155,16 @@ export function HistoryTable() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="rounded-xl border border-border bg-card">
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
-              <TableHead className="text-muted-foreground">{t("account_col_input")}</TableHead>
-              <TableHead className="text-muted-foreground">{t("account_col_created")}</TableHead>
-              <TableHead className="text-muted-foreground">{t("account_col_opportunities")}</TableHead>
-              <TableHead className="text-muted-foreground">{t("account_col_premium")}</TableHead>
-              <TableHead className="text-muted-foreground">{t("account_col_status")}</TableHead>
-              <TableHead className="text-right text-muted-foreground">{t("account_col_actions")}</TableHead>
+              <TableHead className="pl-4 text-left text-muted-foreground">{t("account_col_input")}</TableHead>
+              <TableHead className="text-center text-muted-foreground">{t("account_col_created")}</TableHead>
+              <TableHead className="text-center text-muted-foreground">{t("account_col_opportunities")}</TableHead>
+              <TableHead className="text-center text-muted-foreground">{t("account_col_premium")}</TableHead>
+              <TableHead className="text-center text-muted-foreground">{t("account_col_status")}</TableHead>
+              <TableHead className="pr-4 text-center text-muted-foreground">{t("account_col_actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -169,52 +174,62 @@ export function HistoryTable() {
                 className="row-animate border-border hover:bg-accent"
                 style={{ animationDelay: `${idx * 30}ms` }}
               >
-                <TableCell className="max-w-[200px] truncate text-sm font-medium text-foreground">
+                <TableCell className="max-w-[200px] truncate pl-4 text-left text-sm font-medium text-foreground">
                   {report.input_text}
                 </TableCell>
-                <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                <TableCell className="text-center text-xs text-muted-foreground whitespace-nowrap">
                   {formatDate(report.created_at)}
                 </TableCell>
-                <TableCell className="text-sm tabular-nums text-muted-foreground">
+                <TableCell className="text-center text-sm tabular-nums text-muted-foreground">
                   {report.total_opportunities || 0}
                 </TableCell>
-                <TableCell className="tabular-nums text-sm text-muted-foreground">
+                <TableCell className="text-center tabular-nums text-sm text-muted-foreground">
                   {report.status === "completed"
                     ? `${Math.round((report.premium_ratio || 0) * 100)}%`
                     : "-"}
                 </TableCell>
-                <TableCell>
-                  {getStatusBadge(report)}
+                <TableCell className="text-center">
+                  <div className="flex justify-center">
+                    {getStatusBadge(report)}
+                  </div>
                 </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1">
+                <TableCell className="pr-4 text-center">
+                  <div className="flex items-center justify-center gap-1">
                     {report.status === "completed" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        asChild
-                        className="text-foreground hover:text-primary"
-                      >
-                        <Link href={`/report/${report.id}`}>
-                          <ExternalLink className="mr-1 size-3" />
-                          {t("account_open")}
-                        </Link>
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            asChild
+                            className="size-8 text-foreground hover:text-primary"
+                          >
+                            <Link href={`/report/${report.id}`}>
+                              <ExternalLink className="size-4" />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{t("account_open")}</TooltipContent>
+                      </Tooltip>
                     )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toast(t("report_coming_soon") || "Coming soon")}
-                      className="text-muted-foreground"
-                    >
-                      <FileDown className="mr-1 size-3" />
-                      {t("account_export")}
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => toast(t("report_coming_soon") || "Coming soon")}
+                          className="size-8 text-muted-foreground"
+                        >
+                          <FileDown className="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{t("account_export")}</TooltipContent>
+                    </Tooltip>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setDeleteId(report.id)}
-                      className="text-destructive-foreground hover:text-destructive-foreground"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       disabled={deleting === report.id}
                     >
                       {deleting === report.id ? (
