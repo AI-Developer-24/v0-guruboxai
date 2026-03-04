@@ -89,6 +89,8 @@ Scan across 10 intelligence sources for "${direction}":
 9. Web strong Mobile weak opportunities
 10. New trend signals (Exploding Topics, Google Trends)
 
+IMPORTANT: Every field in the JSON output is REQUIRED. Do not omit any field.
+
 Output signal data as JSON:
 {
   "categories": [
@@ -99,17 +101,17 @@ Output signal data as JSON:
   ],
   "signals": [
     {
-      "source": "source_name",
-      "description": "signal description",
-      "urgency": "high|medium|low",
+      "source": "source_name (required)",
+      "description": "signal description (required)",
+      "urgency": "high or medium or low (required)",
       "keywords": ["keyword1", "keyword2"]
     }
   ],
   "inspiration_sources": [
     {
-      "platform": "platform_name",
-      "community": "specific community/thread",
-      "pain_point": "the pain point"
+      "platform": "platform_name (required)",
+      "community": "specific community/thread (required)",
+      "pain_point": "the pain point (required)"
     }
   ]
 }`,
@@ -197,11 +199,11 @@ Your summary should include:
 Calculate and include:
 - Premium ratio: percentage of opportunities with final_score > 80
 
-Also provide a concise summary text (200-300 words) that captures the essence of the analysis.
+Also provide a concise summary text (200-400 words) that captures the essence of the analysis. Be concise and impactful.
 
 Output as JSON:
 {
-  "summary_text": "Concise 200-300 word expert summary...",
+  "summary_text": "Concise expert summary (200-400 words)...",
   "industry_assessment": "Brief assessment of industry structure",
   "unmet_needs": ["need1", "need2"],
   "core_opportunities": ["opp1", "opp2", "opp3"],
@@ -212,35 +214,41 @@ Output as JSON:
 }
 
 // Zod schemas for validation
-export const OpportunitySchema = z.object({
-  index_number: z.number(),
+
+// Schema for Generating stage (no scores yet)
+export const GeneratingOpportunitySchema = z.object({
+  index_number: z.number().optional().default(0),
   name: z.string().min(1),
   core_users: z.string().min(1),
   pain_points: z.string().min(1),
   user_demands: z.string().min(1),
   ai_solution: z.string().min(1),
-  category: z.string().optional(),
-  inspiration_source: z.string().optional(),
-  signal_count: z.number().min(3),
-  monetization_score: z.number().min(0).max(100),
-  industry_size_score: z.number().min(0).max(100),
-  competition_score: z.number().min(0).max(100),
-  mvp_difficulty_score: z.number().min(0).max(100),
-  final_score: z.number().min(0).max(100),
+  category: z.string().optional().default(''),
+  inspiration_source: z.string().optional().default(''),
+  signal_count: z.number().min(0).optional().default(1),
+})
+
+// Schema for Scoring stage (with scores)
+export const OpportunitySchema = GeneratingOpportunitySchema.extend({
+  monetization_score: z.number().min(0).max(100).optional().default(50),
+  industry_size_score: z.number().min(0).max(100).optional().default(50),
+  competition_score: z.number().min(0).max(100).optional().default(50),
+  mvp_difficulty_score: z.number().min(0).max(100).optional().default(50),
+  final_score: z.number().min(0).max(100).optional().default(50),
 })
 
 export const UnderstandingOutputSchema = z.object({
-  key_concepts: z.array(z.string()),
-  target_users: z.array(z.string()),
-  core_problems: z.array(z.string()),
-  market_context: z.string(),
+  key_concepts: z.array(z.string()).optional().default([]),
+  target_users: z.array(z.string()).optional().default([]),
+  core_problems: z.array(z.string()).optional().default([]),
+  market_context: z.string().optional().default(''),
 })
 
 export const AnalyzingOutputSchema = z.object({
-  industry_structure: z.string(),
-  market_size: z.string(),
-  key_players: z.array(z.string()),
-  technology_trends: z.array(z.string()),
+  industry_structure: z.string().optional().default(''),
+  market_size: z.string().optional().default(''),
+  key_players: z.array(z.string()).optional().default([]),
+  technology_trends: z.array(z.string()).optional().default([]),
 })
 
 export const ScanningOutputSchema = z.object({
@@ -252,21 +260,21 @@ export const ScanningOutputSchema = z.object({
     source: z.string(),
     description: z.string(),
     urgency: z.enum(['high', 'medium', 'low']),
-    keywords: z.array(z.string()),
+    keywords: z.array(z.string()).optional().default([]),
   })),
   inspiration_sources: z.array(z.object({
     platform: z.string(),
     community: z.string(),
     pain_point: z.string(),
-  })),
+  })).optional().default([]),
 })
 
 export const FinalizingOutputSchema = z.object({
-  summary_text: z.string().min(200).max(500),
-  industry_assessment: z.string(),
-  unmet_needs: z.array(z.string()),
-  core_opportunities: z.array(z.string()),
-  risks: z.array(z.string()),
-  premium_ratio: z.number(),
-  premium_count: z.number(),
+  summary_text: z.string().min(100).max(5000),
+  industry_assessment: z.string().optional().default(''),
+  unmet_needs: z.array(z.string()).optional().default([]),
+  core_opportunities: z.array(z.string()).optional().default([]),
+  risks: z.array(z.string()).optional().default([]),
+  premium_ratio: z.number().optional().default(0),
+  premium_count: z.number().optional().default(0),
 })

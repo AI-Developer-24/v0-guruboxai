@@ -13,7 +13,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Use createBrowserClient from @supabase/ssr for proper cookie-based auth
-export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
+export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
+})
 
 // Server Supabase instance (using service role key, bypasses RLS)
 // Lazy-loaded to avoid requiring service role key on client-side

@@ -25,6 +25,9 @@ type TranslationKeys = {
   analysis_started: string
   analyzing: string
   analysis_failed: string
+  analysis_cancelled: string
+  cancel_analysis: string
+  cancelling: string
   // Errors
   error_unauthorized: string
   error_task_not_found: string
@@ -129,6 +132,9 @@ const en: TranslationKeys = {
   analysis_started: "Analysis started!",
   analyzing: "Analyzing...",
   analysis_failed: "Analysis failed. Please try again.",
+  analysis_cancelled: "Analysis cancelled.",
+  cancel_analysis: "Cancel Analysis",
+  cancelling: "Cancelling...",
   error_unauthorized: "Please sign in to continue",
   error_task_not_found: "Task not found.",
   error_report_not_found: "Report not found.",
@@ -226,6 +232,9 @@ const zh: TranslationKeys = {
   analysis_started: "分析已开始！",
   analyzing: "分析中...",
   analysis_failed: "分析失败，请重试。",
+  analysis_cancelled: "分析已取消。",
+  cancel_analysis: "取消分析",
+  cancelling: "取消中...",
   error_unauthorized: "请先登录",
   error_task_not_found: "任务未找到。",
   error_report_not_found: "报告未找到。",
@@ -323,6 +332,9 @@ const de: TranslationKeys = {
   analysis_started: "Analyse gestartet!",
   analyzing: "Analysiere...",
   analysis_failed: "Analyse fehlgeschlagen. Bitte versuchen Sie es erneut.",
+  analysis_cancelled: "Analyse abgebrochen.",
+  cancel_analysis: "Analyse abbrechen",
+  cancelling: "Abbrechen...",
   error_unauthorized: "Bitte melden Sie sich an",
   error_task_not_found: "Aufgabe nicht gefunden.",
   error_report_not_found: "Bericht nicht gefunden.",
@@ -420,6 +432,9 @@ const fr: TranslationKeys = {
   analysis_started: "Analyse lancee !",
   analyzing: "Analyse en cours...",
   analysis_failed: "Analyse echouee. Veuillez reessayer.",
+  analysis_cancelled: "Analyse annulee.",
+  cancel_analysis: "Annuler l'analyse",
+  cancelling: "Annulation...",
   error_unauthorized: "Veuillez vous connecter",
   error_task_not_found: "Tache non trouvee.",
   error_report_not_found: "Rapport non trouve.",
@@ -517,6 +532,9 @@ const it: TranslationKeys = {
   analysis_started: "Analisi avviata!",
   analyzing: "Analisi in corso...",
   analysis_failed: "Analisi fallita. Riprova.",
+  analysis_cancelled: "Analisi annullata.",
+  cancel_analysis: "Annulla analisi",
+  cancelling: "Annullamento...",
   error_unauthorized: "Accedi per continuare",
   error_task_not_found: "Attivita non trovata.",
   error_report_not_found: "Report non trovato.",
@@ -614,6 +632,9 @@ const es: TranslationKeys = {
   analysis_started: "Analisis iniciado!",
   analyzing: "Analizando...",
   analysis_failed: "Analisis fallido. Por favor, intenta de nuevo.",
+  analysis_cancelled: "Analisis cancelado.",
+  cancel_analysis: "Cancelar analisis",
+  cancelling: "Cancelando...",
   error_unauthorized: "Por favor inicia sesion",
   error_task_not_found: "Tarea no encontrada.",
   error_report_not_found: "Informe no encontrado.",
@@ -711,6 +732,9 @@ const pt: TranslationKeys = {
   analysis_started: "Analise iniciada!",
   analyzing: "Analisando...",
   analysis_failed: "Analise falhou. Tente novamente.",
+  analysis_cancelled: "Analise cancelada.",
+  cancel_analysis: "Cancelar analise",
+  cancelling: "Cancelando...",
   error_unauthorized: "Por favor faca login",
   error_task_not_found: "Tarefa nao encontrada.",
   error_report_not_found: "Relatorio nao encontrado.",

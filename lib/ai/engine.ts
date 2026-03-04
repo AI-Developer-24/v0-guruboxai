@@ -1,10 +1,75 @@
 import { getProviderForModel } from './providers/factory'
-import { PROMPTS, OpportunitySchema, UnderstandingOutputSchema, AnalyzingOutputSchema, ScanningOutputSchema, FinalizingOutputSchema } from './prompts'
+import { PROMPTS, OpportunitySchema, UnderstandingOutputSchema, AnalyzingOutputSchema, ScanningOutputSchema, FinalizingOutputSchema, GeneratingOpportunitySchema } from './prompts'
 import { supabaseAdmin } from '../supabase'
 import type { Message } from './providers/base'
 import { z } from 'zod'
 
+class TaskCancelledError extends Error {
+  constructor() {
+    super('Task was cancelled')
+    this.name = 'TaskCancelledError'
+  }
+}
+
+/**
+ * Retry helper for database operations
+ */
+async function withRetry<T>(
+  operation: () => Promise<T>,
+  operationName: string,
+  maxRetries: number = 3,
+  delayMs: number = 1000
+): Promise<T> {
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation()
+    } catch (error) {
+      lastError = error as Error
+      console.error(`[${operationName}] Attempt ${attempt}/${maxRetries} failed:`, error)
+
+      if (attempt < maxRetries) {
+        console.log(`[${operationName}] Retrying in ${delayMs}ms...`)
+        await new Promise(resolve => setTimeout(resolve, delayMs))
+        // Exponential backoff
+        delayMs *= 2
+      }
+    }
+  }
+
+  throw lastError
+}
+
 export class AIEngine {
+  /**
+   * Check if task has been cancelled
+   */
+  private async checkCancelled(taskId: string): Promise<void> {
+    const task = await withRetry(
+      async () => {
+        const { data, error } = await supabaseAdmin
+          .from('tasks')
+          .select('status')
+          .eq('id', taskId)
+          .maybeSingle()
+
+        if (error) {
+          throw error
+        }
+        return data
+      },
+      'AIEngine.checkCancelled',
+      3,
+      1000
+    )
+
+    if (task?.status === 'cancelled') {
+      console.log(`[AIEngine] Task ${taskId} was cancelled, stopping analysis`)
+      throw new TaskCancelledError()
+    }
+  }
+
   /**
    * Execute the complete 6-stage analysis
    */
@@ -21,6 +86,7 @@ export class AIEngine {
     console.log(`[AIEngine] Models - default: ${defaultModel}, cheap: ${cheapModel}, premium: ${premiumModel}`)
 
     // Stage 1: Understanding
+    await this.checkCancelled(taskId)
     console.log(`[AIEngine] Stage 1/6: Understanding - START`)
     await this.updateTaskStage(taskId, 'understanding')
     const understanding = await this.callAI(
@@ -33,6 +99,7 @@ export class AIEngine {
     console.log(`[AIEngine] Stage 1/6: Understanding - COMPLETE`)
 
     // Stage 2: Analyzing
+    await this.checkCancelled(taskId)
     console.log(`[AIEngine] Stage 2/6: Analyzing - START`)
     await this.updateTaskStage(taskId, 'analyzing')
     const analysis = await this.callAI(
@@ -45,11 +112,12 @@ export class AIEngine {
     console.log(`[AIEngine] Stage 2/6: Analyzing - COMPLETE`)
 
     // Stage 3: Scanning
+    await this.checkCancelled(taskId)
     console.log(`[AIEngine] Stage 3/6: Scanning - START`)
     await this.updateTaskStage(taskId, 'scanning')
     const signals = await this.callAI(
       PROMPTS.scanning(input),
-      { model: premiumModel },
+      { model: premiumModel, maxTokens: 32768 },
       ScanningOutputSchema
     )
     results.signals = signals
@@ -57,16 +125,18 @@ export class AIEngine {
     console.log(`[AIEngine] Stage 3/6: Scanning - COMPLETE`)
 
     // Stage 4: Generating (6 batches)
+    await this.checkCancelled(taskId)
     console.log(`[AIEngine] Stage 4/6: Generating - START`)
     await this.updateTaskStage(taskId, 'generating')
     const opportunities: any[] = []
 
-    for (let batch = 1; batch <= 6; batch++) {
+    for (let batch = 1; batch <= 1; batch++) {
+      await this.checkCancelled(taskId)
       console.log(`[AIEngine] Stage 4/6: Generating batch ${batch}/6 - START`)
       const batchOpportunities = await this.callAI(
         PROMPTS.generating(batch, 6, input, JSON.stringify(signals)),
-        { model: premiumModel, temperature: 0.8 },
-        z.array(OpportunitySchema)
+        { model: premiumModel, temperature: 0.8, maxTokens: 32768 },
+        z.array(GeneratingOpportunitySchema)
       )
 
       // Update index_number
@@ -83,11 +153,12 @@ export class AIEngine {
     console.log(`[AIEngine] Stage 4/6: Generating - COMPLETE (total: ${opportunities.length} opportunities)`)
 
     // Stage 5: Scoring
+    await this.checkCancelled(taskId)
     console.log(`[AIEngine] Stage 5/6: Scoring - START`)
     await this.updateTaskStage(taskId, 'scoring')
     const scored = await this.callAI(
       PROMPTS.scoring(opportunities),
-      { model: cheapModel },
+      { model: cheapModel, maxTokens: 32768 },
       z.array(OpportunitySchema)
     )
     results.scored = scored
@@ -95,11 +166,12 @@ export class AIEngine {
     console.log(`[AIEngine] Stage 5/6: Scoring - COMPLETE`)
 
     // Stage 6: Finalizing
+    await this.checkCancelled(taskId)
     console.log(`[AIEngine] Stage 6/6: Finalizing - START`)
     await this.updateTaskStage(taskId, 'finalizing')
     const finalData = await this.callAI(
       PROMPTS.finalizing(scored, input),
-      { model: premiumModel },
+      { model: premiumModel, maxTokens: 16384 },
       FinalizingOutputSchema
     )
     results.finalizing = finalData
@@ -146,7 +218,7 @@ export class AIEngine {
    */
   private async callAI<T>(
     prompt: string,
-    options: { model?: string; temperature?: number },
+    options: { model?: string; temperature?: number; maxTokens?: number },
     schema: z.ZodSchema<T>
   ): Promise<T> {
     const model = options.model || process.env.DEFAULT_MODEL || 'qwen3-max'
@@ -154,8 +226,9 @@ export class AIEngine {
       throw new Error('No model specified and DEFAULT_MODEL not set')
     }
     const provider = getProviderForModel(model)
+    const maxTokens = options.maxTokens ?? 16384
 
-    console.log(`[AIEngine.callAI] Calling model: ${model}, temperature: ${options.temperature ?? 0.7}`)
+    console.log(`[AIEngine.callAI] Calling model: ${model}, temperature: ${options.temperature ?? 0.7}, maxTokens: ${maxTokens}`)
 
     const messages: Message[] = [
       { role: 'system', content: 'You are a helpful AI assistant. Always respond with valid JSON.' },
@@ -165,7 +238,7 @@ export class AIEngine {
     const response = await provider.chat(messages, {
       model,
       temperature: options.temperature ?? 0.7,
-      maxTokens: 4096,
+      maxTokens,
     })
 
     console.log(`[AIEngine.callAI] Response received, length: ${response.content.length} chars`)
@@ -201,34 +274,69 @@ export class AIEngine {
    * Update task current stage
    */
   private async updateTaskStage(taskId: string, stage: string) {
-    await supabaseAdmin
-      .from('tasks')
-      .update({
-        current_stage: stage,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', taskId)
+    console.log(`[AIEngine.updateTaskStage] Updating task ${taskId} to stage: ${stage}`)
+
+    await withRetry(
+      async () => {
+        const { error } = await supabaseAdmin
+          .from('tasks')
+          .update({
+            current_stage: stage,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', taskId)
+
+        if (error) {
+          throw error
+        }
+      },
+      'AIEngine.updateTaskStage',
+      3,
+      1000
+    )
+
+    console.log(`[AIEngine.updateTaskStage] Stage updated successfully to: ${stage}`)
   }
 
   /**
    * Mark stage as completed
    */
   private async completeStage(taskId: string, stage: string) {
-    const { data: task } = await supabaseAdmin
-      .from('tasks')
-      .select('stages_completed')
-      .eq('id', taskId)
-      .maybeSingle()
+    console.log(`[AIEngine.completeStage] Marking stage ${stage} as completed for task ${taskId}`)
 
-    const stagesCompleted = [...(task?.stages_completed || []), stage]
+    await withRetry(
+      async () => {
+        const { data: task, error: fetchError } = await supabaseAdmin
+          .from('tasks')
+          .select('stages_completed')
+          .eq('id', taskId)
+          .maybeSingle()
 
-    await supabaseAdmin
-      .from('tasks')
-      .update({
-        stages_completed: stagesCompleted,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', taskId)
+        if (fetchError) {
+          throw fetchError
+        }
+
+        const stagesCompleted = [...(task?.stages_completed || []), stage]
+        console.log(`[AIEngine.completeStage] New stages_completed:`, stagesCompleted)
+
+        const { error: updateError } = await supabaseAdmin
+          .from('tasks')
+          .update({
+            stages_completed: stagesCompleted,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', taskId)
+
+        if (updateError) {
+          throw updateError
+        }
+      },
+      'AIEngine.completeStage',
+      3,
+      1000
+    )
+
+    console.log(`[AIEngine.completeStage] Stage ${stage} marked as completed`)
   }
 
   /**
@@ -245,12 +353,12 @@ export class AIEngine {
       ai_solution: opp.ai_solution,
       category: opp.category,
       inspiration_source: opp.inspiration_source,
-      signal_count: opp.signal_count,
-      monetization_score: opp.monetization_score,
-      industry_size_score: opp.industry_size_score,
-      competition_score: opp.competition_score,
-      mvp_difficulty_score: opp.mvp_difficulty_score,
-      final_score: opp.final_score,
+      signal_count: Math.round(opp.signal_count),
+      monetization_score: Math.round(opp.monetization_score),
+      industry_size_score: Math.round(opp.industry_size_score),
+      competition_score: Math.round(opp.competition_score),
+      mvp_difficulty_score: Math.round(opp.mvp_difficulty_score),
+      final_score: Math.round(opp.final_score),
     }))
 
     const { error } = await supabaseAdmin

@@ -8,6 +8,9 @@ import {
   unauthorizedResponse,
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
+import { supabaseAdmin } from '@/lib/supabase'
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(
   request: Request,
@@ -80,13 +83,94 @@ export async function GET(
     const elapsed = Date.now() - startTime
     console.log(`[TaskStatus API] Returning response (${elapsed}ms):`, response)
 
-    return successResponse(response)
+    // Return with no-cache headers to ensure fresh data on each poll
+    return NextResponse.json(
+      { data: response },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
+    )
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       console.log(`[TaskStatus API] Unauthorized access attempt for task: ${taskId}`)
       return unauthorizedResponse()
     }
     console.error('[TaskStatus API] Error:', error)
+    return internalErrorResponse()
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ task_id: string }> }
+) {
+  let taskId = 'unknown'
+
+  try {
+    console.log('[TaskCancel API] DELETE request received')
+    const user = await requireAuth()
+    const paramsData = await params
+    taskId = paramsData.task_id
+
+    console.log(`[TaskCancel API] Canceling task: ${taskId}, user: ${user.id}`)
+
+    // Get task with ownership check
+    const { data: task, error: taskError } = await supabaseAdmin
+      .from('tasks')
+      .select('id, report_id, status')
+      .eq('id', taskId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (taskError || !task) {
+      console.log(`[TaskCancel API] Task not found: ${taskId}`, taskError)
+      return notFoundResponse('Task not found')
+    }
+
+    // Can only cancel pending or running tasks
+    if (task.status !== 'pending' && task.status !== 'running') {
+      console.log(`[TaskCancel API] Task cannot be canceled, current status: ${task.status}`)
+      return NextResponse.json(
+        { error: { code: 'INVALID_STATUS', message: 'Task cannot be canceled' } },
+        { status: 400 }
+      )
+    }
+
+    // Update task status to cancelled
+    const { error: updateTaskError } = await supabaseAdmin
+      .from('tasks')
+      .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+      .eq('id', taskId)
+
+    if (updateTaskError) {
+      console.error(`[TaskCancel API] Failed to cancel task:`, updateTaskError)
+      return internalErrorResponse('Failed to cancel task')
+    }
+
+    // Update report status to cancelled
+    const { error: updateReportError } = await supabaseAdmin
+      .from('reports')
+      .update({ status: 'cancelled' })
+      .eq('id', task.report_id)
+
+    if (updateReportError) {
+      console.error(`[TaskCancel API] Failed to cancel report:`, updateReportError)
+      // Don't fail the request, task is already cancelled
+    }
+
+    console.log(`[TaskCancel API] Task cancelled successfully: ${taskId}`)
+
+    return successResponse({ task_id: taskId, status: 'cancelled' })
+  } catch (error) {
+    if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+      console.log(`[TaskCancel API] Unauthorized access attempt for task: ${taskId}`)
+      return unauthorizedResponse()
+    }
+    console.error('[TaskCancel API] Error:', error)
     return internalErrorResponse()
   }
 }

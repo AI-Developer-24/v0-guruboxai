@@ -5,6 +5,14 @@ import { supabaseAdmin } from '../supabase'
 
 const aiEngine = new AIEngine()
 
+// Custom error for cancelled tasks
+class TaskCancelledError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'TaskCancelledError'
+  }
+}
+
 export interface AnalysisJobData {
   input: string
   taskId: string
@@ -49,6 +57,15 @@ export const analysisWorker = new Worker<AnalysisJobData>(
       console.log(`[Worker] Analysis job completed: ${taskId}`)
       console.log(`[Worker] ========================================`)
     } catch (error) {
+      // Check if task was cancelled
+      if (error instanceof Error && error.name === 'TaskCancelledError') {
+        console.log(`[Worker] ========================================`)
+        console.log(`[Worker] Analysis job CANCELLED: ${taskId}`)
+        console.log(`[Worker] ========================================`)
+        // Don't throw - task was intentionally cancelled
+        return
+      }
+
       console.error(`[Worker] ========================================`)
       console.error(`[Worker] Analysis job FAILED: ${taskId}`)
       console.error(`[Worker] Error:`, error)

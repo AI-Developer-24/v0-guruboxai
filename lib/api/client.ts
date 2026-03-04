@@ -30,8 +30,13 @@ class ApiClient {
       }
     }
 
-    const response = await fetch(fullPath, {
+    // Add cache busting to prevent browser caching
+    const url = new URL(fullPath, window.location.origin)
+    url.searchParams.append('_', Date.now().toString())
+
+    const response = await fetch(url.toString(), {
       credentials: 'include',
+      cache: 'no-store',
     })
     return this.handleResponse<T>(response)
   }
@@ -149,7 +154,7 @@ export interface CreateTaskResponse {
 
 // Task status response
 export interface TaskStatusResponse {
-  status: 'pending' | 'running' | 'completed' | 'failed'
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
   current_stage: string
   stages_completed: string[]
   report_status: string
