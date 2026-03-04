@@ -29,6 +29,7 @@ export default function ReportPage() {
   const [opportunities, setOpportunities] = useState<OpportunityResponse[]>([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
   const [hasError, setHasError] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
 
@@ -64,7 +65,7 @@ export default function ReportPage() {
     try {
       const response = await api.get<{
         data: OpportunityResponse[]
-        meta: { pagination: { total_pages: number } }
+        meta: { pagination: { total_pages: number; total: number } }
       }>(`/reports/${reportId}/opportunities`, {
         page,
         size: PAGE_SIZE,
@@ -72,6 +73,7 @@ export default function ReportPage() {
 
       setOpportunities(response.data)
       setTotalPages(response.meta.pagination.total_pages)
+      setTotalCount(response.meta.pagination.total)
     } catch (error) {
       console.error('Failed to load opportunities:', error)
     }
@@ -195,6 +197,7 @@ export default function ReportPage() {
           opportunities={opportunities}
           page={page}
           totalPages={totalPages}
+          totalCount={totalCount}
           onPageChange={setPage}
         />
       </div>

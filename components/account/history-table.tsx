@@ -38,6 +38,7 @@ export function HistoryTable() {
   const [reports, setReports] = useState<ReportResponse[]>([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
 
@@ -52,11 +53,12 @@ export function HistoryTable() {
       setLoading(true)
       const response = await api.get<{
         data: ReportResponse[]
-        meta: { pagination: { total_pages: number } }
+        meta: { pagination: { total_pages: number; total: number } }
       }>('/reports', { page, size: PAGE_SIZE })
 
       setReports(response.data)
       setTotalPages(response.meta.pagination.total_pages)
+      setTotalCount(response.meta.pagination.total)
     } catch (error) {
       if (error instanceof ApiError && error.status !== 401) {
         console.error('Failed to load reports:', error)
@@ -232,15 +234,8 @@ export function HistoryTable() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-1">
-          <p className="text-sm text-muted-foreground tabular-nums">
-            {t("report_page_info", {
-              start: (page - 1) * PAGE_SIZE + 1,
-              end: Math.min(page * PAGE_SIZE, reports.length),
-              total: reports.length
-            }) || `${t("report_col_index")} ${(page - 1) * PAGE_SIZE + 1}-${Math.min(page * PAGE_SIZE, reports.length)} ${t("report_page_of")} ${reports.length}`}
-          </p>
-          <div className="flex gap-2">
+        <div className="flex items-center justify-end px-1">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -249,8 +244,8 @@ export function HistoryTable() {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="text-sm text-muted-foreground tabular-nums self-center">
-              {page} {t("report_page_of")} {totalPages}
+            <span className="text-sm text-muted-foreground tabular-nums">
+              {page} / {totalPages}
             </span>
             <Button
               variant="outline"

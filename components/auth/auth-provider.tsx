@@ -23,23 +23,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
+    let mounted = true
+
+    // Get initial session using getUser() for security
     const getInitialSession = async () => {
       console.log('[AuthProvider] Getting initial session...')
-      const { data: { session }, error } = await supabase.auth.getSession()
 
-      console.log('[AuthProvider] Initial session result', {
-        hasSession: !!session,
-        userId: session?.user?.id,
-        error: error?.message,
-      })
+      try {
+        // Use getUser() instead of getSession() for verified auth
+        const { data: { user }, error } = await supabase.auth.getUser()
 
-      if (session) {
-        await loadUser(session.user.id)
+        console.log('[AuthProvider] getUser result', {
+          hasUser: !!user,
+          userId: user?.id,
+          error: error?.message,
+        })
+
+        if (!mounted) return
+
+        if (user) {
+          // Get session for token access
+          const { data: { session } } = await supabase.auth.getSession()
+          setSession(session)
+          await loadUser(user)
+        } else {
+          setLoading(false)
+        }
+      } catch (error) {
+        console.error('[AuthProvider] Error getting user:', error)
+        if (mounted) {
+          setLoading(false)
+        }
       }
-
-      setSession(session)
-      setLoading(false)
     }
 
     getInitialSession()
@@ -52,15 +67,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userId: session?.user?.id,
       })
 
+      if (!mounted) return
+
       setSession(session)
 
       if (session?.user) {
-        await loadUser(session.user.id)
+        await loadUser(session.user)
       } else {
         setUser(null)
+        setLoading(false)
       }
-
-      setLoading(false)
     })
 
     // Listen for popup auth success message
@@ -69,10 +85,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (event.data?.type === 'GOOGLE_AUTH_SUCCESS') {
         console.log('[AuthProvider] Received popup auth success message')
         // Refresh session to get the new auth state
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user) {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: { session } } = await supabase.auth.getSession()
           setSession(session)
-          await loadUser(session.user.id)
+          await loadUser(user)
         }
       }
     }
@@ -80,29 +97,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.addEventListener('message', handlePopupMessage)
 
     return () => {
+      mounted = false
       subscription.unsubscribe()
       window.removeEventListener('message', handlePopupMessage)
     }
   }, [])
 
-  const loadUser = async (userId: string) => {
-    const { data: userData, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .maybeSingle()
+  const loadUser = async (authUser: User) => {
+    try {
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authUser.id)
+        .maybeSingle()
 
-    if (userData) {
-      setUser(userData as AppUser)
-    } else {
-      // User not found in database, create from auth session
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
+      if (error) {
+        console.error('[AuthProvider] Error loading user from database:', error)
+      }
+
+      if (userData) {
+        setUser(userData as AppUser)
+      } else {
+        // User not found in database, create from auth user
         const newUser = {
-          id: user.id,
-          email: user.email!,
-          name: user.user_metadata.full_name || user.email?.split('@')[0] || '',
-          avatar: user.user_metadata.avatar_url || '',
+          id: authUser.id,
+          email: authUser.email!,
+          name: authUser.user_metadata.full_name || authUser.email?.split('@')[0] || '',
+          avatar: authUser.user_metadata.avatar_url || '',
           language: 'en' as const,
         }
         setUser(newUser as AppUser)
@@ -111,9 +132,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { upsertUser } = await import("@/lib/supabase/user")
         const { error: upsertError } = await upsertUser(newUser)
         if (upsertError) {
-          console.error('Failed to create user record:', upsertError)
+          console.error('[AuthProvider] Failed to create user record:', upsertError)
         }
       }
+    } catch (error) {
+      console.error('[AuthProvider] Error in loadUser:', error)
+      // Fallback: set user from auth data
+      const fallbackUser = {
+        id: authUser.id,
+        email: authUser.email!,
+        name: authUser.user_metadata.full_name || authUser.email?.split('@')[0] || '',
+        avatar: authUser.user_metadata.avatar_url || '',
+        language: 'en' as const,
+      }
+      setUser(fallbackUser as AppUser)
+    } finally {
+      setLoading(false)
     }
   }
 

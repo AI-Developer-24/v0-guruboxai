@@ -30,8 +30,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-        <body className="font-sans antialiased flex min-h-screen flex-col">
+    <html lang="en" suppressHydrationWarning>
+        <body className="font-sans antialiased flex min-h-screen flex-col" suppressHydrationWarning>
         <AuthProvider>
           <I18nProvider>
             <GradientBackground />

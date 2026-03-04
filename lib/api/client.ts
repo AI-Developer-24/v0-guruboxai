@@ -168,6 +168,7 @@ export interface ReportResponse {
   analysis_time_sec: number
   total_opportunities: number
   premium_ratio: number
+  premium_count: number
   summary_text: string
   created_at: string
 }
@@ -184,23 +185,24 @@ export interface OpportunitiesListResponse {
   }
 }
 
-// Single opportunity response
+// Single opportunity response (matches database schema)
 export interface OpportunityResponse {
   id: string
   report_id: string
   index_number: number
   name: string
+  core_users: string
+  pain_points: string
+  user_demands: string
+  ai_solution: string
   category?: string
-  one_liner?: string
+  inspiration_source?: string
+  signal_count: number
   monetization_score: number
   industry_size_score: number
-  competition_level_score: number
+  competition_score: number
   mvp_difficulty_score: number
   final_score: number
-  target_user_segments?: string[]
-  key_pain_points?: string[]
-  core_ai_capabilities?: string[]
-  signal_count: number
 }
 
 // Reports list response
