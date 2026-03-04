@@ -21,10 +21,11 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
   const { login } = useAuth()
   const { t } = useI18n()
 
-  const handleLogin = () => {
-    login()
+  const handleLogin = async () => {
     onOpenChange(false)
-    onLoginSuccess?.()
+    await login()
+    // Note: onLoginSuccess should be called when auth state changes, not here
+    // because popup login is async and completes in a separate window
   }
 
   return (

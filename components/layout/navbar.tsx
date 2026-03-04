@@ -1,10 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { User, LogOut } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useI18n } from "@/components/i18n/i18n-provider"
+import { LoginDialog } from "@/components/auth/login-dialog"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -22,8 +24,20 @@ import { SUPPORTED_LANGUAGES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 
 export function Navbar() {
-  const { user, isLoggedIn, login, logout } = useAuth()
+  const [showLogin, setShowLogin] = useState(false)
+  const { user, isLoggedIn, logout, loading, setLanguage } = useAuth()
   const { t, locale, setLocale } = useI18n()
+
+  const handleLanguageChange = async (langCode: string) => {
+    setLocale(langCode)
+    if (isLoggedIn && user) {
+      try {
+        await setLanguage(langCode)
+      } catch (error) {
+        console.error('Failed to update language preference:', error)
+      }
+    }
+  }
 
   return (
     <header className="glass-nav fixed top-0 left-0 right-0 z-50">
@@ -48,12 +62,14 @@ export function Navbar() {
 
         {/* Right: Account */}
         <div className="flex items-center gap-3">
-          {isLoggedIn ? (
+          {loading ? (
+            <div className="h-9 w-24 animate-pulse rounded-lg bg-muted" />
+          ) : isLoggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2.5 rounded-full py-1 px-1.5 transition-colors hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Avatar className="size-7">
-                    <AvatarImage src={user?.avatar} alt={user?.name ?? "User"} />
+                    <AvatarImage src={user?.avatar ?? undefined} alt={user?.name ?? "User"} />
                     <AvatarFallback className="text-xs bg-primary/10 text-primary">
                       {user?.name?.charAt(0) ?? "U"}
                     </AvatarFallback>
@@ -79,7 +95,7 @@ export function Navbar() {
                     {SUPPORTED_LANGUAGES.map((lang) => (
                       <DropdownMenuItem
                         key={lang.code}
-                        onClick={() => setLocale(lang.code)}
+                        onClick={() => handleLanguageChange(lang.code)}
                         className={cn(locale === lang.code && "bg-accent")}
                       >
                         {lang.label}
@@ -108,7 +124,7 @@ export function Navbar() {
             <Button
               variant="default"
               size="sm"
-              onClick={login}
+              onClick={() => setShowLogin(true)}
               className="btn-glow"
             >
               {t("nav_login")}
@@ -116,6 +132,8 @@ export function Navbar() {
           )}
         </div>
       </nav>
+
+      <LoginDialog open={showLogin} onOpenChange={setShowLogin} />
     </header>
   )
 }

@@ -13,12 +13,15 @@ export type ReportStatus = "generating" | "completed" | "deleted"
 
 export interface User {
   id: string
-  google_id: string
   email: string
-  name: string
-  avatar: string
+  name: string | null
+  avatar: string | null
   language: Language
 }
+
+// AppUser is an alias for User, used in auth context
+// Both names are supported for backward compatibility
+export type AppUser = User
 
 export interface Report {
   id: string

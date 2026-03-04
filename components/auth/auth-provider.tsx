@@ -1,113 +1,191 @@
 "use client"
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
-import type { User, Report, Task } from "@/lib/types"
-import { MOCK_USER, MOCK_REPORTS, MOCK_TASKS, MOCK_OPPORTUNITIES, getOpportunitiesForReport } from "@/lib/mock-data"
+import type { User, Session } from "@supabase/supabase-js"
+import { supabase } from "@/lib/supabase"
+import type { AppUser } from "@/lib/types"
 
 interface AuthContextType {
-  user: User | null
+  user: AppUser | null
+  session: Session | null
   isLoggedIn: boolean
-  login: () => void
-  logout: () => void
-  reports: Report[]
-  tasks: Task[]
-  runningTask: Task | null
-  addReport: (report: Report) => void
-  updateReport: (reportId: string, updates: Partial<Report>) => void
-  addTask: (task: Task) => void
-  updateTask: (taskId: string, updates: Partial<Task>) => void
-  deleteReport: (reportId: string) => void
-  getReport: (reportId: string) => Report | undefined
-  getTask: (taskId: string) => Task | undefined
+  loading: boolean
+  login: () => Promise<void>
+  logout: () => Promise<void>
+  setLanguage: (language: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [reports, setReports] = useState<Report[]>([])
-  const [tasks, setTasks] = useState<Task[]>([])
+  const [user, setUser] = useState<AppUser | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const saved = localStorage.getItem("gurubox_auth")
-    if (saved === "true") {
-      setUser(MOCK_USER)
-      setReports([...MOCK_REPORTS])
-      setTasks([...MOCK_TASKS])
+    // Get initial session
+    const getInitialSession = async () => {
+      console.log('[AuthProvider] Getting initial session...')
+      const { data: { session }, error } = await supabase.auth.getSession()
+
+      console.log('[AuthProvider] Initial session result', {
+        hasSession: !!session,
+        userId: session?.user?.id,
+        error: error?.message,
+      })
+
+      if (session) {
+        await loadUser(session.user.id)
+      }
+
+      setSession(session)
+      setLoading(false)
+    }
+
+    getInitialSession()
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[AuthProvider] Auth state changed', {
+        event,
+        hasSession: !!session,
+        userId: session?.user?.id,
+      })
+
+      setSession(session)
+
+      if (session?.user) {
+        await loadUser(session.user.id)
+      } else {
+        setUser(null)
+      }
+
+      setLoading(false)
+    })
+
+    // Listen for popup auth success message
+    const handlePopupMessage = async (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return
+      if (event.data?.type === 'GOOGLE_AUTH_SUCCESS') {
+        console.log('[AuthProvider] Received popup auth success message')
+        // Refresh session to get the new auth state
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          setSession(session)
+          await loadUser(session.user.id)
+        }
+      }
+    }
+
+    window.addEventListener('message', handlePopupMessage)
+
+    return () => {
+      subscription.unsubscribe()
+      window.removeEventListener('message', handlePopupMessage)
     }
   }, [])
 
-  const login = useCallback(() => {
-    setUser(MOCK_USER)
-    setReports([...MOCK_REPORTS])
-    setTasks([...MOCK_TASKS])
-    localStorage.setItem("gurubox_auth", "true")
-  }, [])
+  const loadUser = async (userId: string) => {
+    const { data: userData, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle()
 
-  const logout = useCallback(() => {
-    setUser(null)
-    setReports([])
-    setTasks([])
-    localStorage.removeItem("gurubox_auth")
-  }, [])
+    if (userData) {
+      setUser(userData as AppUser)
+    } else {
+      // User not found in database, create from auth session
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const newUser = {
+          id: user.id,
+          email: user.email!,
+          name: user.user_metadata.full_name || user.email?.split('@')[0] || '',
+          avatar: user.user_metadata.avatar_url || '',
+          language: 'en' as const,
+        }
+        setUser(newUser as AppUser)
 
-  const runningTask = tasks.find((t) => t.status === "running") ?? null
+        // Create user record in database
+        const { upsertUser } = await import("@/lib/supabase/user")
+        const { error: upsertError } = await upsertUser(newUser)
+        if (upsertError) {
+          console.error('Failed to create user record:', upsertError)
+        }
+      }
+    }
+  }
 
-  const addReport = useCallback((report: Report) => {
-    setReports((prev) => [report, ...prev])
-  }, [])
+  const login = useCallback(async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        skipBrowserRedirect: true,
+        redirectTo: `${window.location.origin}/auth/callback?popup=true`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    })
 
-  const updateReport = useCallback((reportId: string, updates: Partial<Report>) => {
-    setReports((prev) =>
-      prev.map((r) => (r.id === reportId ? { ...r, ...updates } : r))
-    )
-  }, [])
+    if (error) {
+      console.error('Sign in error:', error)
+      throw error
+    }
 
-  const addTask = useCallback((task: Task) => {
-    setTasks((prev) => [task, ...prev])
-  }, [])
+    if (data.url) {
+      // Open OAuth in a popup window
+      const width = 500
+      const height = 600
+      const left = window.screenX + (window.outerWidth - width) / 2
+      const top = window.screenY + (window.outerHeight - height) / 2
 
-  const updateTask = useCallback((taskId: string, updates: Partial<Task>) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
-    )
-  }, [])
-
-  const deleteReport = useCallback((reportId: string) => {
-    setReports((prev) =>
-      prev.map((r) =>
-        r.id === reportId ? { ...r, is_deleted: true, status: "deleted" as const } : r
+      window.open(
+        data.url,
+        'google-auth',
+        `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,resizable=yes,scrollbars=yes`
       )
-    )
+    }
   }, [])
 
-  const getReport = useCallback(
-    (reportId: string) => reports.find((r) => r.id === reportId),
-    [reports]
-  )
+  const logout = useCallback(async () => {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('Sign out error:', error)
+      throw error
+    }
+    setUser(null)
+    setSession(null)
+  }, [])
 
-  const getTask = useCallback(
-    (taskId: string) => tasks.find((t) => t.id === taskId),
-    [tasks]
-  )
+  const setLanguage = useCallback(async (language: string) => {
+    if (!user) return
+
+    const { error } = await supabase
+      .from('users')
+      .update({ language })
+      .eq('id', user.id)
+
+    if (error) {
+      console.error('Language update error:', error)
+      throw error
+    }
+
+    setUser({ ...user, language: language as AppUser['language'] })
+  }, [user])
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        session,
         isLoggedIn: !!user,
+        loading,
         login,
         logout,
-        reports,
-        tasks,
-        runningTask,
-        addReport,
-        updateReport,
-        addTask,
-        updateTask,
-        deleteReport,
-        getReport,
-        getTask,
+        setLanguage,
       }}
     >
       {children}

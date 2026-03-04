@@ -15,10 +15,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { PAGE_SIZE } from "@/lib/constants"
 import type { Opportunity } from "@/lib/types"
+import type { OpportunityResponse } from "@/lib/api/client"
 import { cn } from "@/lib/utils"
 
 interface OpportunitiesTableProps {
-  opportunities: Opportunity[]
+  opportunities: (Opportunity | OpportunityResponse)[]
+  page?: number
+  totalPages?: number
+  onPageChange?: (page: number) => void
 }
 
 function ScoreBadge({ score }: { score: number }) {
@@ -37,16 +41,32 @@ function ScoreBadge({ score }: { score: number }) {
   )
 }
 
-export function OpportunitiesTable({ opportunities }: OpportunitiesTableProps) {
+export function OpportunitiesTable({
+  opportunities,
+  page: externalPage,
+  totalPages: externalTotalPages,
+  onPageChange
+}: OpportunitiesTableProps) {
   const { t } = useI18n()
-  const [page, setPage] = useState(1)
+  const [internalPage, setInternalPage] = useState(1)
 
-  const totalPages = Math.ceil(opportunities.length / PAGE_SIZE)
+  // Use external pagination if provided, otherwise use internal
+  const page = externalPage ?? internalPage
+  const setPage = onPageChange ?? setInternalPage
 
+  // Calculate total pages if not provided externally
+  const totalPages = externalTotalPages ?? Math.ceil(opportunities.length / PAGE_SIZE)
+
+  // Paginate data if no external pagination
   const pageData = useMemo(() => {
+    if (externalTotalPages !== undefined) {
+      // External pagination: data is already paginated
+      return opportunities
+    }
+    // Internal pagination: slice the data
     const start = (page - 1) * PAGE_SIZE
     return opportunities.slice(start, start + PAGE_SIZE)
-  }, [opportunities, page])
+  }, [opportunities, page, externalTotalPages])
 
   return (
     <div className="flex flex-col gap-4">
@@ -77,16 +97,16 @@ export function OpportunitiesTable({ opportunities }: OpportunitiesTableProps) {
                   {opp.name}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-xs whitespace-normal leading-relaxed">
-                  {opp.core_users}
+                  {('core_users' in opp) ? opp.core_users : (opp.target_user_segments?.join(', ') || '-')}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-xs whitespace-normal leading-relaxed max-w-[220px]">
-                  {opp.pain_points}
+                  {('pain_points' in opp) ? opp.pain_points : (opp.key_pain_points?.join(', ') || '-')}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-xs whitespace-normal leading-relaxed max-w-[200px]">
-                  {opp.user_demands}
+                  {('user_demands' in opp) ? opp.user_demands : '-'}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-xs whitespace-normal leading-relaxed max-w-[220px]">
-                  {opp.ai_solution}
+                  {('ai_solution' in opp) ? opp.ai_solution : (opp.core_ai_capabilities?.join(', ') || '-')}
                 </TableCell>
                 <TableCell className="text-right">
                   <ScoreBadge score={opp.final_score} />
@@ -100,7 +120,11 @@ export function OpportunitiesTable({ opportunities }: OpportunitiesTableProps) {
       {/* Pagination */}
       <div className="flex items-center justify-between px-1">
         <p className="text-sm text-muted-foreground tabular-nums">
-          {t("report_col_index")} {(page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, opportunities.length)} {t("report_page_of")} {opportunities.length}
+          {t("report_page_info", {
+            start: (page - 1) * PAGE_SIZE + 1,
+            end: Math.min(page * PAGE_SIZE, opportunities.length),
+            total: opportunities.length
+          }) || `${t("report_col_index")} ${(page - 1) * PAGE_SIZE + 1}-${Math.min(page * PAGE_SIZE, opportunities.length)} ${t("report_page_of")} ${opportunities.length}`}
         </p>
         <div className="flex items-center gap-2">
           <Button
