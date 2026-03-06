@@ -17,6 +17,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
+// Timeout for initial auth check (10 seconds)
+const AUTH_INIT_TIMEOUT = 10000
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null)
   const [session, setSession] = useState<Session | null>(null)
@@ -26,6 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const currentUserIdRef = useRef<string | null>(null)
   // Polling state
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
+  // Track if initial auth check is complete
+  const initialCheckCompleteRef = useRef(false)
 
   useEffect(() => {
     let mounted = true
@@ -41,6 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) {
           console.error('[AuthProvider] Error loading user from database:', error)
         }
+
+        if (!mounted) return
 
         if (userData) {
           setUser(userData as AppUser)
@@ -64,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error('[AuthProvider] Error in loadUser:', error)
+        if (!mounted) return
         // Fallback: set user from auth data
         const fallbackUser = {
           id: authUser.id,
@@ -82,6 +90,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const getInitialSession = async () => {
       console.log('[AuthProvider] Getting initial session...')
 
+      // Add timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        if (mounted && !initialCheckCompleteRef.current) {
+          console.warn('[AuthProvider] Initial auth check timed out, setting loading to false')
+          setLoading(false)
+        }
+      }, AUTH_INIT_TIMEOUT)
+
       try {
         // Use getUser() instead of getSession() for verified auth
         const { data: { user }, error } = await supabase.auth.getUser()
@@ -91,6 +107,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           userId: user?.id,
           error: error?.message,
         })
+
+        clearTimeout(timeoutId)
+        initialCheckCompleteRef.current = true
 
         if (!mounted) return
 
@@ -104,6 +123,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setLoading(false)
         }
       } catch (error) {
+        clearTimeout(timeoutId)
+        initialCheckCompleteRef.current = true
         console.error('[AuthProvider] Error getting user:', error)
         if (mounted) {
           setLoading(false)

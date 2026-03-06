@@ -1,49 +1,57 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(req: NextRequest) {
-  console.log('[Middleware] Processing request:', req.nextUrl.pathname)
+export async function middleware(request: NextRequest) {
+  console.log('[Middleware] Processing request:', request.nextUrl.pathname)
 
-  const res = NextResponse.next()
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
 
-  // Create Supabase client for middleware
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return req.cookies.get(name)?.value
+        getAll() {
+          return request.cookies.getAll()
         },
-        set(name: string, value: string, options: any) {
-          res.cookies.set({ name, value, ...options })
-        },
-        remove(name: string, options: any) {
-          res.cookies.delete({ name, ...options })
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
         },
       },
     }
   )
 
+  // IMPORTANT: Use getUser() instead of getSession() for security
+  // This also refreshes the session if needed
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
 
-  console.log('[Middleware] Session check', {
-    hasSession: !!session,
-    userId: session?.user?.id,
+  console.log('[Middleware] User check', {
+    hasUser: !!user,
+    userId: user?.id,
+    error: error?.message,
   })
 
-  const isAccountPage = req.nextUrl.pathname.startsWith('/account')
+  const isAccountPage = request.nextUrl.pathname.startsWith('/account')
 
   // Protect /account route
-  if (isAccountPage && !session) {
-    console.log('[Middleware] No session, redirecting from account page')
-    const redirectUrl = new URL('/tools/product-insight', req.url)
+  if (isAccountPage && !user) {
+    console.log('[Middleware] No user, redirecting from account page')
+    const redirectUrl = new URL('/tools/product-insight', request.url)
     return NextResponse.redirect(redirectUrl)
   }
 
-  return res
+  return supabaseResponse
 }
 
 export const config = {
