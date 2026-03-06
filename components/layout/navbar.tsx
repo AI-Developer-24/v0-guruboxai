@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { User, LogOut } from "lucide-react"
+import { User, LogOut, Check } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useI18n } from "@/components/i18n/i18n-provider"
 import type { Language } from "@/lib/types"
@@ -23,6 +23,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { SUPPORTED_LANGUAGES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
+import { translations } from "@/lib/translations"
 
 export function Navbar() {
   const [showLogin, setShowLogin] = useState(false)
@@ -30,7 +32,10 @@ export function Navbar() {
   const { t, locale, setLocale } = useI18n()
 
   const handleLanguageChange = async (langCode: string) => {
-    setLocale(langCode as Language)
+    const newLocale = langCode as Language
+    if (newLocale === locale) return
+
+    setLocale(newLocale)
     if (isLoggedIn && user) {
       try {
         await setLanguage(langCode)
@@ -38,6 +43,8 @@ export function Navbar() {
         console.error('Failed to update language preference:', error)
       }
     }
+    // Use translations directly with new locale to avoid stale closure
+    toast.success(translations[newLocale]?.language_updated || "Language updated")
   }
 
   return (
@@ -97,9 +104,9 @@ export function Navbar() {
                       <DropdownMenuItem
                         key={lang.code}
                         onClick={() => handleLanguageChange(lang.code)}
-                        className={cn(locale === lang.code && "bg-accent")}
                       >
-                        {lang.label}
+                        <span className="flex-1">{lang.label}</span>
+                        {locale === lang.code && <Check className="size-4" />}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuSubContent>

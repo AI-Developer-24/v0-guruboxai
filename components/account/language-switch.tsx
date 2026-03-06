@@ -14,6 +14,7 @@ import {
 import { SUPPORTED_LANGUAGES } from "@/lib/constants"
 import { toast } from "sonner"
 import type { Language } from "@/lib/types"
+import { translations } from "@/lib/translations"
 
 export function LanguageSwitch() {
   const { user, loading: authLoading, setLanguage } = useAuth()
@@ -44,7 +45,8 @@ export function LanguageSwitch() {
       // Update local i18n state
       setI18nLocale(newLocale)
 
-      toast.success(t("language_updated") || "Language updated")
+      // Use translations directly with new locale to avoid stale closure
+      toast.success(translations[newLocale]?.language_updated || "Language updated")
     } catch (error) {
       toast.error(t("error_language_update") || "Failed to update language")
     } finally {
