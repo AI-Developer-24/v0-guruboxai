@@ -34,6 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Track current user ID to detect login changes
   const currentUserIdRef = useRef<string | null>(null)
+  // Track if user loading is in progress (prevents duplicate loadUser calls)
+  const isLoadingUserRef = useRef(false)
   // Polling state
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -57,11 +59,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
 
       // Prevent duplicate calls for the same user
-      if (currentUserIdRef.current === authUser.id && user) {
-        authLogger.debug('loadUser: user already loaded, skipping', { userId: authUser.id })
-        setLoading(false)
+      if (isLoadingUserRef.current) {
+        authLogger.debug('loadUser: already loading a user, skipping', { userId: authUser.id })
         return
       }
+      isLoadingUserRef.current = true
 
       // Create fallback user data (used on timeout or error)
       const fallbackUser: AppUser = {
@@ -101,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (!mounted) {
           authLogger.debug('Component unmounted, aborting loadUser')
+          isLoadingUserRef.current = false
           return
         }
 
@@ -147,12 +150,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           })
         }
 
-        if (!mounted) return
+        if (!mounted) {
+          isLoadingUserRef.current = false
+          return
+        }
 
         // Use fallback user data
         authLogger.info('Using fallback user data from auth', { userId: fallbackUser.id })
         setUser(fallbackUser)
       } finally {
+        isLoadingUserRef.current = false
         setLoading(false)
         authLogger.debug('loadUser completed', {
           elapsedMs: Date.now() - startTime,
@@ -249,14 +256,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session)
 
       if (session?.user) {
-        // Only process if this is a new user (login) or initial check not complete
+        // Only process if this is a new user (login)
         if (currentUserIdRef.current !== session.user.id) {
           currentUserIdRef.current = session.user.id
           await loadUser(session.user)
-        } else {
-          authLogger.debug('Same user already set, skipping loadUser')
-          setLoading(false)
         }
+        // If same user, loadUser is already handling/handled the loading state
       } else {
         authLogger.info('No session in auth state change, clearing user')
         currentUserIdRef.current = null
