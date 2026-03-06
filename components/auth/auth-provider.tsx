@@ -17,8 +17,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
-// Timeout for initial auth check (10 seconds)
-const AUTH_INIT_TIMEOUT = 10000
+// Timeout for initial auth check (5 seconds)
+// Reduced from 10s to improve user experience on slow connections
+const AUTH_INIT_TIMEOUT = 5000
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null)
@@ -198,24 +199,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for popup auth success message
     const handlePopupMessage = async (event: MessageEvent) => {
       // Accept messages from the same origin or from NEXT_PUBLIC_APP_URL
+      // Note: event.origin is never "*", that's only for targetOrigin in postMessage
       const appUrl = process.env.NEXT_PUBLIC_APP_URL
-      const isValidOrigin =
-        event.origin === window.location.origin ||
-        event.origin === "*" ||
-        (appUrl && event.origin === new URL(appUrl).origin)
+      const currentOrigin = window.location.origin
 
-      if (!isValidOrigin) return
+      // Build list of valid origins
+      const validOrigins = [currentOrigin]
+      if (appUrl) {
+        try {
+          const appOrigin = new URL(appUrl).origin
+          if (appOrigin !== currentOrigin) {
+            validOrigins.push(appOrigin)
+          }
+        } catch {
+          // Invalid URL, ignore
+        }
+      }
+
+      if (!validOrigins.includes(event.origin)) {
+        console.log('[AuthProvider] Ignoring message from invalid origin:', event.origin, 'Expected:', validOrigins)
+        return
+      }
 
       if (event.data?.type === 'GOOGLE_AUTH_SUCCESS') {
         console.log('[AuthProvider] Received popup auth success message from:', event.origin)
         stopPolling()
-        // Refresh session to get the new auth state
-        const { data: { user } } = await supabase.auth.getUser()
+
+        // Give browser a moment to process cookies set by the popup
+        // This is crucial for production environments where cookie sync may be slower
+        await new Promise(resolve => setTimeout(resolve, 100))
+
+        // Force refresh the session by calling getUser()
+        // This will read the new cookies and validate with Supabase
+        console.log('[AuthProvider] Refreshing session after popup login...')
+        const { data: { user }, error } = await supabase.auth.getUser()
+
+        if (error) {
+          console.error('[AuthProvider] Error getting user after popup login:', error)
+        }
+
         if (user) {
+          console.log('[AuthProvider] User found after popup login:', user.id)
           currentUserIdRef.current = user.id
           const { data: { session } } = await supabase.auth.getSession()
           setSession(session)
           await loadUser(user)
+        } else {
+          console.warn('[AuthProvider] No user found after popup login - cookies may not be synced')
         }
       }
     }

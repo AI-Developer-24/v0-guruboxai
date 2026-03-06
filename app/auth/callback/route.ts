@@ -22,27 +22,27 @@ export async function GET(request: NextRequest) {
     const redirectTarget = isPopup ? '/auth/popup-success' : next
 
     // Create response FIRST
-    const response = NextResponse.redirect(new URL(redirectTarget, requestUrl.origin))
+    let response = NextResponse.redirect(new URL(redirectTarget, requestUrl.origin))
 
     // Create Supabase client for server-side
-    // IMPORTANT: set/remove cookies on RESPONSE, not request
-    const supabase = createServerClient(
+    // IMPORTANT: Use getAll/setAll for @supabase/ssr 0.8.0+
+    const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          get(name: string) {
-            const value = request.cookies.get(name)?.value
-            console.log(`[Auth Callback] Get cookie ${name}:`, value ? 'found' : 'not found')
-            return value
+          getAll() {
+            return request.cookies.getAll()
           },
-          set(name: string, value: string, options: any) {
-            console.log(`[Auth Callback] Set cookie ${name} on response`)
-            response.cookies.set({ name, value, ...options })
-          },
-          remove(name: string, options: any) {
-            console.log(`[Auth Callback] Remove cookie ${name} from response`)
-            response.cookies.delete({ name, ...options })
+          setAll(cookiesToSet) {
+            // Update request cookies for subsequent operations
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+            // Create new response with updated cookies
+            response = NextResponse.redirect(new URL(redirectTarget, requestUrl.origin))
+            // Set cookies on the response
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            )
           },
         },
       }

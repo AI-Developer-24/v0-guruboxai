@@ -18,10 +18,17 @@ export async function getAuthenticatedUser() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          const value = cookieStore.get(name)?.value
-          console.log(`[Auth] Getting cookie ${name}:`, value ? 'found' : 'not found')
-          return value
+        getAll() {
+          return cookieStore.getAll()
+        },
+        // Note: setAll is not typically needed for read-only auth checks
+        // but we include it for completeness
+        setAll(cookiesToSet) {
+          // API routes don't typically set cookies, but if needed:
+          cookiesToSet.forEach(({ name, value, options }) => {
+            // In API routes, we can't set cookies directly
+            // This would need to be handled by the response
+          })
         },
       },
     }
@@ -69,13 +76,10 @@ export async function createSupabaseClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
+        getAll() {
+          return cookieStore.getAll()
         },
-        set(name: string, value: string, options: any) {
-          // Not used in API routes typically
-        },
-        remove(name: string, options: any) {
+        setAll(cookiesToSet) {
           // Not used in API routes typically
         },
       },
