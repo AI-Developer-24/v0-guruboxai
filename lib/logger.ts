@@ -37,7 +37,7 @@ class Logger {
   private log(level: LogLevel, message: string, data?: any, context?: string) {
     const entry = this.formatEntry(level, message, data, context)
 
-    if (this.isDevelopment) {
+    //if (this.isDevelopment) {
       // 开发环境：彩色控制台输出
       const colors = {
         debug: '\x1b[36m', // 青色
@@ -56,22 +56,22 @@ class Logger {
         message,
         data || ''
       )
-    } else {
+    //} else {
       // 生产环境：JSON 格式（便于日志聚合工具解析）
-      console.log(JSON.stringify(entry))
+      //console.log(JSON.stringify(entry))
 
       // 可扩展：发送到外部日志服务
       // this.sendToLogService(entry)
-    }
+    //}
   }
 
   /**
    * Debug 级别日志（仅开发环境）
    */
   debug(message: string, data?: any, context?: string) {
-    if (this.isDevelopment) {
+    //if (this.isDevelopment) {
       this.log('debug', message, data, context)
-    }
+    //}
   }
 
   /**

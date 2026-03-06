@@ -7,6 +7,33 @@ const middlewareLogger = logger.withContext('Middleware')
 export async function middleware(request: NextRequest) {
   middlewareLogger.debug('Processing request', { path: request.nextUrl.pathname })
 
+  const canonicalAppUrl = process.env.NEXT_PUBLIC_APP_URL
+  if (process.env.NODE_ENV === 'production' && canonicalAppUrl) {
+    try {
+      const canonicalUrl = new URL(canonicalAppUrl)
+      const requestHost = request.nextUrl.host
+      const canonicalHost = canonicalUrl.host
+      const protocol = request.headers.get('x-forwarded-proto') ?? request.nextUrl.protocol.replace(':', '')
+
+      if (requestHost !== canonicalHost || protocol !== canonicalUrl.protocol.replace(':', '')) {
+        const redirectUrl = new URL(request.url)
+        redirectUrl.protocol = canonicalUrl.protocol
+        redirectUrl.host = canonicalHost
+        middlewareLogger.info('Redirecting to canonical domain', {
+          from: `${protocol}://${requestHost}`,
+          to: canonicalUrl.origin,
+          path: request.nextUrl.pathname,
+        })
+        return NextResponse.redirect(redirectUrl, 308)
+      }
+    } catch (error) {
+      middlewareLogger.warn('Invalid NEXT_PUBLIC_APP_URL, skipping canonical redirect', {
+        value: canonicalAppUrl,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    }
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })

@@ -10,22 +10,21 @@ export default function PopupSuccessPage() {
       // Try to notify opener window that login was successful
       if (window.opener && !window.opener.closed) {
         try {
-          // Get the target origin from the app URL or use current origin
-          // This handles cases where the popup might be on a different domain
+          const currentOrigin = window.location.origin
           const appUrl = process.env.NEXT_PUBLIC_APP_URL
-          const targetOrigin = appUrl ? new URL(appUrl).origin : window.location.origin
+          const origins = new Set<string>([currentOrigin])
+          if (appUrl) {
+            try {
+              origins.add(new URL(appUrl).origin)
+            } catch {
+              // Ignore invalid NEXT_PUBLIC_APP_URL
+            }
+          }
 
-          window.opener.postMessage(
-            { type: "GOOGLE_AUTH_SUCCESS" },
-            targetOrigin
-          )
-
-          // Also try with "*" as fallback for cross-origin scenarios
-          // This is safe because we're only sending a success notification
-          if (targetOrigin !== "*") {
+          for (const targetOrigin of origins) {
             window.opener.postMessage(
               { type: "GOOGLE_AUTH_SUCCESS" },
-              "*"
+              targetOrigin
             )
           }
 

@@ -20,9 +20,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
-// Timeout for initial auth check (5 seconds)
-// Reduced from 10s to improve user experience on slow connections
-const AUTH_INIT_TIMEOUT = 5000
+const AUTH_INIT_ATTEMPTS = 3
+const AUTH_INIT_TIMEOUT = 8000
+const AUTH_INIT_RETRY_DELAYS_MS = [300, 800]
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null)
@@ -35,6 +35,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
   // Track if initial auth check is complete
   const initialCheckCompleteRef = useRef(false)
+
+  const collectSupabaseCookieNames = useCallback(() => {
+    if (typeof document === 'undefined' || !document.cookie) return [] as string[]
+    return document.cookie
+      .split(';')
+      .map((cookie) => cookie.trim().split('=')[0])
+      .filter((name) => name.startsWith('sb-'))
+  }, [])
+
+  const sleep = useCallback(async (ms: number) => {
+    await new Promise((resolve) => setTimeout(resolve, ms))
+  }, [])
+
+  const getVerifiedUserWithRetry = useCallback(async () => {
+    for (let attempt = 1; attempt <= AUTH_INIT_ATTEMPTS; attempt++) {
+      try {
+        const result = await Promise.race([
+          supabase.auth.getUser(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error(`AUTH_GET_USER_TIMEOUT_${attempt}`)), AUTH_INIT_TIMEOUT)
+          ),
+        ])
+
+        if (attempt > 1) {
+          authLogger.info('Auth check recovered after retry', { attempt })
+        }
+
+        return result
+      } catch (error) {
+        authLogger.warn('Auth check attempt failed', {
+          attempt,
+          message: error instanceof Error ? error.message : String(error),
+        })
+
+        if (attempt < AUTH_INIT_ATTEMPTS) {
+          const delay = AUTH_INIT_RETRY_DELAYS_MS[attempt - 1] ?? 1000
+          await sleep(delay)
+        } else {
+          throw error
+        }
+      }
+    }
+
+    throw new Error('AUTH_GET_USER_UNREACHABLE')
+  }, [sleep])
 
   useEffect(() => {
     let mounted = true
@@ -93,26 +138,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Get initial session using getUser() for security
     const getInitialSession = async () => {
       authLogger.debug('Getting initial session...')
-
-      // Add timeout to prevent infinite loading
-      const timeoutId = setTimeout(() => {
-        if (mounted && !initialCheckCompleteRef.current) {
-          authLogger.warn('Initial auth check timed out, setting loading to false')
-          setLoading(false)
+      const currentOrigin = window.location.origin
+      const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL
+      const configuredAppOrigin = configuredAppUrl ? (() => {
+        try {
+          return new URL(configuredAppUrl).origin
+        } catch {
+          return 'INVALID_URL'
         }
-      }, AUTH_INIT_TIMEOUT)
+      })() : 'NOT_SET'
+      authLogger.info('Auth init diagnostics', {
+        currentOrigin,
+        configuredAppOrigin,
+        supabaseCookies: collectSupabaseCookieNames(),
+      })
 
       try {
         // Use getUser() instead of getSession() for verified auth
-        const { data: { user }, error } = await supabase.auth.getUser()
+        const { data: { user }, error } = await getVerifiedUserWithRetry()
 
         authLogger.debug('getUser result', {
           hasUser: !!user,
           userId: user?.id,
           error: error?.message,
         })
-
-        clearTimeout(timeoutId)
         initialCheckCompleteRef.current = true
 
         if (!mounted) return
@@ -127,7 +176,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setLoading(false)
         }
       } catch (error) {
-        clearTimeout(timeoutId)
         initialCheckCompleteRef.current = true
         authLogger.error('Error getting user', error)
         if (mounted) {
@@ -225,7 +273,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (event.data?.type === 'GOOGLE_AUTH_SUCCESS') {
-        authLogger.debug('Received popup auth success message', { origin: event.origin })
+        authLogger.info('Received popup auth success message', {
+          messageOrigin: event.origin,
+          currentOrigin,
+          configuredAppUrl: appUrl || 'NOT_SET',
+          supabaseCookies: collectSupabaseCookieNames(),
+        })
         stopPolling()
 
         // Give browser a moment to process cookies set by the popup
@@ -282,15 +335,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = useCallback(async (popup?: Window | null) => {
-    // Use NEXT_PUBLIC_APP_URL for consistent OAuth callback across environments
-    // This ensures cookies are set on the correct domain in production
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+    // Always use current page origin to avoid cross-domain cookie issues
+    // when production traffic can arrive from multiple hostnames.
+    const redirectOrigin = window.location.origin
+    const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL
+    const configuredAppOrigin = configuredAppUrl ? (() => {
+      try {
+        return new URL(configuredAppUrl).origin
+      } catch {
+        return 'INVALID_URL'
+      }
+    })() : 'NOT_SET'
+
+    authLogger.info('Starting Google OAuth login', {
+      currentOrigin: redirectOrigin,
+      configuredAppOrigin,
+      redirectTo: `${redirectOrigin}/auth/callback?popup=true`,
+      supabaseCookies: collectSupabaseCookieNames(),
+    })
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         skipBrowserRedirect: true,
-        redirectTo: `${appUrl}/auth/callback?popup=true`,
+        redirectTo: `${redirectOrigin}/auth/callback?popup=true`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
@@ -325,7 +393,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         )
       }
     }
-  }, [])
+  }, [collectSupabaseCookieNames])
 
   const logout = useCallback(async () => {
     const { error } = await supabase.auth.signOut()
