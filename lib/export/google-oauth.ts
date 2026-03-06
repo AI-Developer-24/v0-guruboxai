@@ -1,6 +1,9 @@
 import { OAuth2Client } from 'google-auth-library'
 import { supabaseAdmin } from '../supabase-admin'
 import type { Database } from '../supabase-types'
+import { logger } from '../logger'
+
+const oauthLogger = logger.withContext('GoogleOAuth')
 
 type GoogleToken = Database['public']['Tables']['google_tokens']['Row']
 

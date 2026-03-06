@@ -2,21 +2,24 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import type { Database } from '@/lib/supabase-types'
+import { logger } from '@/lib/logger'
 
 type UserInsert = Database['public']['Tables']['users']['Insert']
 
+const callbackLogger = logger.withContext('AuthCallback')
+
 export async function GET(request: NextRequest) {
-  console.log('[Auth Callback] GET /auth/callback called')
+  callbackLogger.debug('GET /auth/callback called')
 
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
   const isPopup = requestUrl.searchParams.get('popup') === 'true'
   const next = requestUrl.searchParams.get('next') || '/tools/product-insight'
 
-  console.log('[Auth Callback] Params', { code: !!code, next, isPopup })
+  callbackLogger.debug('Params', { code: !!code, next, isPopup })
 
   if (code) {
-    console.log('[Auth Callback] Creating response and server client...')
+    callbackLogger.debug('Creating response and server client...')
 
     // Determine redirect target based on popup mode
     const redirectTarget = isPopup ? '/auth/popup-success' : next
@@ -49,11 +52,11 @@ export async function GET(request: NextRequest) {
     )
 
     // Exchange code for session
-    console.log('[Auth Callback] Exchanging code for session...')
+    callbackLogger.debug('Exchanging code for session...')
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
-      console.error('[Auth Callback] Auth error:', error)
+      callbackLogger.error('Auth error', error)
       // Return error response
       const errorResponse = NextResponse.redirect(
         new URL('/auth/error', requestUrl.origin)
@@ -61,7 +64,7 @@ export async function GET(request: NextRequest) {
       return errorResponse
     }
 
-    console.log('[Auth Callback] Session exchange successful', {
+    callbackLogger.debug('Session exchange successful', {
       hasSession: !!data.session,
       hasUser: !!data.user,
     })
@@ -69,14 +72,14 @@ export async function GET(request: NextRequest) {
     // Get user info
     const { data: { user } } = await supabase.auth.getUser()
 
-    console.log('[Auth Callback] Get user result', {
+    callbackLogger.debug('Get user result', {
       hasUser: !!user,
       userId: user?.id,
     })
 
     if (user) {
       // Ensure user record exists in users table using admin client (bypasses RLS)
-      console.log('[Auth Callback] Upserting user to database...')
+      callbackLogger.debug('Upserting user to database...')
       const userData: UserInsert = {
         id: user.id,
         email: user.email!,
@@ -90,19 +93,18 @@ export async function GET(request: NextRequest) {
         })
 
       if (upsertError) {
-        console.error('[Auth Callback] User upsert error:', upsertError)
+        callbackLogger.error('User upsert error', upsertError)
       } else {
-        console.log('[Auth Callback] User upsert successful')
+        callbackLogger.debug('User upsert successful')
       }
     }
 
-    console.log('[Auth Callback] Response cookies:', response.cookies.getAll())
-    console.log('[Auth Callback] Redirecting to:', redirectTarget)
+    callbackLogger.debug('Redirecting', { target: redirectTarget })
 
     return response
   }
 
-  console.log('[Auth Callback] No code, redirecting to:', next)
+  callbackLogger.info('No code, redirecting', { target: next })
   // Redirect to target page
   return NextResponse.redirect(new URL(next, requestUrl.origin))
 }

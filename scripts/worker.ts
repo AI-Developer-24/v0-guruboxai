@@ -10,6 +10,9 @@
 
 import http from 'http'
 import { analysisWorker } from '../lib/queue/worker'
+import { logger } from '../lib/logger'
+
+const workerLogger = logger.withContext('WorkerProcess')
 
 // Health check server for Railway/container orchestration
 const PORT = process.env.PORT || 3001
@@ -29,15 +32,15 @@ const healthServer = http.createServer((req, res) => {
 })
 
 healthServer.listen(PORT, () => {
-  console.log(`Health check server running on port ${PORT}`)
+  workerLogger.info(`Health check server running on port ${PORT}`)
 })
 
-console.log('🚀 Analysis Worker started')
-console.log('Waiting for jobs...')
+workerLogger.info('Analysis Worker started')
+workerLogger.info('Waiting for jobs...')
 
 // Handle graceful shutdown
 const shutdown = async (signal: string) => {
-  console.log(`\n${signal} received, closing worker...`)
+  workerLogger.info(`${signal} received, closing worker...`)
   await analysisWorker.close()
   process.exit(0)
 }

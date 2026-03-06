@@ -12,6 +12,9 @@ import {
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
 import { aiService } from '@/lib/ai/service'
+import { logger } from '@/lib/logger'
+
+const apiLogger = logger.withContext('API:Tasks')
 
 // Enhanced validation schema with additional checks
 const EnhancedCreateTaskSchema = CreateTaskSchema.refine(
@@ -30,13 +33,13 @@ const EnhancedCreateTaskSchema = CreateTaskSchema.refine(
 const forbiddenWords = ['xxx', 'porn', 'illegal', 'hack']
 
 export async function POST(request: Request) {
-  console.log('[Tasks API] POST /api/v1/tools/product-insight/tasks called')
+  apiLogger.debug('POST /api/v1/tools/product-insight/tasks called')
 
   try {
     // Verify authentication
-    console.log('[Tasks API] Verifying authentication...')
+    apiLogger.debug('Verifying authentication...')
     const user = await requireAuth()
-    console.log('[Tasks API] User authenticated:', { userId: user.id })
+    apiLogger.debug('User authenticated', { userId: user.id })
 
     const cookieStore = await cookies()
     const supabase = createServerClient(
@@ -52,19 +55,19 @@ export async function POST(request: Request) {
     )
 
     // Parse and validate request body
-    console.log('[Tasks API] Parsing request body...')
+    apiLogger.debug('Parsing request body...')
     const body = await request.json()
     const validation = EnhancedCreateTaskSchema.safeParse(body)
 
     if (!validation.success) {
-      console.log('[Tasks API] Validation failed:', validation.error.errors)
+      apiLogger.warn('Validation failed', { errors: validation.error.errors })
       return validationErrorResponse(
         'Invalid input',
         validation.error.errors
       )
     }
 
-    console.log('[Tasks API] Validation passed')
+    apiLogger.debug('Validation passed')
     const { input_text } = validation.data
     const trimmedInput = input_text.trim()
 
@@ -74,12 +77,12 @@ export async function POST(request: Request) {
     )
 
     if (hasForbiddenWord) {
-      console.log('[Tasks API] Forbidden word detected')
+      apiLogger.warn('Forbidden word detected')
       return validationErrorResponse('Input contains inappropriate content')
     }
 
     // Check concurrent task limit
-    console.log('[Tasks API] Checking concurrent task limit...')
+    apiLogger.debug('Checking concurrent task limit...')
     const { data: runningTask } = await supabase
       .from('tasks')
       .select('id, report_id')
@@ -88,7 +91,7 @@ export async function POST(request: Request) {
       .maybeSingle()
 
     if (runningTask) {
-      console.log('[Tasks API] Concurrent task found:', runningTask)
+      apiLogger.info('Concurrent task found', { taskId: runningTask.id })
       return concurrentTaskLimitResponse({
         task_id: runningTask.id,
         report_id: runningTask.report_id,
@@ -96,9 +99,9 @@ export async function POST(request: Request) {
     }
 
     // Start analysis via AI service (adds to queue)
-    console.log('[Tasks API] Starting analysis...')
+    apiLogger.info('Starting analysis...')
     const result = await aiService.startAnalysis(input_text, user.id)
-    console.log('[Tasks API] Analysis started:', result)
+    apiLogger.info('Analysis started', { taskId: result.taskId, reportId: result.reportId })
 
     return successResponse({
       task_id: result.taskId,
@@ -106,10 +109,10 @@ export async function POST(request: Request) {
       status: 'pending',
     })
   } catch (error) {
-    console.error('[Tasks API] Error:', error)
+    apiLogger.error('Error in POST', error)
 
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-      console.log('[Tasks API] Returning unauthorized response')
+      apiLogger.debug('Returning unauthorized response')
       return unauthorizedResponse()
     }
     if (error instanceof Error && error.message === 'CONCURRENT_TASK_LIMIT') {
@@ -117,7 +120,7 @@ export async function POST(request: Request) {
         message: 'You already have a task running',
       })
     }
-    console.error('Create task error:', error)
+    apiLogger.error('Create task error', error)
     return internalErrorResponse()
   }
 }

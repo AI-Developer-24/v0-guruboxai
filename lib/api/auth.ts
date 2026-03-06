@@ -1,14 +1,17 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { unauthorizedResponse } from './response'
+import { logger } from '../logger'
+
+const authLogger = logger.withContext('Auth')
 
 export async function getAuthenticatedUser() {
-  console.log('[Auth] getAuthenticatedUser called')
+  authLogger.debug('getAuthenticatedUser called')
 
   const cookieStore = await cookies()
   const allCookies = cookieStore.getAll()
 
-  console.log('[Auth] All cookies', {
+  authLogger.debug('All cookies', {
     count: allCookies.length,
     cookieNames: allCookies.map(c => c.name),
   })
@@ -34,10 +37,10 @@ export async function getAuthenticatedUser() {
     }
   )
 
-  console.log('[Auth] Calling supabase.auth.getUser()')
+  authLogger.debug('Calling supabase.auth.getUser()')
   const { data: { user }, error } = await supabase.auth.getUser()
 
-  console.log('[Auth] getUser result', {
+  authLogger.debug('getUser result', {
     hasUser: !!user,
     userId: user?.id,
     error: error ? {
@@ -47,25 +50,25 @@ export async function getAuthenticatedUser() {
   })
 
   if (error || !user) {
-    console.log('[Auth] Authentication failed, returning null')
+    authLogger.info('Authentication failed, returning null')
     return null
   }
 
-  console.log('[Auth] Authentication successful, returning user')
+  authLogger.info('Authentication successful', { userId: user.id })
   return user
 }
 
 export async function requireAuth() {
-  console.log('[Auth] requireAuth called')
+  authLogger.debug('requireAuth called')
 
   const user = await getAuthenticatedUser()
 
   if (!user) {
-    console.log('[Auth] requireAuth: No user found, throwing UNAUTHORIZED')
+    authLogger.warn('requireAuth: No user found, throwing UNAUTHORIZED')
     throw new Error('UNAUTHORIZED')
   }
 
-  console.log('[Auth] requireAuth: User authenticated', { userId: user.id })
+  authLogger.debug('requireAuth: User authenticated', { userId: user.id })
   return user
 }
 

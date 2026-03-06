@@ -8,6 +8,9 @@ import {
   unauthorizedResponse,
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
+import { logger } from '@/lib/logger'
+
+const apiLogger = logger.withContext('API:Opportunities')
 
 export async function GET(
   request: Request,
@@ -70,7 +73,7 @@ export async function GET(
     const { data: opportunities, count, error } = await query
 
     if (error) {
-      console.error('Get opportunities error:', error)
+      apiLogger.error('Get opportunities error', error)
       return internalErrorResponse('Failed to fetch opportunities')
     }
 
@@ -89,7 +92,7 @@ export async function GET(
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return unauthorizedResponse()
     }
-    console.error('Get opportunities error:', error)
+    apiLogger.error('Get opportunities error', error)
     return internalErrorResponse()
   }
 }

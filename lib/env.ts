@@ -223,20 +223,21 @@ export function getRedisConfig(): { url: string; tlsEnabled: boolean } {
 
 // 在服务端启动时自动验证
 if (typeof window === 'undefined') {
-  const { valid, errors, warnings } = validateEnv()
+  // 动态导入 logger 避免循环依赖
+  import('./logger').then(({ logger }) => {
+    const envLogger = logger.withContext('Env')
 
-  if (warnings.length > 0) {
-    console.warn('⚠️ Environment warnings:')
-    warnings.forEach((warning) => console.warn(`  - ${warning}`))
-  }
+    const { valid, errors, warnings } = validateEnv()
 
-  if (!valid) {
-    console.error('❌ Environment validation failed:')
-    errors.forEach((error) => console.error(`  - ${error}`))
+    if (warnings.length > 0) {
+      warnings.forEach((warning) => envLogger.warn(warning))
+    }
 
-    // 仅警告，不阻止启动
-    console.warn('⚠️ Some environment variables are missing. App may not work correctly.')
-  } else {
-    console.log('✅ Environment validation passed')
-  }
+    if (!valid) {
+      errors.forEach((error) => envLogger.error(error))
+      envLogger.warn('Some environment variables are missing. App may not work correctly.')
+    } else {
+      envLogger.info('Environment validation passed')
+    }
+  })
 }

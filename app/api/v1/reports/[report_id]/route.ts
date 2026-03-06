@@ -8,6 +8,9 @@ import {
   unauthorizedResponse,
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
+import { logger } from '@/lib/logger'
+
+const apiLogger = logger.withContext('API:Report')
 
 export async function GET(
   request: Request,
@@ -70,7 +73,7 @@ export async function GET(
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return unauthorizedResponse()
     }
-    console.error('Get report error:', error)
+    apiLogger.error('Get report error', error)
     return internalErrorResponse()
   }
 }
@@ -113,7 +116,7 @@ export async function DELETE(
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return unauthorizedResponse()
     }
-    console.error('Delete report error:', error)
+    apiLogger.error('Delete report error', error)
     return internalErrorResponse()
   }
 }

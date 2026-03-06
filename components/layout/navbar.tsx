@@ -25,6 +25,9 @@ import { SUPPORTED_LANGUAGES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { translations } from "@/lib/translations"
+import { logger } from "@/lib/logger"
+
+const navLogger = logger.withContext('Navbar')
 
 export function Navbar() {
   const [showLogin, setShowLogin] = useState(false)
@@ -40,7 +43,7 @@ export function Navbar() {
       try {
         await setLanguage(langCode)
       } catch (error) {
-        console.error('Failed to update language preference:', error)
+        navLogger.error('Failed to update language preference', error)
       }
     }
     // Use translations directly with new locale to avoid stale closure

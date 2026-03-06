@@ -7,6 +7,9 @@ import { useAuth } from "@/components/auth/auth-provider"
 import { useI18n } from "@/components/i18n/i18n-provider"
 import { Button } from "@/components/ui/button"
 import { api, ApiError } from "@/lib/api/client"
+import { logger } from "@/lib/logger"
+
+const exportLogger = logger.withContext('ExportButtons')
 
 interface ExportButtonsProps {
   reportId: string
@@ -101,7 +104,7 @@ export function ExportButtons({ reportId }: ExportButtonsProps) {
 
       return true
     } catch (error) {
-      console.error('[Export] Failed to open OAuth popup:', error)
+      exportLogger.error('Failed to open OAuth popup', error)
       // Close the blank popup on error
       if (oauthWindow && !oauthWindow.closed) {
         oauthWindow.close()

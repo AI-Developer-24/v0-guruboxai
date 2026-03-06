@@ -9,6 +9,9 @@ import {
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { logger } from '@/lib/logger'
+
+const apiLogger = logger.withContext('API:Task')
 
 // Type for task query result
 type TaskBasicInfo = { id: string; report_id: string; status: string }
@@ -23,13 +26,13 @@ export async function GET(
   let taskId = 'unknown'
 
   try {
-    console.log('[TaskStatus API] GET request received')
+    apiLogger.debug('GET request received')
     const user = await requireAuth()
     const cookieStore = await cookies()
     const paramsData = await params
     taskId = paramsData.task_id
 
-    console.log(`[TaskStatus API] Fetching status for task: ${taskId}, user: ${user.id}`)
+    apiLogger.debug('Fetching status for task', { taskId, userId: user.id })
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -44,7 +47,7 @@ export async function GET(
     )
 
     // Get task with ownership check
-    console.log(`[TaskStatus API] Querying task from database...`)
+    apiLogger.debug('Querying task from database...', { taskId })
     const { data: task, error } = await supabase
       .from('tasks')
       .select('*')
@@ -53,11 +56,11 @@ export async function GET(
       .single()
 
     if (error || !task) {
-      console.log(`[TaskStatus API] Task not found: ${taskId}`, error)
+      apiLogger.warn('Task not found', { taskId })
       return notFoundResponse('Task not found')
     }
 
-    console.log(`[TaskStatus API] Task found:`, {
+    apiLogger.debug('Task found', {
       id: task.id,
       status: task.status,
       current_stage: task.current_stage,
@@ -65,7 +68,7 @@ export async function GET(
     })
 
     // Get related report status
-    console.log(`[TaskStatus API] Fetching report status...`)
+    apiLogger.debug('Fetching report status...', { reportId: task.report_id })
     const { data: report } = await supabase
       .from('reports')
       .select('status')
@@ -84,7 +87,7 @@ export async function GET(
     }
 
     const elapsed = Date.now() - startTime
-    console.log(`[TaskStatus API] Returning response (${elapsed}ms):`, response)
+    apiLogger.debug('Returning response', { elapsed: `${elapsed}ms`, taskId })
 
     // Return with no-cache headers to ensure fresh data on each poll
     return NextResponse.json(
@@ -99,10 +102,10 @@ export async function GET(
     )
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-      console.log(`[TaskStatus API] Unauthorized access attempt for task: ${taskId}`)
+      apiLogger.warn('Unauthorized access attempt', { taskId })
       return unauthorizedResponse()
     }
-    console.error('[TaskStatus API] Error:', error)
+    apiLogger.error('Error in GET', error, { taskId })
     return internalErrorResponse()
   }
 }
@@ -114,12 +117,12 @@ export async function DELETE(
   let taskId = 'unknown'
 
   try {
-    console.log('[TaskCancel API] DELETE request received')
+    apiLogger.debug('DELETE request received')
     const user = await requireAuth()
     const paramsData = await params
     taskId = paramsData.task_id
 
-    console.log(`[TaskCancel API] Canceling task: ${taskId}, user: ${user.id}`)
+    apiLogger.info('Canceling task', { taskId, userId: user.id })
 
     // Get task with ownership check
     const { data: task, error: taskError } = await supabaseAdmin
@@ -130,7 +133,7 @@ export async function DELETE(
       .single()
 
     if (taskError || !task) {
-      console.log(`[TaskCancel API] Task not found: ${taskId}`, taskError)
+      apiLogger.warn('Task not found', { taskId })
       return notFoundResponse('Task not found')
     }
 
@@ -139,7 +142,7 @@ export async function DELETE(
 
     // Can only cancel pending or running tasks
     if (typedTask.status !== 'pending' && typedTask.status !== 'running') {
-      console.log(`[TaskCancel API] Task cannot be canceled, current status: ${typedTask.status}`)
+      apiLogger.warn('Task cannot be canceled', { taskId, status: typedTask.status })
       return NextResponse.json(
         { error: { code: 'INVALID_STATUS', message: 'Task cannot be canceled' } },
         { status: 400 }
@@ -153,7 +156,7 @@ export async function DELETE(
       .eq('id', taskId)
 
     if (updateTaskError) {
-      console.error(`[TaskCancel API] Failed to cancel task:`, updateTaskError)
+      apiLogger.error('Failed to cancel task', updateTaskError, { taskId })
       return internalErrorResponse('Failed to cancel task')
     }
 
@@ -164,19 +167,19 @@ export async function DELETE(
       .eq('id', typedTask.report_id)
 
     if (updateReportError) {
-      console.error(`[TaskCancel API] Failed to cancel report:`, updateReportError)
+      apiLogger.error('Failed to cancel report', updateReportError, { reportId: typedTask.report_id })
       // Don't fail the request, task is already cancelled
     }
 
-    console.log(`[TaskCancel API] Task cancelled successfully: ${taskId}`)
+    apiLogger.info('Task cancelled successfully', { taskId })
 
     return successResponse({ task_id: taskId, status: 'cancelled' })
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-      console.log(`[TaskCancel API] Unauthorized access attempt for task: ${taskId}`)
+      apiLogger.warn('Unauthorized access attempt', { taskId })
       return unauthorizedResponse()
     }
-    console.error('[TaskCancel API] Error:', error)
+    apiLogger.error('Error in DELETE', error, { taskId })
     return internalErrorResponse()
   }
 }

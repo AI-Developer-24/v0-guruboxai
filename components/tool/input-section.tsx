@@ -11,6 +11,9 @@ import { SUGGESTION_KEYS } from "@/lib/constants"
 import { api, ApiError } from "@/lib/api/client"
 import { toast } from "sonner"
 import Link from "next/link"
+import { logger } from "@/lib/logger"
+
+const inputLogger = logger.withContext('InputSection')
 
 export function InputSection() {
   const [input, setInput] = useState("")
@@ -40,7 +43,7 @@ export function InputSection() {
     setLoading(true)
 
     try {
-      console.log('[InputSection] Starting analysis request', {
+      inputLogger.debug('Starting analysis request', {
         input_text: inputText,
         userId,
       })
@@ -50,16 +53,16 @@ export function InputSection() {
         { input_text: inputText }
       )
 
-      console.log('[InputSection] Analysis started successfully', response)
+      inputLogger.info('Analysis started successfully', response)
 
       toast.success(t("analysis_started") || "Analysis started!")
 
       router.push(`/analysis/${response.task_id}`)
     } catch (error) {
-      console.error('[InputSection] Analysis failed', error)
+      inputLogger.error('Analysis failed', error)
 
       if (error instanceof ApiError) {
-        console.error('[InputSection] ApiError details', {
+        inputLogger.debug('ApiError details', {
           code: error.code,
           message: error.message,
           status: error.status,
@@ -89,7 +92,7 @@ export function InputSection() {
   useEffect(() => {
     // Only trigger when user changes from null to a valid user
     if (prevUserRef.current === null && user && pendingStartRef.current) {
-      console.log('[InputSection] User logged in, continuing with pending analysis')
+      inputLogger.debug('User logged in, continuing with pending analysis')
       setPendingStart(false)
       // Small delay to ensure auth state is fully propagated
       setTimeout(() => {
@@ -103,7 +106,7 @@ export function InputSection() {
   }, [user, startAnalysis])
 
   const handleStartAnalysis = useCallback(async () => {
-    console.log('[InputSection] handleStartAnalysis called', {
+    inputLogger.debug('handleStartAnalysis called', {
       hasInput: !!input.trim(),
       hasUser: !!user,
       userId: user?.id,
@@ -113,7 +116,7 @@ export function InputSection() {
     if (!input.trim()) return
 
     if (!user) {
-      console.log('[InputSection] No user, showing login dialog')
+      inputLogger.debug('No user, showing login dialog')
       setPendingStart(true)
       setShowLogin(true)
       return

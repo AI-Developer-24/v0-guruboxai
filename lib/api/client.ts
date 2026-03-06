@@ -3,6 +3,10 @@
  * Provides type-safe methods for communicating with the backend API
  */
 
+import { logger } from '../logger'
+
+const apiLogger = logger.withContext('ApiClient')
+
 class ApiClient {
   private baseUrl: string
 
@@ -45,7 +49,7 @@ class ApiClient {
    * POST request
    */
   async post<T>(path: string, body?: any): Promise<T> {
-    console.log('[ApiClient] POST request', {
+    apiLogger.debug('POST request', {
       url: `${this.baseUrl}${path}`,
       body,
       hasCredentials: true,
@@ -58,7 +62,7 @@ class ApiClient {
       body: body ? JSON.stringify(body) : undefined,
     })
 
-    console.log('[ApiClient] POST response', {
+    apiLogger.debug('POST response', {
       url: `${this.baseUrl}${path}`,
       status: response.status,
       ok: response.ok,

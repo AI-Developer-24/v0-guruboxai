@@ -1,5 +1,8 @@
 import Redis from 'ioredis'
 import { getRedisConfig, isProduction } from './env'
+import { logger } from './logger'
+
+const redisLogger = logger.withContext('Redis')
 
 const { url: redisUrl, tlsEnabled } = getRedisConfig()
 
@@ -13,10 +16,10 @@ if (isProduction && !tlsEnabled) {
 
 // 开发环境警告
 if (!isProduction && !tlsEnabled) {
-  console.warn('[Redis] Using non-TLS connection. For production, use rediss://')
+  redisLogger.warn('Using non-TLS connection. For production, use rediss://')
 }
 
-console.log(`[Redis] Initializing connection to: ${tlsEnabled ? 'rediss://***' : redisUrl}`)
+redisLogger.info(`Initializing connection`, { tls: tlsEnabled })
 
 export const redis = new Redis(redisUrl, {
   maxRetriesPerRequest: null, // Required by BullMQ for blocking commands
@@ -30,41 +33,41 @@ export const redis = new Redis(redisUrl, {
 
 // Connection event listeners
 redis.on('connect', () => {
-  console.log('[Redis] Connecting...')
+  redisLogger.debug('Connecting...')
 })
 
 redis.on('ready', () => {
-  console.log('[Redis] Connection ready')
+  redisLogger.info('Connection ready')
 })
 
 redis.on('error', (err) => {
-  console.error('[Redis] Connection error:', err)
+  redisLogger.error('Connection error', err)
 })
 
 redis.on('close', () => {
-  console.log('[Redis] Connection closed')
+  redisLogger.info('Connection closed')
 })
 
 redis.on('reconnecting', () => {
-  console.log('[Redis] Reconnecting...')
+  redisLogger.info('Reconnecting...')
 })
 
 // Connection test
 export async function testRedisConnection(): Promise<boolean> {
   try {
-    console.log('[Redis] Testing connection...')
+    redisLogger.debug('Testing connection...')
     await redis.ping()
-    console.log('[Redis] Connection test successful')
+    redisLogger.info('Connection test successful')
     return true
   } catch (error) {
-    console.error('[Redis] Connection test failed:', error)
+    redisLogger.error('Connection test failed', error)
     return false
   }
 }
 
 // Graceful shutdown
 export async function closeRedisConnection() {
-  console.log('[Redis] Closing connection...')
+  redisLogger.info('Closing connection...')
   await redis.quit()
-  console.log('[Redis] Connection closed')
+  redisLogger.info('Connection closed')
 }

@@ -4,6 +4,9 @@ import { createContext, useContext, useState, useCallback, useEffect, useRef, ty
 import type { User, Session } from "@supabase/supabase-js"
 import { supabase } from "@/lib/supabase"
 import type { AppUser } from "@/lib/types"
+import { logger } from "@/lib/logger"
+
+const authLogger = logger.withContext('AuthProvider')
 
 interface AuthContextType {
   user: AppUser | null
@@ -45,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .maybeSingle()
 
         if (error) {
-          console.error('[AuthProvider] Error loading user from database:', error)
+          authLogger.error('Error loading user from database', error)
         }
 
         if (!mounted) return
@@ -67,11 +70,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const { upsertUser } = await import("@/lib/supabase/user")
           const { error: upsertError } = await upsertUser(newUser)
           if (upsertError) {
-            console.error('[AuthProvider] Failed to create user record:', upsertError)
+            authLogger.error('Failed to create user record', upsertError)
           }
         }
       } catch (error) {
-        console.error('[AuthProvider] Error in loadUser:', error)
+        authLogger.error('Error in loadUser', error)
         if (!mounted) return
         // Fallback: set user from auth data
         const fallbackUser = {
@@ -89,12 +92,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Get initial session using getUser() for security
     const getInitialSession = async () => {
-      console.log('[AuthProvider] Getting initial session...')
+      authLogger.debug('Getting initial session...')
 
       // Add timeout to prevent infinite loading
       const timeoutId = setTimeout(() => {
         if (mounted && !initialCheckCompleteRef.current) {
-          console.warn('[AuthProvider] Initial auth check timed out, setting loading to false')
+          authLogger.warn('Initial auth check timed out, setting loading to false')
           setLoading(false)
         }
       }, AUTH_INIT_TIMEOUT)
@@ -103,7 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Use getUser() instead of getSession() for verified auth
         const { data: { user }, error } = await supabase.auth.getUser()
 
-        console.log('[AuthProvider] getUser result', {
+        authLogger.debug('getUser result', {
           hasUser: !!user,
           userId: user?.id,
           error: error?.message,
@@ -126,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         clearTimeout(timeoutId)
         initialCheckCompleteRef.current = true
-        console.error('[AuthProvider] Error getting user:', error)
+        authLogger.error('Error getting user', error)
         if (mounted) {
           setLoading(false)
         }
@@ -137,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('[AuthProvider] Auth state changed', {
+      authLogger.debug('Auth state changed', {
         event,
         hasSession: !!session,
         userId: session?.user?.id,
@@ -162,14 +165,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (pollingRef.current) {
         clearInterval(pollingRef.current)
         pollingRef.current = null
-        console.log('[AuthProvider] Stopped auth state polling')
+        authLogger.debug('Stopped auth state polling')
       }
     }
 
     // Start polling function - checks if user has logged in via popup
     const startPolling = () => {
       if (pollingRef.current) return
-      console.log('[AuthProvider] Starting auth state polling...')
+      authLogger.debug('Starting auth state polling...')
       let pollCount = 0
       const MAX_POLLS = 60 // Poll for up to 60 seconds
 
@@ -183,7 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const { data: { user } } = await supabase.auth.getUser()
           // Detect login: user exists and is different from current user
           if (user && user.id !== currentUserIdRef.current) {
-            console.log('[AuthProvider] Detected auth change via polling')
+            authLogger.debug('Detected auth change via polling')
             stopPolling()
             currentUserIdRef.current = user.id
             const { data: { session } } = await supabase.auth.getSession()
@@ -217,12 +220,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (!validOrigins.includes(event.origin)) {
-        console.log('[AuthProvider] Ignoring message from invalid origin:', event.origin, 'Expected:', validOrigins)
+        authLogger.debug('Ignoring message from invalid origin', { origin: event.origin, expected: validOrigins })
         return
       }
 
       if (event.data?.type === 'GOOGLE_AUTH_SUCCESS') {
-        console.log('[AuthProvider] Received popup auth success message from:', event.origin)
+        authLogger.debug('Received popup auth success message', { origin: event.origin })
         stopPolling()
 
         // Give browser a moment to process cookies set by the popup
@@ -231,21 +234,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Force refresh the session by calling getUser()
         // This will read the new cookies and validate with Supabase
-        console.log('[AuthProvider] Refreshing session after popup login...')
+        authLogger.debug('Refreshing session after popup login...')
         const { data: { user }, error } = await supabase.auth.getUser()
 
         if (error) {
-          console.error('[AuthProvider] Error getting user after popup login:', error)
+          authLogger.error('Error getting user after popup login', error)
         }
 
         if (user) {
-          console.log('[AuthProvider] User found after popup login:', user.id)
+          authLogger.debug('User found after popup login', { userId: user.id })
           currentUserIdRef.current = user.id
           const { data: { session } } = await supabase.auth.getSession()
           setSession(session)
           await loadUser(user)
         } else {
-          console.warn('[AuthProvider] No user found after popup login - cookies may not be synced')
+          authLogger.warn('No user found after popup login - cookies may not be synced')
         }
       }
     }
@@ -296,7 +299,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     if (error) {
-      console.error('Sign in error:', error)
+      authLogger.error('Sign in error', error)
       // Close popup on error
       if (popup && !popup.closed) {
         popup.close()
@@ -327,7 +330,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     const { error } = await supabase.auth.signOut()
     if (error) {
-      console.error('Sign out error:', error)
+      authLogger.error('Sign out error', error)
       throw error
     }
     setUser(null)
@@ -344,7 +347,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq('id', user.id)
 
     if (error) {
-      console.error('Language update error:', error)
+      authLogger.error('Language update error', error)
       throw error
     }
 

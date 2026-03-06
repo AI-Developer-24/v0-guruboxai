@@ -1,8 +1,11 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { logger } from './lib/logger'
+
+const middlewareLogger = logger.withContext('Middleware')
 
 export async function middleware(request: NextRequest) {
-  console.log('[Middleware] Processing request:', request.nextUrl.pathname)
+  middlewareLogger.debug('Processing request', { path: request.nextUrl.pathname })
 
   let supabaseResponse = NextResponse.next({
     request,
@@ -36,7 +39,7 @@ export async function middleware(request: NextRequest) {
     error,
   } = await supabase.auth.getUser()
 
-  console.log('[Middleware] User check', {
+  middlewareLogger.debug('User check', {
     hasUser: !!user,
     userId: user?.id,
     error: error?.message,
@@ -46,7 +49,7 @@ export async function middleware(request: NextRequest) {
 
   // Protect /account route
   if (isAccountPage && !user) {
-    console.log('[Middleware] No user, redirecting from account page')
+    middlewareLogger.info('No user, redirecting from account page')
     const redirectUrl = new URL('/tools/product-insight', request.url)
     return NextResponse.redirect(redirectUrl)
   }

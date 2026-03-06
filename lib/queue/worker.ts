@@ -2,6 +2,9 @@ import { Worker, Job } from 'bullmq'
 import { getRedisConfig } from '../env'
 import { AIEngine } from '../ai/engine'
 import { supabaseAdmin } from '../supabase-admin'
+import { logger } from '../logger'
+
+const workerLogger = logger.withContext('Worker')
 
 const aiEngine = new AIEngine()
 
@@ -20,7 +23,7 @@ export interface AnalysisJobData {
   userId: string
 }
 
-console.log('[Worker] Initializing analysis worker...')
+workerLogger.info('Initializing analysis worker...')
 
 // Get Redis URL for BullMQ Worker
 const { url: redisUrl } = getRedisConfig()
@@ -30,70 +33,62 @@ export const analysisWorker = new Worker<AnalysisJobData>(
   async (job: Job<AnalysisJobData>) => {
     const { input, taskId, reportId, userId } = job.data
 
-    console.log(`[Worker] ========================================`)
-    console.log(`[Worker] Starting analysis job`)
-    console.log(`[Worker]   Task ID: ${taskId}`)
-    console.log(`[Worker]   Report ID: ${reportId}`)
-    console.log(`[Worker]   User ID: ${userId}`)
-    console.log(`[Worker]   Input: ${input.substring(0, 100)}...`)
-    console.log(`[Worker] ========================================`)
+    workerLogger.info('Starting analysis job', {
+      taskId,
+      reportId,
+      userId,
+      inputPreview: input.substring(0, 100),
+    })
 
     try {
       // Mark task as running
-      console.log(`[Worker] Marking task as running...`)
+      workerLogger.debug('Marking task as running...', { taskId })
       const { error: updateError } = await supabaseAdmin
         .from('tasks')
         .update({ status: 'running', updated_at: new Date().toISOString() } as never)
         .eq('id', taskId)
 
       if (updateError) {
-        console.error(`[Worker] Failed to mark task as running:`, updateError)
+        workerLogger.error('Failed to mark task as running', updateError, taskId)
       } else {
-        console.log(`[Worker] Task marked as running`)
+        workerLogger.debug('Task marked as running', { taskId })
       }
 
       // Execute AI analysis
-      console.log(`[Worker] Starting AI engine analysis...`)
+      workerLogger.info('Starting AI engine analysis...', { taskId })
       await aiEngine.analyze(input, taskId, reportId)
 
-      console.log(`[Worker] ========================================`)
-      console.log(`[Worker] Analysis job completed: ${taskId}`)
-      console.log(`[Worker] ========================================`)
+      workerLogger.info('Analysis job completed', { taskId })
     } catch (error) {
       // Check if task was cancelled
       if (error instanceof Error && error.name === 'TaskCancelledError') {
-        console.log(`[Worker] ========================================`)
-        console.log(`[Worker] Analysis job CANCELLED: ${taskId}`)
-        console.log(`[Worker] ========================================`)
+        workerLogger.info('Analysis job CANCELLED', { taskId })
         // Don't throw - task was intentionally cancelled
         return
       }
 
-      console.error(`[Worker] ========================================`)
-      console.error(`[Worker] Analysis job FAILED: ${taskId}`)
-      console.error(`[Worker] Error:`, error)
-      console.error(`[Worker] ========================================`)
+      workerLogger.error('Analysis job FAILED', error, { taskId })
 
       // Mark task as failed
-      console.log(`[Worker] Marking task as failed...`)
+      workerLogger.debug('Marking task as failed...', { taskId })
       const { error: taskError } = await supabaseAdmin
         .from('tasks')
         .update({ status: 'failed', updated_at: new Date().toISOString() } as never)
         .eq('id', taskId)
 
       if (taskError) {
-        console.error(`[Worker] Failed to mark task as failed:`, taskError)
+        workerLogger.error('Failed to mark task as failed', taskError, taskId)
       }
 
       // Mark report as failed
-      console.log(`[Worker] Marking report as failed...`)
+      workerLogger.debug('Marking report as failed...', { reportId })
       const { error: reportError } = await supabaseAdmin
         .from('reports')
         .update({ status: 'failed' } as never)
         .eq('id', reportId)
 
       if (reportError) {
-        console.error(`[Worker] Failed to mark report as failed:`, reportError)
+        workerLogger.error('Failed to mark report as failed', reportError, reportId)
       }
 
       throw error
@@ -110,32 +105,34 @@ export const analysisWorker = new Worker<AnalysisJobData>(
 
 // Worker event listeners
 analysisWorker.on('completed', (job) => {
-  console.log(`[Worker.Event] Job completed: ${job.id}`)
+  workerLogger.info('Job completed', { jobId: job.id })
 })
 
 analysisWorker.on('failed', (job, err) => {
-  console.error(`[Worker.Event] Job failed: ${job?.id}`, err.message)
+  workerLogger.error('Job failed', err, { jobId: job?.id })
 })
 
 analysisWorker.on('error', (err) => {
-  console.error('[Worker.Event] Worker error:', err)
+  workerLogger.error('Worker error', err)
 })
 
 analysisWorker.on('active', (job) => {
-  console.log(`[Worker.Event] Job started processing: ${job.id}`)
+  workerLogger.debug('Job started processing', { jobId: job.id })
 })
 
 analysisWorker.on('stalled', (jobId) => {
-  console.warn(`[Worker.Event] Job stalled: ${jobId}`)
+  workerLogger.warn('Job stalled', { jobId })
 })
 
-console.log('[Worker] Analysis worker initialized and ready')
+workerLogger.info('Analysis worker initialized and ready')
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
+  workerLogger.info('Received SIGTERM, closing worker...')
   await analysisWorker.close()
 })
 
 process.on('SIGINT', async () => {
+  workerLogger.info('Received SIGINT, closing worker...')
   await analysisWorker.close()
 })

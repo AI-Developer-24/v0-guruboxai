@@ -10,6 +10,9 @@ import {
   unauthorizedResponse,
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
+import { logger } from '@/lib/logger'
+
+const apiLogger = logger.withContext('API:Language')
 
 const UpdateLanguageSchema = z.object({
   language: LanguageSchema,
@@ -53,7 +56,7 @@ export async function PUT(request: Request) {
       .single()
 
     if (error) {
-      console.error('Update language error:', error)
+      apiLogger.error('Update language error', error)
       return internalErrorResponse('Failed to update language')
     }
 
@@ -66,7 +69,7 @@ export async function PUT(request: Request) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return unauthorizedResponse()
     }
-    console.error('Update language error:', error)
+    apiLogger.error('Update language error', error)
     return internalErrorResponse()
   }
 }

@@ -31,6 +31,9 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip"
 import { api, ApiError, type ReportResponse } from "@/lib/api/client"
+import { logger } from "@/lib/logger"
+
+const historyLogger = logger.withContext('HistoryTable')
 
 const PAGE_SIZE = 20
 
@@ -66,7 +69,7 @@ export function HistoryTable() {
       setTotalCount(response.meta.pagination.total)
     } catch (error) {
       if (error instanceof ApiError && error.status !== 401) {
-        console.error('Failed to load reports:', error)
+        historyLogger.error('Failed to load reports', error)
       }
     } finally {
       setLoading(false)

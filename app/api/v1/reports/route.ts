@@ -7,6 +7,9 @@ import {
   unauthorizedResponse,
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
+import { logger } from '@/lib/logger'
+
+const apiLogger = logger.withContext('API:Reports')
 
 export async function GET(request: Request) {
   try {
@@ -50,7 +53,7 @@ export async function GET(request: Request) {
     const { data: reports, count, error } = await query
 
     if (error) {
-      console.error('Get reports error:', error)
+      apiLogger.error('Get reports error', error)
       return internalErrorResponse('Failed to fetch reports')
     }
 
@@ -69,7 +72,7 @@ export async function GET(request: Request) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return unauthorizedResponse()
     }
-    console.error('Get reports error:', error)
+    apiLogger.error('Get reports error', error)
     return internalErrorResponse()
   }
 }
