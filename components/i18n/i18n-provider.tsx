@@ -16,7 +16,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Language>("en")
 
   useEffect(() => {
-    const saved = localStorage.getItem("gurubox_locale") as Language | null
+    const saved = localStorage.getItem("badgersignal_locale") as Language | null
     if (saved && translations[saved]) {
       setLocaleState(saved)
     }
@@ -24,7 +24,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const setLocale = useCallback((newLocale: Language) => {
     setLocaleState(newLocale)
-    localStorage.setItem("gurubox_locale", newLocale)
+    localStorage.setItem("badgersignal_locale", newLocale)
   }, [])
 
   const t = useCallback(

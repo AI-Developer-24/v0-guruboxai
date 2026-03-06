@@ -51,7 +51,7 @@ export function ExportButtons({ reportId }: ExportButtonsProps) {
       // Create download link
       const link = document.createElement('a')
       link.href = url
-      link.download = `gurubox-report-${reportId.slice(0, 8)}.pdf`
+      link.download = `badgersignal-report-${reportId.slice(0, 8)}.pdf`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

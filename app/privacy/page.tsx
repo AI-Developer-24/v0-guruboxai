@@ -10,7 +10,7 @@ export default function PrivacyPage() {
         <div className="mt-8 space-y-6 text-sm leading-relaxed text-muted-foreground">
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">1. Information We Collect</h2>
-            <p>When you use GuruBox.ai, we collect information you provide directly, including your Google account profile (name, email, avatar) when you sign in, and the product directions you submit for analysis.</p>
+            <p>When you use BadgerSignal, we collect information you provide directly, including your Google account profile (name, email, avatar) when you sign in, and the product directions you submit for analysis.</p>
           </section>
 
           <section>
@@ -35,7 +35,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">6. Contact</h2>
-            <p>For privacy-related inquiries, please contact us at privacy@gurubox.ai.</p>
+            <p>For privacy-related inquiries, please contact us at privacy@badgersignal.com.</p>
           </section>
         </div>
 

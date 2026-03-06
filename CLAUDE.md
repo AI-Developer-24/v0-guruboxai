@@ -11,7 +11,7 @@ npm run lint     # ESLint
 
 ## Project
 
-**GuruBox.ai** - AI expert toolbox. First tool: **AI Product Insight** generates 300 product opportunities + expert summary from user input.
+**BadgerSignal** - AI expert toolbox. First tool: **AI Product Insight** generates 300 product opportunities + expert summary from user input.
 
 - 300 opportunities/report, 20/page | 30s–5min runtime | 1 concurrent task/user
 - Languages: EN, ZH, DE, FR, IT, ES, PT

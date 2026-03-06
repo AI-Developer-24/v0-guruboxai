@@ -13,9 +13,9 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: 'GuruBox.ai - AI Product Insight',
+  title: 'BadgerSignal - AI Product Insight',
   description: 'Expert-level AI opportunity discovery. Enter your product direction and receive 300 evaluated opportunities.',
-  generator: 'GuruBox.ai',
+  generator: 'BadgerSignal',
   icons: {
     icon: '/images/logo.jpg',
     apple: '/images/logo.jpg',

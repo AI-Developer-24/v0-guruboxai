@@ -1,5 +1,5 @@
 /**
- * API Client for GuruBox AI
+ * API Client for BadgerSignal
  * Provides type-safe methods for communicating with the backend API
  */
 

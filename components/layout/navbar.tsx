@@ -60,14 +60,13 @@ export function Navbar() {
         >
           <Image
             src="/images/logo.jpg"
-            alt="GuruBox.ai"
+            alt="BadgerSignal"
             width={30}
             height={30}
             className="rounded-lg"
           />
           <span className="font-semibold text-base tracking-tight text-foreground">
-            GuruBox
-            <span className="bg-gradient-to-r from-[oklch(0.78_0.14_70)] to-[oklch(0.58_0.16_250)] bg-clip-text text-transparent">.ai</span>
+            Badger<span className="bg-gradient-to-r from-[oklch(0.78_0.14_70)] to-[oklch(0.58_0.16_250)] bg-clip-text text-transparent">Signal</span>
           </span>
         </Link>
 
