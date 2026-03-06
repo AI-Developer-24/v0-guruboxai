@@ -281,50 +281,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         })
         stopPolling()
 
-        // Retry for a few seconds because session cookies from popup can be visible
-        // in the opener with a short delay on some browsers/environments.
-        const MAX_SYNC_ATTEMPTS = 12
-        const SYNC_RETRY_DELAY_MS = 250
-        let synced = false
+        // Give browser a moment to process cookies set by the popup
+        // This is crucial for production environments where cookie sync may be slower
+        await new Promise(resolve => setTimeout(resolve, 100))
 
-        for (let attempt = 1; attempt <= MAX_SYNC_ATTEMPTS; attempt++) {
-          const { data: { user }, error } = await supabase.auth.getUser()
+        // Force refresh the session by calling getUser()
+        // This will read the new cookies and validate with Supabase
+        authLogger.debug('Refreshing session after popup login...')
+        const { data: { user }, error } = await supabase.auth.getUser()
 
-          if (error) {
-            authLogger.warn('Error getting user after popup login', {
-              attempt,
-              message: error.message,
-            })
-          }
-
-          if (user) {
-            authLogger.info('User synced after popup login', {
-              userId: user.id,
-              attempt,
-            })
-            currentUserIdRef.current = user.id
-            const { data: { session } } = await supabase.auth.getSession()
-            setSession(session)
-            await loadUser(user)
-            synced = true
-            break
-          }
-
-          await new Promise(resolve => setTimeout(resolve, SYNC_RETRY_DELAY_MS))
+        if (error) {
+          authLogger.error('Error getting user after popup login', error)
         }
 
-        if (!synced) {
-          authLogger.warn('No user found after popup login retries')
+        if (user) {
+          authLogger.debug('User found after popup login', { userId: user.id })
+          currentUserIdRef.current = user.id
+          const { data: { session } } = await supabase.auth.getSession()
+          setSession(session)
+          await loadUser(user)
+        } else {
+          authLogger.warn('No user found after popup login - cookies may not be synced')
         }
-      }
-
-      if (event.data?.type === 'GOOGLE_AUTH_ERROR') {
-        authLogger.warn('Received popup auth error message', {
-          messageOrigin: event.origin,
-          error: event.data?.error || 'unknown_error',
-        })
-        stopPolling()
-        setLoading(false)
       }
     }
 
