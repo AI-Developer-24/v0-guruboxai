@@ -25,7 +25,6 @@ export class DashScopeProvider extends AIProvider {
       messages,
       temperature: options.temperature ?? 0.7,
       max_tokens: options.maxTokens,
-      timeout: options.timeout,
     })
 
     return {

@@ -115,6 +115,13 @@ type TranslationKeys = {
   popup_blocked: string
   oauth_init_failed: string
   waiting_for_google_auth: string
+  // Suggestions
+  suggestion_1: string
+  suggestion_2: string
+  suggestion_3: string
+  suggestion_4: string
+  suggestion_5: string
+  suggestion_6: string
 }
 
 const en: TranslationKeys = {
@@ -220,6 +227,12 @@ const en: TranslationKeys = {
   popup_blocked: "Popup blocked. Please allow popups for this site.",
   oauth_init_failed: "Failed to initiate Google authorization.",
   waiting_for_google_auth: "Waiting for Google authorization...",
+  suggestion_1: "AI tools for freelancers",
+  suggestion_2: "AI SaaS opportunities",
+  suggestion_3: "AI video products",
+  suggestion_4: "AI productivity tools",
+  suggestion_5: "AI tools for small businesses",
+  suggestion_6: "AI healthcare solutions",
 }
 
 const zh: TranslationKeys = {
@@ -325,6 +338,12 @@ const zh: TranslationKeys = {
   popup_blocked: "弹窗被阻止，请允许此网站的弹窗。",
   oauth_init_failed: "无法启动 Google 授权。",
   waiting_for_google_auth: "等待 Google 授权...",
+  suggestion_1: "自由职业者AI工具",
+  suggestion_2: "AI SaaS 机会",
+  suggestion_3: "AI 视频产品",
+  suggestion_4: "AI 生产力工具",
+  suggestion_5: "小企业AI工具",
+  suggestion_6: "AI 医疗解决方案",
 }
 
 const de: TranslationKeys = {
@@ -427,9 +446,15 @@ const de: TranslationKeys = {
   footer_copyright: "GuruBox.ai. Alle Rechte vorbehalten.",
   google_auth_success: "Google-Autorisierung erfolgreich!",
   google_auth_failed: "Google-Autorisierung fehlgeschlagen.",
-  popup_blocked: "Popup blockiert. Please allow popups for this site.",
-  oauth_init_failed: "Failed to initiate Google authorization.",
-  waiting_for_google_auth: "Waiting for Google authorization...",
+  popup_blocked: "Popup blockiert. Bitte erlauben Sie Popups fur diese Seite.",
+  oauth_init_failed: "Google-Autorisierung konnte nicht gestartet werden.",
+  waiting_for_google_auth: "Warten auf Google-Autorisierung...",
+  suggestion_1: "KI-Tools fur Freiberufler",
+  suggestion_2: "KI-SaaS-Chancen",
+  suggestion_3: "KI-Videoprodukte",
+  suggestion_4: "KI-Produktivitatstools",
+  suggestion_5: "KI-Tools fur kleine Unternehmen",
+  suggestion_6: "KI-Gesundheitslosungen",
 }
 
 const fr: TranslationKeys = {
@@ -535,6 +560,12 @@ const fr: TranslationKeys = {
   popup_blocked: "Popup bloque. Veuillez autoriser les popups pour ce site.",
   oauth_init_failed: "Echec de l'initialisation de l'autorisation Google.",
   waiting_for_google_auth: "En attente de l'autorisation Google...",
+  suggestion_1: "Outils IA pour freelances",
+  suggestion_2: "Opportunites SaaS IA",
+  suggestion_3: "Produits video IA",
+  suggestion_4: "Outils de productivite IA",
+  suggestion_5: "Outils IA pour PME",
+  suggestion_6: "Solutions sante IA",
 }
 
 const it: TranslationKeys = {
@@ -640,6 +671,12 @@ const it: TranslationKeys = {
   popup_blocked: "Popup bloccato. Si prega di consentire i popup per questo sito.",
   oauth_init_failed: "Impossibile avviare l'autorizzazione Google.",
   waiting_for_google_auth: "In attesa dell'autorizzazione Google...",
+  suggestion_1: "Strumenti IA per freelancer",
+  suggestion_2: "Opportunita SaaS IA",
+  suggestion_3: "Prodotti video IA",
+  suggestion_4: "Strumenti di produttivita IA",
+  suggestion_5: "Strumenti IA per piccole imprese",
+  suggestion_6: "Soluzioni sanitarie IA",
 }
 
 const es: TranslationKeys = {
@@ -745,6 +782,12 @@ const es: TranslationKeys = {
   popup_blocked: "Popup bloqueado. Permita los popups para este sitio.",
   oauth_init_failed: "Error al iniciar la autorizacion de Google.",
   waiting_for_google_auth: "Esperando autorizacion de Google...",
+  suggestion_1: "Herramientas IA para freelancers",
+  suggestion_2: "Oportunidades SaaS IA",
+  suggestion_3: "Productos de video IA",
+  suggestion_4: "Herramientas de productividad IA",
+  suggestion_5: "Herramientas IA para pequenas empresas",
+  suggestion_6: "Soluciones de salud IA",
 }
 
 const pt: TranslationKeys = {
@@ -850,6 +893,12 @@ const pt: TranslationKeys = {
   popup_blocked: "Popup bloqueado. Permita os popups para este site.",
   oauth_init_failed: "Falha ao iniciar autorizacao do Google.",
   waiting_for_google_auth: "Aguardando autorizacao do Google...",
+  suggestion_1: "Ferramentas IA para freelancers",
+  suggestion_2: "Oportunidades SaaS IA",
+  suggestion_3: "Produtos de video IA",
+  suggestion_4: "Ferramentas de produtividade IA",
+  suggestion_5: "Ferramentas IA para pequenas empresas",
+  suggestion_6: "Solucoes de saude IA",
 }
 
 export const translations: Record<Language, TranslationKeys> = {

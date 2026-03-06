@@ -7,7 +7,7 @@ import { useAuth } from "@/components/auth/auth-provider"
 import { useI18n } from "@/components/i18n/i18n-provider"
 import { LoginDialog } from "@/components/auth/login-dialog"
 import { Button } from "@/components/ui/button"
-import { SUGGESTIONS } from "@/lib/constants"
+import { SUGGESTION_KEYS } from "@/lib/constants"
 import { api, ApiError } from "@/lib/api/client"
 import { toast } from "sonner"
 import Link from "next/link"
@@ -173,14 +173,14 @@ export function InputSection() {
 
       {/* Suggestions */}
       <div className="flex flex-wrap items-center justify-center gap-2">
-        {SUGGESTIONS.map((suggestion) => (
+        {SUGGESTION_KEYS.map((key) => (
           <button
-            key={suggestion}
-            onClick={() => handleSuggestionClick(suggestion)}
+            key={key}
+            onClick={() => handleSuggestionClick(t(key))}
             className="suggestion-pill rounded-full border border-border bg-card/80 px-3.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/30"
             disabled={loading || authLoading}
           >
-            {suggestion}
+            {t(key)}
           </button>
         ))}
       </div>

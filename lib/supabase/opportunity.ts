@@ -1,4 +1,5 @@
-import { supabase, supabaseAdmin } from '../supabase'
+import { supabase } from '../supabase'
+import { supabaseAdmin } from '../supabase-admin'
 import type { Database } from '../supabase-types'
 
 type Opportunity = Database['public']['Tables']['opportunities']['Row']
@@ -61,7 +62,7 @@ export async function getReportOpportunities(
 export async function createOpportunities(opportunities: OpportunityInsert[]) {
   const { data, error } = await supabaseAdmin
     .from('opportunities')
-    .insert(opportunities)
+    .insert(opportunities as never)
     .select()
 
   return { opportunities: data, error }
@@ -88,7 +89,8 @@ export async function getOpportunitiesByCategory(
 
   if (error || !data) return {}
 
-  return data.reduce((acc, opp) => {
+  const typedData = data as Opportunity[]
+  return typedData.reduce((acc, opp) => {
     const category = opp.category || 'Uncategorized'
     if (!acc[category]) acc[category] = []
     acc[category].push(opp)

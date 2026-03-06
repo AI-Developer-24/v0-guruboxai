@@ -1,13 +1,45 @@
 import { z } from 'zod'
 
+/**
+ * Check if text contains CJK (Chinese, Japanese, Korean) characters
+ * CJK characters have higher information density, so we use lower character limits
+ */
+function containsCJK(text: string): boolean {
+  // CJK Unified Ideographs ranges
+  const cjkRegex = /[\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2a6df}\u{2a700}-\u{2b73f}\u{2b740}-\u{2b81f}\u{2b820}-\u{2ceaf}\u{2ceb0}-\u{2ebef}\u{30000}-\u{3134f}\u3000-\u303f\uff00-\uffef\uac00-\ud7af\u3040-\u309f\u30a0-\u30ff]/u
+  return cjkRegex.test(text)
+}
+
+/**
+ * Calculate effective length considering CJK character density
+ * CJK characters count as 2x because they carry more information
+ */
+function getEffectiveLength(text: string): number {
+  let length = 0
+  for (const char of text) {
+    // CJK characters count as 2
+    if (containsCJK(char)) {
+      length += 2
+    } else {
+      length += 1
+    }
+  }
+  return length
+}
+
 // Create task
 export const CreateTaskSchema = z.object({
   input_text: z.string()
-    .min(10, 'Input text must be at least 10 characters')
+    .min(3, 'Input text must be at least 3 characters')
     .max(500, 'Input text must be less than 500 characters')
     .refine(
-      (value) => value.trim().length > 5,
-      'Please enter meaningful text (at least 5 non-whitespace characters)'
+      (value) => {
+        // Use effective length: CJK chars count as 2, others as 1
+        // Minimum effective length of 10 (e.g., 5 CJK chars or 10 Latin chars)
+        const effectiveLength = getEffectiveLength(value.trim())
+        return effectiveLength >= 10
+      },
+      'Input text must be at least 5 CJK characters or 10 Latin characters'
     )
     .refine(
       (value) => !/^\d+$/.test(value.trim()),

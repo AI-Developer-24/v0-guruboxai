@@ -7,7 +7,7 @@ import {
   Font,
   pdf,
 } from '@react-pdf/renderer'
-import { getSupabaseAdmin } from '../supabase'
+import { supabaseAdmin } from '../supabase-admin'
 import type { Database } from '../supabase-types'
 
 type Report = Database['public']['Tables']['reports']['Row']
@@ -365,8 +365,6 @@ function ReportDocument({ report, opportunities }: ReportDocumentProps) {
  * Generate PDF buffer for a report
  */
 export async function generatePDF(reportId: string): Promise<Buffer> {
-  const supabaseAdmin = getSupabaseAdmin()
-
   // Fetch report data
   const { data: report, error: reportError } = await supabaseAdmin
     .from('reports')

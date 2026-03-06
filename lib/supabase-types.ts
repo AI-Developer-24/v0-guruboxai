@@ -37,6 +37,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       reports: {
         Row: {
@@ -75,6 +76,7 @@ export interface Database {
           created_at?: string
           is_deleted?: boolean
         }
+        Relationships: []
       }
       tasks: {
         Row: {
@@ -107,6 +109,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       opportunities: {
         Row: {
@@ -166,6 +169,7 @@ export interface Database {
           final_score?: number
           created_at?: string
         }
+        Relationships: []
       }
       google_tokens: {
         Row: {
@@ -198,6 +202,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
     }
     Views: {

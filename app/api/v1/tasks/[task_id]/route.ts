@@ -8,7 +8,10 @@ import {
   unauthorizedResponse,
 } from '@/lib/api/response'
 import { requireAuth } from '@/lib/api/auth'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+
+// Type for task query result
+type TaskBasicInfo = { id: string; report_id: string; status: string }
 
 export const dynamic = 'force-dynamic'
 
@@ -131,9 +134,12 @@ export async function DELETE(
       return notFoundResponse('Task not found')
     }
 
+    // Type assertion for query result
+    const typedTask = task as TaskBasicInfo
+
     // Can only cancel pending or running tasks
-    if (task.status !== 'pending' && task.status !== 'running') {
-      console.log(`[TaskCancel API] Task cannot be canceled, current status: ${task.status}`)
+    if (typedTask.status !== 'pending' && typedTask.status !== 'running') {
+      console.log(`[TaskCancel API] Task cannot be canceled, current status: ${typedTask.status}`)
       return NextResponse.json(
         { error: { code: 'INVALID_STATUS', message: 'Task cannot be canceled' } },
         { status: 400 }
@@ -143,7 +149,7 @@ export async function DELETE(
     // Update task status to cancelled
     const { error: updateTaskError } = await supabaseAdmin
       .from('tasks')
-      .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+      .update({ status: 'cancelled', updated_at: new Date().toISOString() } as never)
       .eq('id', taskId)
 
     if (updateTaskError) {
@@ -154,8 +160,8 @@ export async function DELETE(
     // Update report status to cancelled
     const { error: updateReportError } = await supabaseAdmin
       .from('reports')
-      .update({ status: 'cancelled' })
-      .eq('id', task.report_id)
+      .update({ status: 'cancelled' } as never)
+      .eq('id', typedTask.report_id)
 
     if (updateReportError) {
       console.error(`[TaskCancel API] Failed to cancel report:`, updateReportError)

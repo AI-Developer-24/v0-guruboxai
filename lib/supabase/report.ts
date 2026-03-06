@@ -1,4 +1,5 @@
-import { supabase, supabaseAdmin } from '../supabase'
+import { supabase } from '../supabase'
+import { supabaseAdmin } from '../supabase-admin'
 import type { Database } from '../supabase-types'
 
 type Report = Database['public']['Tables']['reports']['Row']
@@ -60,11 +61,11 @@ export async function getUserReports(
 export async function createReport(report: ReportInsert) {
   const { data, error } = await supabaseAdmin
     .from('reports')
-    .insert(report)
+    .insert(report as ReportInsert)
     .select()
     .single()
 
-  return { report: data, error }
+  return { report: data as Report | null, error }
 }
 
 export async function updateReport(id: string, updates: ReportUpdate) {

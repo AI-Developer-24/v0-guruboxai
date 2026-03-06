@@ -11,8 +11,8 @@ export function UserInfo() {
   return (
     <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-6">
       <Avatar className="size-14">
-        <AvatarImage src={user.avatar} alt={user.name} />
-        <AvatarFallback className="text-lg">{user.name.charAt(0)}</AvatarFallback>
+        <AvatarImage src={user.avatar ?? undefined} alt={user.name ?? ''} />
+        <AvatarFallback className="text-lg">{(user.name ?? 'U').charAt(0)}</AvatarFallback>
       </Avatar>
       <div className="flex flex-col gap-0.5">
         <p className="text-lg font-semibold text-foreground">{user.name}</p>

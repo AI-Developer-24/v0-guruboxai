@@ -6,6 +6,7 @@ import Image from "next/image"
 import { User, LogOut } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useI18n } from "@/components/i18n/i18n-provider"
+import type { Language } from "@/lib/types"
 import { LoginDialog } from "@/components/auth/login-dialog"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -29,7 +30,7 @@ export function Navbar() {
   const { t, locale, setLocale } = useI18n()
 
   const handleLanguageChange = async (langCode: string) => {
-    setLocale(langCode)
+    setLocale(langCode as Language)
     if (isLoggedIn && user) {
       try {
         await setLanguage(langCode)

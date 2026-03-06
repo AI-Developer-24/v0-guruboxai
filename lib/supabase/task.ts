@@ -1,4 +1,5 @@
-import { supabase, supabaseAdmin } from '../supabase'
+import { supabase } from '../supabase'
+import { supabaseAdmin } from '../supabase-admin'
 import type { Database } from '../supabase-types'
 
 type Task = Database['public']['Tables']['tasks']['Row']

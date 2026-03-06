@@ -130,7 +130,14 @@ export function OpportunitiesTable({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            onClick={() => {
+              const newPage = Math.max(1, page - 1)
+              if (onPageChange) {
+                onPageChange(newPage)
+              } else {
+                setInternalPage(newPage)
+              }
+            }}
             disabled={page === 1}
             className="gap-1"
           >
@@ -143,7 +150,14 @@ export function OpportunitiesTable({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            onClick={() => {
+              const newPage = Math.min(totalPages, page + 1)
+              if (onPageChange) {
+                onPageChange(newPage)
+              } else {
+                setInternalPage(newPage)
+              }
+            }}
             disabled={page === totalPages}
             className="gap-1"
           >

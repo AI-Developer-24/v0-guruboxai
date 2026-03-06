@@ -72,7 +72,7 @@ export async function getSession() {
 export async function updateUserLanguage(userId: string, language: string) {
   const { data, error } = await supabase
     .from('users')
-    .update({ language })
+    .update({ language } as never)
     .eq('id', userId)
     .select()
     .single()
@@ -95,7 +95,7 @@ export async function ensureUserExists(userId: string, metadata: {
       email: metadata.email,
       name: metadata.name,
       avatar: metadata.avatar,
-    }, {
+    } as never, {
       onConflict: 'id',
       ignoreDuplicates: false,
     })

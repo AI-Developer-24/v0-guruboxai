@@ -151,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const login = useCallback(async () => {
+  const login = useCallback(async (popup?: Window | null) => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -166,21 +166,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (error) {
       console.error('Sign in error:', error)
+      // Close popup on error
+      if (popup && !popup.closed) {
+        popup.close()
+      }
       throw error
     }
 
     if (data.url) {
-      // Open OAuth in a popup window
-      const width = 500
-      const height = 600
-      const left = window.screenX + (window.outerWidth - width) / 2
-      const top = window.screenY + (window.outerHeight - height) / 2
+      if (popup && !popup.closed) {
+        // Use the pre-opened popup (Safari compatible)
+        popup.location.href = data.url
+      } else {
+        // Fallback: open new popup (may be blocked by Safari)
+        const width = 500
+        const height = 600
+        const left = window.screenX + (window.outerWidth - width) / 2
+        const top = window.screenY + (window.outerHeight - height) / 2
 
-      window.open(
-        data.url,
-        'google-auth',
-        `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,resizable=yes,scrollbars=yes`
-      )
+        window.open(
+          data.url,
+          'google-auth',
+          `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,resizable=yes,scrollbars=yes`
+        )
+      }
     }
   }, [])
 
@@ -199,7 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { error } = await supabase
       .from('users')
-      .update({ language })
+      .update({ language } as never)
       .eq('id', user.id)
 
     if (error) {

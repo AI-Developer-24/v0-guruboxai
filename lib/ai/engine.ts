@@ -1,6 +1,6 @@
 import { getProviderForModel } from './providers/factory'
 import { PROMPTS, OpportunitySchema, UnderstandingOutputSchema, AnalyzingOutputSchema, ScanningOutputSchema, FinalizingOutputSchema, GeneratingOpportunitySchema } from './prompts'
-import { supabaseAdmin } from '../supabase'
+import { supabaseAdmin } from '../supabase-admin'
 import type { Message } from './providers/base'
 import { z } from 'zod'
 
@@ -46,7 +46,8 @@ export class AIEngine {
    * Check if task has been cancelled
    */
   private async checkCancelled(taskId: string): Promise<void> {
-    const task = await withRetry(
+    type TaskStatus = { status: string }
+    const task = await withRetry<TaskStatus | null>(
       async () => {
         const { data, error } = await supabaseAdmin
           .from('tasks')
@@ -57,7 +58,7 @@ export class AIEngine {
         if (error) {
           throw error
         }
-        return data
+        return data as TaskStatus | null
       },
       'AIEngine.checkCancelled',
       3,
@@ -196,14 +197,14 @@ export class AIEngine {
         summary_text: finalData.summary_text,
         premium_ratio: premiumRatio,
         analysis_time_sec: analysisTime,
-      })
+      } as never)
       .eq('id', reportId)
 
     // Update task status
     console.log(`[AIEngine] Updating task status to completed...`)
     await supabaseAdmin
       .from('tasks')
-      .update({ status: 'completed', updated_at: new Date().toISOString() })
+      .update({ status: 'completed', updated_at: new Date().toISOString() } as never)
       .eq('id', taskId)
 
     await this.completeStage(taskId, 'finalizing')
@@ -283,7 +284,7 @@ export class AIEngine {
           .update({
             current_stage: stage,
             updated_at: new Date().toISOString(),
-          })
+          } as never)
           .eq('id', taskId)
 
         if (error) {
@@ -304,6 +305,8 @@ export class AIEngine {
   private async completeStage(taskId: string, stage: string) {
     console.log(`[AIEngine.completeStage] Marking stage ${stage} as completed for task ${taskId}`)
 
+    type TaskStages = { stages_completed: string[] }
+
     await withRetry(
       async () => {
         const { data: task, error: fetchError } = await supabaseAdmin
@@ -316,7 +319,8 @@ export class AIEngine {
           throw fetchError
         }
 
-        const stagesCompleted = [...(task?.stages_completed || []), stage]
+        const typedTask = task as TaskStages | null
+        const stagesCompleted = [...(typedTask?.stages_completed || []), stage]
         console.log(`[AIEngine.completeStage] New stages_completed:`, stagesCompleted)
 
         const { error: updateError } = await supabaseAdmin
@@ -324,7 +328,7 @@ export class AIEngine {
           .update({
             stages_completed: stagesCompleted,
             updated_at: new Date().toISOString(),
-          })
+          } as never)
           .eq('id', taskId)
 
         if (updateError) {
@@ -363,7 +367,7 @@ export class AIEngine {
 
     const { error } = await supabaseAdmin
       .from('opportunities')
-      .insert(toInsert)
+      .insert(toInsert as never)
 
     if (error) {
       console.error('Failed to save opportunities:', error)

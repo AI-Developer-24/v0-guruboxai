@@ -10,7 +10,14 @@ import { ANALYSIS_STAGES } from "@/lib/constants"
 import { api } from "@/lib/api/client"
 import { supabase } from "@/lib/supabase"
 import type { AnalysisStage } from "@/lib/types"
+import type { Database } from "@/lib/supabase-types"
 import { AlertCircle, XCircle } from "lucide-react"
+
+// Type for task with reports join
+type TaskRow = Database['public']['Tables']['tasks']['Row']
+type TaskWithReport = TaskRow & {
+  reports: { id: string; status: string }
+}
 import { Button } from "@/components/ui/button"
 
 // Stage key mapping
@@ -134,18 +141,20 @@ export default function AnalysisPage() {
           return
         }
 
-        console.log('[AnalysisPage] Initial task data:', task)
+        // Type assertion for join result
+        const typedTask = task as TaskWithReport
+        console.log('[AnalysisPage] Initial task data:', typedTask)
 
-        const reportData = task.reports as { id: string; status: string }
+        const reportData = typedTask.reports
         setReportId(reportData.id)
         reportIdRef.current = reportData.id
         console.log('[AnalysisPage] Report ID set:', reportData.id)
 
         // Update UI with initial data
-        updateUI(task)
+        updateUI(typedTask)
 
         // Check if already in terminal state
-        if (task.status === 'completed' || task.status === 'cancelled' || task.status === 'failed') {
+        if (typedTask.status === 'completed' || typedTask.status === 'cancelled' || typedTask.status === 'failed') {
           return
         }
 

@@ -21,6 +21,8 @@ npm run lint     # ESLint
 - **No Placeholders:** Provide complete implementations. Do not use comments as placeholders for logic
 - **Root Cause Analysis:** Before fixing a bug, explain the "Why" behind the fix
 - **Preserve Context:** Do not remove existing logic, comments, or UI elements unless specifically asked
+- **Minimal Scope:** Analyze root cause first, then make the smallest possible change. Do not expand modification scope
+- **Dev/Prod Compatibility:** Ensure changes work in both development and production environments
 
 ## Tech Stack
 

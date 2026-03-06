@@ -1,6 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+import type { Database } from '@/lib/supabase-types'
+
+type UserInsert = Database['public']['Tables']['users']['Insert']
 
 export async function GET(request: NextRequest) {
   console.log('[Auth Callback] GET /auth/callback called')
@@ -74,14 +77,15 @@ export async function GET(request: NextRequest) {
     if (user) {
       // Ensure user record exists in users table using admin client (bypasses RLS)
       console.log('[Auth Callback] Upserting user to database...')
+      const userData: UserInsert = {
+        id: user.id,
+        email: user.email!,
+        name: user.user_metadata.full_name,
+        avatar: user.user_metadata.avatar_url,
+      }
       const { error: upsertError } = await supabaseAdmin
         .from('users')
-        .upsert({
-          id: user.id,
-          email: user.email!,
-          name: user.user_metadata.full_name,
-          avatar: user.user_metadata.avatar_url,
-        }, {
+        .upsert(userData as never, {
           onConflict: 'id',
         })
 

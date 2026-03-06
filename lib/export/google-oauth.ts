@@ -1,5 +1,5 @@
 import { OAuth2Client } from 'google-auth-library'
-import { getSupabaseAdmin } from '../supabase'
+import { supabaseAdmin } from '../supabase-admin'
 import type { Database } from '../supabase-types'
 
 type GoogleToken = Database['public']['Tables']['google_tokens']['Row']
@@ -120,7 +120,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenRes
  * Returns null if user has no token stored
  */
 export async function getValidUserToken(userId: string): Promise<string | null> {
-  const supabase = getSupabaseAdmin()
+  const supabase = supabaseAdmin
 
   // Get stored token
   const { data: token, error } = await supabase
@@ -138,18 +138,20 @@ export async function getValidUserToken(userId: string): Promise<string | null> 
     return null
   }
 
+  const typedToken = token as GoogleToken
+
   // Check if token is expired (with 5 minute buffer)
-  const expiresAt = new Date(token.expires_at)
+  const expiresAt = new Date(typedToken.expires_at)
   const now = new Date()
   const bufferMs = 5 * 60 * 1000 // 5 minutes
 
   if (expiresAt.getTime() > now.getTime() + bufferMs) {
     // Token is still valid
-    return token.access_token
+    return typedToken.access_token
   }
 
   // Token is expired, refresh it
-  if (!token.refresh_token) {
+  if (!typedToken.refresh_token) {
     console.error('[Google OAuth] Token expired and no refresh token available')
     // Delete the invalid token
     await supabase.from('google_tokens').delete().eq('user_id', userId)
@@ -159,7 +161,7 @@ export async function getValidUserToken(userId: string): Promise<string | null> 
   console.log('[Google OAuth] Refreshing expired token for user:', userId)
 
   try {
-    const tokenResponse = await refreshAccessToken(token.refresh_token)
+    const tokenResponse = await refreshAccessToken(typedToken.refresh_token)
 
     // Calculate new expiration time
     const newExpiresAt = new Date(Date.now() + tokenResponse.expires_in * 1000)
@@ -170,9 +172,9 @@ export async function getValidUserToken(userId: string): Promise<string | null> 
       .update({
         access_token: tokenResponse.access_token,
         expires_at: newExpiresAt.toISOString(),
-        scope: tokenResponse.scope || token.scope,
+        scope: tokenResponse.scope || typedToken.scope,
         updated_at: new Date().toISOString(),
-      })
+      } as never)
       .eq('user_id', userId)
 
     if (updateError) {
@@ -196,7 +198,7 @@ export async function storeUserTokens(
   userId: string,
   tokenResponse: TokenResponse
 ): Promise<void> {
-  const supabase = getSupabaseAdmin()
+  const supabase = supabaseAdmin
 
   const expiresAt = new Date(Date.now() + tokenResponse.expires_in * 1000)
 
@@ -212,7 +214,7 @@ export async function storeUserTokens(
   // Upsert token (insert or update if exists)
   const { error } = await supabase
     .from('google_tokens')
-    .upsert(tokenData, {
+    .upsert(tokenData as never, {
       onConflict: 'user_id',
     })
 
@@ -228,7 +230,7 @@ export async function storeUserTokens(
  * Delete Google OAuth tokens for a user
  */
 export async function deleteUserTokens(userId: string): Promise<void> {
-  const supabase = getSupabaseAdmin()
+  const supabase = supabaseAdmin
 
   const { error } = await supabase.from('google_tokens').delete().eq('user_id', userId)
 

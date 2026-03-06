@@ -19,14 +19,14 @@ export const SUPPORTED_LANGUAGES: { code: Language; label: string }[] = [
   { code: "pt", label: "Português" },
 ]
 
-export const SUGGESTIONS = [
-  "AI tools for freelancers",
-  "AI SaaS opportunities",
-  "AI video products",
-  "AI productivity tools",
-  "AI tools for small businesses",
-  "AI healthcare solutions",
-]
+export const SUGGESTION_KEYS = [
+  "suggestion_1",
+  "suggestion_2",
+  "suggestion_3",
+  "suggestion_4",
+  "suggestion_5",
+  "suggestion_6",
+] as const
 
 export const PAGE_SIZE = 20
 export const TOTAL_OPPORTUNITIES = 300

@@ -30,7 +30,7 @@ export function ExportButtons({ reportId }: ExportButtonsProps) {
       if (event.data?.type === 'GOOGLE_OAUTH_SUCCESS') {
         setWaitingForOAuth(false)
         toast.success(t("google_auth_success") || "Google authorization successful!")
-        // Automatically retry export after successful auth
+        // Automatically retry export after successful auth (no popup needed for retry)
         handleExportDocs(true)
       } else if (event.data?.type === 'GOOGLE_OAUTH_ERROR') {
         setWaitingForOAuth(false)
@@ -40,7 +40,8 @@ export function ExportButtons({ reportId }: ExportButtonsProps) {
 
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-  }, [t])
+    // handleExportDocs is stable due to useCallback, but include for completeness
+  }, [t, handleExportDocs])
 
   const handleExportPdf = async () => {
     if (!user) {
@@ -87,6 +88,26 @@ export function ExportButtons({ reportId }: ExportButtonsProps) {
   }
 
   const openOAuthPopup = async () => {
+    // Open popup immediately (Safari requires window.open in direct click handler)
+    const width = 600
+    const height = 700
+    const left = window.screenX + (window.outerWidth - width) / 2
+    const top = window.screenY + (window.outerHeight - height) / 2
+
+    // Open a blank popup first to satisfy Safari's popup blocker
+    oauthWindow = window.open(
+      'about:blank',
+      'GoogleOAuth',
+      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no`
+    )
+
+    if (!oauthWindow) {
+      toast.error(t("popup_blocked") || "Popup blocked. Please allow popups for this site.")
+      return false
+    }
+
+    setWaitingForOAuth(true)
+
     try {
       // Get the OAuth authorization URL from backend
       const response = await api.post<{ auth_url: string; state: string }>(
@@ -94,35 +115,31 @@ export function ExportButtons({ reportId }: ExportButtonsProps) {
         {}
       )
 
-      // Open popup window
-      const width = 600
-      const height = 700
-      const left = window.screenX + (window.outerWidth - width) / 2
-      const top = window.screenY + (window.outerHeight - height) / 2
-
-      oauthWindow = window.open(
-        response.auth_url,
-        'GoogleOAuth',
-        `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no`
-      )
-
-      if (!oauthWindow) {
-        toast.error(t("popup_blocked") || "Popup blocked. Please allow popups for this site.")
-        return false
+      // Redirect the popup to the auth URL
+      if (oauthWindow && !oauthWindow.closed) {
+        oauthWindow.location.href = response.auth_url
       }
 
-      setWaitingForOAuth(true)
       return true
     } catch (error) {
       console.error('[Export] Failed to open OAuth popup:', error)
+      // Close the blank popup on error
+      if (oauthWindow && !oauthWindow.closed) {
+        oauthWindow.close()
+      }
+      setWaitingForOAuth(false)
       toast.error(t("oauth_init_failed") || "Failed to initiate Google authorization.")
       return false
     }
   }
 
-  const handleExportDocs = useCallback(async (isRetry = false) => {
+  const handleExportDocs = useCallback(async (isRetry = false, preOpenedPopup?: Window | null) => {
     if (!user) {
       toast.error(t("error_unauthorized") || "Please sign in to export reports")
+      // Close pre-opened popup if exists
+      if (preOpenedPopup && !preOpenedPopup.closed) {
+        preOpenedPopup.close()
+      }
       return
     }
 
@@ -137,10 +154,18 @@ export function ExportButtons({ reportId }: ExportButtonsProps) {
       )
 
       if (response.url) {
+        // Close pre-opened popup on success
+        if (preOpenedPopup && !preOpenedPopup.closed) {
+          preOpenedPopup.close()
+        }
         // Open the Google Doc in a new tab
         window.open(response.url, '_blank')
         toast.success(t("export_success") || "Google Doc created successfully!")
       } else {
+        // Close pre-opened popup on failure
+        if (preOpenedPopup && !preOpenedPopup.closed) {
+          preOpenedPopup.close()
+        }
         toast.error(t("export_failed") || "Export failed. Please try again.")
       }
     } catch (error) {
@@ -151,37 +176,64 @@ export function ExportButtons({ reportId }: ExportButtonsProps) {
           const authUrl = (error as any).details?.auth_url
 
           if (authUrl) {
-            // Open OAuth popup
-            const width = 600
-            const height = 700
-            const left = window.screenX + (window.outerWidth - width) / 2
-            const top = window.screenY + (window.outerHeight - height) / 2
-
-            oauthWindow = window.open(
-              authUrl,
-              'GoogleOAuth',
-              `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no`
-            )
-
-            if (!oauthWindow) {
-              toast.error(t("popup_blocked") || "Popup blocked. Please allow popups for this site.")
-            } else {
+            // Use pre-opened popup for Safari compatibility
+            if (preOpenedPopup && !preOpenedPopup.closed) {
+              oauthWindow = preOpenedPopup
               setWaitingForOAuth(true)
+              oauthWindow.location.href = authUrl
+            } else {
+              // Fallback: popup was blocked or closed
+              toast.error(t("popup_blocked") || "Popup blocked. Please allow popups for this site.")
             }
           } else {
-            // Fallback: get auth URL from API
+            // Close pre-opened popup before opening new one
+            if (preOpenedPopup && !preOpenedPopup.closed) {
+              preOpenedPopup.close()
+            }
+            // Fallback: get auth URL from API (may be blocked by Safari)
             await openOAuthPopup()
           }
         } else {
+          // Close pre-opened popup on other errors
+          if (preOpenedPopup && !preOpenedPopup.closed) {
+            preOpenedPopup.close()
+          }
           toast.error(error.message || t("export_failed") || "Export failed")
         }
       } else {
+        // Close pre-opened popup on other errors
+        if (preOpenedPopup && !preOpenedPopup.closed) {
+          preOpenedPopup.close()
+        }
         toast.error(t("export_failed") || "Export failed. Please try again.")
       }
     } finally {
       setExporting(null)
     }
   }, [user, reportId, t])
+
+  // Open popup synchronously on click for Safari compatibility
+  const handleDocsClick = () => {
+    const width = 600
+    const height = 700
+    const left = window.screenX + (window.outerWidth - width) / 2
+    const top = window.screenY + (window.outerHeight - height) / 2
+
+    // Open blank popup SYNCHRONOUSLY (Safari requires window.open in direct click handler)
+    const popup = window.open(
+      'about:blank',
+      'GoogleOAuth',
+      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no`
+    )
+
+    if (!popup) {
+      toast.error(t("popup_blocked") || "Popup blocked. Please allow popups for this site.")
+      return
+    }
+
+    // Pass pre-opened popup to export handler
+    handleExportDocs(false, popup)
+  }
 
   const isDisabled = exporting !== null || waitingForOAuth
 
@@ -202,7 +254,7 @@ export function ExportButtons({ reportId }: ExportButtonsProps) {
       </Button>
       <Button
         variant="outline"
-        onClick={() => handleExportDocs(false)}
+        onClick={handleDocsClick}
         disabled={isDisabled}
         className="btn-glow gap-2"
       >

@@ -1,6 +1,6 @@
 import { google } from 'googleapis'
 import { OAuth2Client } from 'google-auth-library'
-import { getSupabaseAdmin } from '../supabase'
+import { supabaseAdmin } from '../supabase-admin'
 import type { Database } from '../supabase-types'
 import { createOAuth2Client } from './google-oauth'
 
@@ -25,7 +25,6 @@ export async function exportToGoogleDocs(
   const auth = createOAuth2Client(accessToken)
   const docs = google.docs({ version: 'v1', auth })
   const drive = google.drive({ version: 'v3', auth })
-  const supabaseAdmin = getSupabaseAdmin()
 
   // Fetch report data
   console.log('[GDocs Export] Fetching report data...')
@@ -39,7 +38,8 @@ export async function exportToGoogleDocs(
     console.error('[GDocs Export] Failed to fetch report:', reportError)
     throw new Error('Report not found')
   }
-  console.log('[GDocs Export] Report fetched successfully, input_text length:', report.input_text?.length)
+  const typedReport = report as Report
+  console.log('[GDocs Export] Report fetched successfully, input_text length:', typedReport.input_text?.length)
 
   // Fetch all opportunities
   console.log('[GDocs Export] Fetching opportunities...')
@@ -53,13 +53,14 @@ export async function exportToGoogleDocs(
     console.error('[GDocs Export] Failed to fetch opportunities:', oppsError)
     throw new Error('Failed to fetch opportunities')
   }
-  console.log('[GDocs Export] Fetched opportunities count:', opportunities?.length || 0)
+  const typedOpportunities = (opportunities || []) as Opportunity[]
+  console.log('[GDocs Export] Fetched opportunities count:', typedOpportunities.length)
 
   // Create new document
   const title =
-    report.input_text.length > 50
-      ? `GuruBox Report: ${report.input_text.slice(0, 50)}...`
-      : `GuruBox Report: ${report.input_text}`
+    typedReport.input_text.length > 50
+      ? `GuruBox Report: ${typedReport.input_text.slice(0, 50)}...`
+      : `GuruBox Report: ${typedReport.input_text}`
 
   console.log('[GDocs Export] Creating document with title:', title)
   let createdDoc
@@ -79,7 +80,8 @@ export async function exportToGoogleDocs(
   }
 
   const documentId = createdDoc.data.documentId!
-  const requests: google.docs.v1.Schema$Request[] = []
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const requests: any[] = []
 
   // Track current index for insertions
   let currentIndex = 1
@@ -113,7 +115,7 @@ export async function exportToGoogleDocs(
   })
 
   // Add date
-  const dateString = new Date(report.created_at).toLocaleDateString('en-US', {
+  const dateString = new Date(typedReport.created_at).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -129,12 +131,12 @@ export async function exportToGoogleDocs(
       fields: 'namedStyleType',
     },
   })
-  addText(`${report.input_text}\n\n`)
+  addText(`${typedReport.input_text}\n\n`)
 
   // Add statistics section
-  const premiumCount = Math.round(report.premium_ratio * report.total_opportunities)
-  const premiumPercent = Math.round(report.premium_ratio * 100)
-  const analysisMinutes = Math.round(report.analysis_time_sec / 60)
+  const premiumCount = Math.round(typedReport.premium_ratio * typedReport.total_opportunities)
+  const premiumPercent = Math.round(typedReport.premium_ratio * 100)
+  const analysisMinutes = Math.round(typedReport.analysis_time_sec / 60)
 
   addText('Statistics\n')
   requests.push({
@@ -144,7 +146,7 @@ export async function exportToGoogleDocs(
       fields: 'namedStyleType',
     },
   })
-  addText(`Total Opportunities: ${report.total_opportunities}\n`)
+  addText(`Total Opportunities: ${typedReport.total_opportunities}\n`)
   addText(`Premium Opportunities: ${premiumCount} (${premiumPercent}%)\n`)
   addText(`Analysis Time: ${analysisMinutes} minutes\n\n`)
 
@@ -157,7 +159,7 @@ export async function exportToGoogleDocs(
       fields: 'namedStyleType',
     },
   })
-  addText(`${report.summary_text}\n\n`)
+  addText(`${typedReport.summary_text}\n\n`)
 
   // Add opportunities section
   addText('Opportunities\n\n')
@@ -170,7 +172,7 @@ export async function exportToGoogleDocs(
   })
 
   // Add each opportunity
-  for (const opp of opportunities || []) {
+  for (const opp of typedOpportunities) {
     const isPremium = opp.final_score >= 80
     const oppTitle = `${opp.index_number}. ${opp.name}`
     const titleLength = oppTitle.length

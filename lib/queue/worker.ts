@@ -1,7 +1,7 @@
 import { Worker, Job } from 'bullmq'
-import { redis } from '../redis'
+import { getRedisConfig } from '../env'
 import { AIEngine } from '../ai/engine'
-import { supabaseAdmin } from '../supabase'
+import { supabaseAdmin } from '../supabase-admin'
 
 const aiEngine = new AIEngine()
 
@@ -22,6 +22,9 @@ export interface AnalysisJobData {
 
 console.log('[Worker] Initializing analysis worker...')
 
+// Get Redis URL for BullMQ Worker
+const { url: redisUrl } = getRedisConfig()
+
 export const analysisWorker = new Worker<AnalysisJobData>(
   'analysis-queue',
   async (job: Job<AnalysisJobData>) => {
@@ -40,7 +43,7 @@ export const analysisWorker = new Worker<AnalysisJobData>(
       console.log(`[Worker] Marking task as running...`)
       const { error: updateError } = await supabaseAdmin
         .from('tasks')
-        .update({ status: 'running', updated_at: new Date().toISOString() })
+        .update({ status: 'running', updated_at: new Date().toISOString() } as never)
         .eq('id', taskId)
 
       if (updateError) {
@@ -75,7 +78,7 @@ export const analysisWorker = new Worker<AnalysisJobData>(
       console.log(`[Worker] Marking task as failed...`)
       const { error: taskError } = await supabaseAdmin
         .from('tasks')
-        .update({ status: 'failed', updated_at: new Date().toISOString() })
+        .update({ status: 'failed', updated_at: new Date().toISOString() } as never)
         .eq('id', taskId)
 
       if (taskError) {
@@ -86,7 +89,7 @@ export const analysisWorker = new Worker<AnalysisJobData>(
       console.log(`[Worker] Marking report as failed...`)
       const { error: reportError } = await supabaseAdmin
         .from('reports')
-        .update({ status: 'failed' })
+        .update({ status: 'failed' } as never)
         .eq('id', reportId)
 
       if (reportError) {
@@ -97,13 +100,11 @@ export const analysisWorker = new Worker<AnalysisJobData>(
     }
   },
   {
-    connection: redis,
+    connection: {
+      url: redisUrl,
+      maxRetriesPerRequest: null,
+    } as never,
     concurrency: 5, // Maximum concurrent tasks
-    attempts: 3,    // Maximum retry attempts
-    backoff: {
-      type: 'exponential',
-      delay: 5000,
-    },
   }
 )
 

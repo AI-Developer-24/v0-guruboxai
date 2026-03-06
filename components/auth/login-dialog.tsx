@@ -22,8 +22,27 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
   const { t } = useI18n()
 
   const handleLogin = async () => {
+    // Open blank popup SYNCHRONOUSLY (Safari requires window.open in direct click handler)
+    const width = 500
+    const height = 600
+    const left = window.screenX + (window.outerWidth - width) / 2
+    const top = window.screenY + (window.outerHeight - height) / 2
+
+    const popup = window.open(
+      'about:blank',
+      'google-auth',
+      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,resizable=yes,scrollbars=yes`
+    )
+
+    if (!popup) {
+      // Popup was blocked
+      return
+    }
+
+    // Pass popup to login function which will set the URL after async OAuth init
+    await login(popup)
+    // Close dialog after opening popup
     onOpenChange(false)
-    await login()
     // Note: onLoginSuccess should be called when auth state changes, not here
     // because popup login is async and completes in a separate window
   }
