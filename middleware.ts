@@ -17,12 +17,15 @@ export async function middleware(request: NextRequest) {
       // Only normalize host here. Protocol may be rewritten by upstream proxies/CDN,
       // and strict protocol comparison can cause redirect loops in production.
       if (requestHost !== canonicalHost) {
-        const redirectUrl = new URL(request.url)
-        redirectUrl.protocol = canonicalUrl.protocol
+        // Use request.nextUrl instead of request.url to avoid issues with proxies/CDN
+        // that may rewrite the internal URL
+        const redirectUrl = new URL(request.nextUrl)
         redirectUrl.hostname = canonicalUrl.hostname
+        // Preserve the protocol from the incoming request (handled by CDN/proxy)
+        // to avoid redirect loops
         middlewareLogger.info('Redirecting to canonical domain', {
           from: request.nextUrl.origin,
-          to: canonicalUrl.origin,
+          to: redirectUrl.origin,
           path: request.nextUrl.pathname,
         })
         return NextResponse.redirect(redirectUrl, 308)
