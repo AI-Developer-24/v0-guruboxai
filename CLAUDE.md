@@ -16,14 +16,6 @@ npm run lint     # ESLint
 - 300 opportunities/report, 20/page | 30s–5min runtime | 1 concurrent task/user
 - Languages: EN, ZH, DE, FR, IT, ES, PT
 
-##  AI Behavior Rules
-
-- **No Placeholders:** Provide complete implementations. Do not use comments as placeholders for logic
-- **Root Cause Analysis:** Before fixing a bug, explain the "Why" behind the fix
-- **Preserve Context:** Do not remove existing logic, comments, or UI elements unless specifically asked
-- **Minimal Scope:** Analyze root cause first, then make the smallest possible change. Do not expand modification scope
-- **Dev/Prod Compatibility:** Ensure changes work in both development and production environments
-
 ## Tech Stack
 
 Next.js 16 + TypeScript | Tailwind CSS v4 (OKLCH) | Radix UI/shadcn | Supabase (Auth + DB) | BullMQ + Redis | OpenAI/Anthropic/DashScope

@@ -20,9 +20,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
-const AUTH_INIT_ATTEMPTS = 3
-const AUTH_INIT_TIMEOUT = 8000
-const AUTH_INIT_RETRY_DELAYS_MS = [300, 800]
+// Database query timeout (for loadUser)
+const DB_QUERY_TIMEOUT = 5000
 
 // Popup login retry configuration
 const POPUP_LOGIN_RETRY_ATTEMPTS = 5
@@ -37,8 +36,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const currentUserIdRef = useRef<string | null>(null)
   // Polling state
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
-  // Track if initial auth check is complete
-  const initialCheckCompleteRef = useRef(false)
 
   const collectSupabaseCookieNames = useCallback(() => {
     if (typeof document === 'undefined' || !document.cookie) return [] as string[]
@@ -47,80 +44,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .map((cookie) => cookie.trim().split('=')[0])
       .filter((name) => name.startsWith('sb-'))
   }, [])
-
-  const sleep = useCallback(async (ms: number) => {
-    await new Promise((resolve) => setTimeout(resolve, ms))
-  }, [])
-
-  const getVerifiedUserWithRetry = useCallback(async () => {
-    authLogger.debug('getVerifiedUserWithRetry started', {
-      maxAttempts: AUTH_INIT_ATTEMPTS,
-      timeoutMs: AUTH_INIT_TIMEOUT,
-      retryDelays: AUTH_INIT_RETRY_DELAYS_MS,
-    })
-
-    for (let attempt = 1; attempt <= AUTH_INIT_ATTEMPTS; attempt++) {
-      // Check if onAuthStateChange already set the user (early exit)
-      if (currentUserIdRef.current) {
-        authLogger.info('getVerifiedUserWithRetry: user already set by onAuthStateChange, early exit', {
-          attempt,
-          userId: currentUserIdRef.current,
-        })
-        // Return a mock result indicating no user from this path
-        // The caller should check currentUserIdRef.current
-        return { data: { user: null }, error: null }
-      }
-
-      const startTime = Date.now()
-      authLogger.debug('getVerifiedUserWithRetry attempt', {
-        attempt,
-        cookies: collectSupabaseCookieNames(),
-      })
-
-      try {
-        const result = await Promise.race([
-          supabase.auth.getUser(),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error(`AUTH_GET_USER_TIMEOUT_${attempt}`)), AUTH_INIT_TIMEOUT)
-          ),
-        ])
-
-        const elapsed = Date.now() - startTime
-        authLogger.debug('getVerifiedUserWithRetry attempt succeeded', {
-          attempt,
-          elapsedMs: elapsed,
-          hasUser: !!result.data?.user,
-          userId: result.data?.user?.id,
-        })
-
-        if (attempt > 1) {
-          authLogger.info('Auth check recovered after retry', { attempt })
-        }
-
-        return result
-      } catch (error) {
-        const elapsed = Date.now() - startTime
-        authLogger.warn('Auth check attempt failed', {
-          attempt,
-          elapsedMs: elapsed,
-          message: error instanceof Error ? error.message : String(error),
-        })
-
-        if (attempt < AUTH_INIT_ATTEMPTS) {
-          const delay = AUTH_INIT_RETRY_DELAYS_MS[attempt - 1] ?? 1000
-          authLogger.debug('Waiting before next retry', { delayMs: delay })
-          await sleep(delay)
-        } else {
-          authLogger.error('getVerifiedUserWithRetry exhausted all attempts', {
-            totalAttempts: AUTH_INIT_ATTEMPTS,
-          })
-          throw error
-        }
-      }
-    }
-
-    throw new Error('AUTH_GET_USER_UNREACHABLE')
-  }, [sleep, collectSupabaseCookieNames])
 
   useEffect(() => {
     let mounted = true
@@ -133,13 +56,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hasMetadata: !!authUser.user_metadata,
       })
 
+      // Prevent duplicate calls for the same user
+      if (currentUserIdRef.current === authUser.id && user) {
+        authLogger.debug('loadUser: user already loaded, skipping', { userId: authUser.id })
+        setLoading(false)
+        return
+      }
+
+      // Create fallback user data (used on timeout or error)
+      const fallbackUser: AppUser = {
+        id: authUser.id,
+        email: authUser.email!,
+        name: authUser.user_metadata.full_name || authUser.email?.split('@')[0] || '',
+        avatar: authUser.user_metadata.avatar_url || '',
+        language: 'en' as const,
+      }
+
       try {
+        // Database query with timeout
         authLogger.debug('Querying users table...')
-        const { data: userData, error } = await supabase
+        const dbQueryPromise = supabase
           .from('users')
           .select('*')
           .eq('id', authUser.id)
           .maybeSingle()
+
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('DB_QUERY_TIMEOUT')), DB_QUERY_TIMEOUT)
+        )
+
+        const { data: userData, error } = await Promise.race([dbQueryPromise, timeoutPromise])
 
         if (error) {
           authLogger.error('Error loading user from database', {
@@ -167,47 +113,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           })
           setUser(userData as AppUser)
         } else {
-          // User not found in database, create from auth user
-          authLogger.info('User not found in database, creating from auth user', {
+          // User not found in database, use fallback and create record
+          authLogger.info('User not found in database, using fallback', {
             userId: authUser.id,
           })
-          const newUser = {
-            id: authUser.id,
-            email: authUser.email!,
-            name: authUser.user_metadata.full_name || authUser.email?.split('@')[0] || '',
-            avatar: authUser.user_metadata.avatar_url || '',
-            language: 'en' as const,
-          }
-          setUser(newUser as AppUser)
+          setUser(fallbackUser)
 
-          // Create user record in database
+          // Create user record in database (non-blocking)
           const { upsertUser } = await import("@/lib/supabase/user")
-          const { error: upsertError } = await upsertUser(newUser)
+          const { error: upsertError } = await upsertUser(fallbackUser)
           if (upsertError) {
             authLogger.error('Failed to create user record', {
               error: upsertError.message,
               code: upsertError.code,
             })
           } else {
-            authLogger.info('User record created in database', { userId: newUser.id })
+            authLogger.info('User record created in database', { userId: fallbackUser.id })
           }
         }
       } catch (error) {
-        authLogger.error('Error in loadUser', {
-          error: error instanceof Error ? error.message : String(error),
-          elapsedMs: Date.now() - startTime,
-        })
-        if (!mounted) return
-        // Fallback: set user from auth data
-        const fallbackUser = {
-          id: authUser.id,
-          email: authUser.email!,
-          name: authUser.user_metadata.full_name || authUser.email?.split('@')[0] || '',
-          avatar: authUser.user_metadata.avatar_url || '',
-          language: 'en' as const,
+        const elapsed = Date.now() - startTime
+        const isTimeout = error instanceof Error && error.message === 'DB_QUERY_TIMEOUT'
+
+        if (isTimeout) {
+          authLogger.warn('Database query timed out, using fallback user', {
+            elapsedMs: elapsed,
+            timeoutMs: DB_QUERY_TIMEOUT,
+          })
+        } else {
+          authLogger.error('Error in loadUser', {
+            error: error instanceof Error ? error.message : String(error),
+            elapsedMs: elapsed,
+          })
         }
+
+        if (!mounted) return
+
+        // Use fallback user data
         authLogger.info('Using fallback user data from auth', { userId: fallbackUser.id })
-        setUser(fallbackUser as AppUser)
+        setUser(fallbackUser)
       } finally {
         setLoading(false)
         authLogger.debug('loadUser completed', {
@@ -216,7 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // Get initial session using getUser() for security
+    // Get initial session quickly from local storage (no server call)
     const getInitialSession = async () => {
       const startTime = Date.now()
       authLogger.info('getInitialSession started', {
@@ -241,53 +185,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
 
       try {
-        // Use getUser() instead of getSession() for verified auth
-        // But check if onAuthStateChange already set the user (faster path)
-        const { data: { user }, error } = await getVerifiedUserWithRetry()
+        // Use getSession() for fast local session check (no server validation)
+        // onAuthStateChange will handle the actual auth state
+        const { data: { session }, error } = await supabase.auth.getSession()
 
         const elapsed = Date.now() - startTime
-
-        // Check if onAuthStateChange already handled the login
-        if (currentUserIdRef.current) {
-          authLogger.info('getInitialSession: user already set by onAuthStateChange, skipping', {
-            existingUserId: currentUserIdRef.current,
-            elapsedMs: elapsed,
-          })
-          initialCheckCompleteRef.current = true
-          return
-        }
-
-        authLogger.info('getUser result', {
-          hasUser: !!user,
-          userId: user?.id,
-          userEmail: user?.email,
+        authLogger.info('getSession result', {
+          hasSession: !!session,
+          userId: session?.user?.id,
           error: error?.message,
           elapsedMs: elapsed,
         })
-        initialCheckCompleteRef.current = true
 
         if (!mounted) {
           authLogger.debug('Component unmounted, aborting getInitialSession')
           return
         }
 
-        if (user) {
-          currentUserIdRef.current = user.id
-          // Get session for token access
-          authLogger.debug('Getting session for token access...')
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-          if (sessionError) {
-            authLogger.warn('Error getting session', { error: sessionError.message })
-          }
-          authLogger.debug('Session retrieved', {
-            hasSession: !!session,
-            accessTokenPresent: !!session?.access_token,
-            expiresAt: session?.expires_at,
-          })
+        if (session?.user) {
+          currentUserIdRef.current = session.user.id
           setSession(session)
-          await loadUser(user)
+          await loadUser(session.user)
           authLogger.info('getInitialSession completed with user', {
-            userId: user.id,
+            userId: session.user.id,
             totalElapsedMs: Date.now() - startTime,
           })
         } else {
@@ -297,20 +217,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setLoading(false)
         }
       } catch (error) {
-        initialCheckCompleteRef.current = true
         const elapsed = Date.now() - startTime
-
-        // Check if onAuthStateChange already handled the login
-        if (currentUserIdRef.current) {
-          authLogger.info('getInitialSession failed but user already set by onAuthStateChange', {
-            existingUserId: currentUserIdRef.current,
-            error: error instanceof Error ? error.message : String(error),
-            elapsedMs: elapsed,
-          })
-          return
-        }
-
-        authLogger.error('Error getting user during init', {
+        authLogger.error('Error getting session during init', {
           error: error instanceof Error ? error.message : String(error),
           elapsedMs: elapsed,
         })
@@ -341,8 +249,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session)
 
       if (session?.user) {
-        currentUserIdRef.current = session.user.id
-        await loadUser(session.user)
+        // Only process if this is a new user (login) or initial check not complete
+        if (currentUserIdRef.current !== session.user.id) {
+          currentUserIdRef.current = session.user.id
+          await loadUser(session.user)
+        } else {
+          authLogger.debug('Same user already set, skipping loadUser')
+          setLoading(false)
+        }
       } else {
         authLogger.info('No session in auth state change, clearing user')
         currentUserIdRef.current = null
