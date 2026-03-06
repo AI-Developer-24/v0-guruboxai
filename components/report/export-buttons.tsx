@@ -21,27 +21,6 @@ export function ExportButtons({ reportId }: ExportButtonsProps) {
   const [exporting, setExporting] = useState<string | null>(null)
   const [waitingForOAuth, setWaitingForOAuth] = useState(false)
 
-  // Listen for OAuth callback messages from popup
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      // Only accept messages from our origin
-      if (event.origin !== window.location.origin) return
-
-      if (event.data?.type === 'GOOGLE_OAUTH_SUCCESS') {
-        setWaitingForOAuth(false)
-        toast.success(t("google_auth_success") || "Google authorization successful!")
-        // Automatically retry export after successful auth (no popup needed for retry)
-        handleExportDocs(true)
-      } else if (event.data?.type === 'GOOGLE_OAUTH_ERROR') {
-        setWaitingForOAuth(false)
-        toast.error(t("google_auth_failed") || "Google authorization failed. Please try again.")
-      }
-    }
-
-    window.addEventListener('message', handleMessage)
-    return () => window.removeEventListener('message', handleMessage)
-    // handleExportDocs is stable due to useCallback, but include for completeness
-  }, [t, handleExportDocs])
 
   const handleExportPdf = async () => {
     if (!user) {
@@ -211,6 +190,28 @@ export function ExportButtons({ reportId }: ExportButtonsProps) {
       setExporting(null)
     }
   }, [user, reportId, t])
+
+  // Listen for OAuth callback messages from popup
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Only accept messages from our origin
+      if (event.origin !== window.location.origin) return
+
+      if (event.data?.type === 'GOOGLE_OAUTH_SUCCESS') {
+        setWaitingForOAuth(false)
+        toast.success(t("google_auth_success") || "Google authorization successful!")
+        // Automatically retry export after successful auth (no popup needed for retry)
+        handleExportDocs(true)
+      } else if (event.data?.type === 'GOOGLE_OAUTH_ERROR') {
+        setWaitingForOAuth(false)
+        toast.error(t("google_auth_failed") || "Google authorization failed. Please try again.")
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+    // handleExportDocs is stable due to useCallback, but include for completeness
+  }, [t, handleExportDocs])
 
   // Open popup synchronously on click for Safari compatibility
   const handleDocsClick = () => {

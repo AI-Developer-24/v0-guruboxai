@@ -27,43 +27,43 @@ export function ScanningAnimation({ isActive }: ScanningAnimationProps) {
         ))}
       </div>
 
-      {/* Warm scanning sweep */}
-      <div className="scan-line absolute top-0 bottom-0 w-px">
-        <div
-          className="h-full w-20"
-          style={{
-            background: 'linear-gradient(90deg, transparent, oklch(0.78 0.14 70 / 0.25), oklch(0.58 0.16 250 / 0.15), transparent)',
-          }}
-        />
-      </div>
+      {/* Warm scanning sweep - using calc() for container-relative positioning */}
+      <div
+        className="absolute top-0 bottom-0 w-24 scan-sweep"
+        style={{
+          background: 'linear-gradient(90deg, transparent, oklch(0.78 0.14 70 / 0.35), oklch(0.58 0.16 250 / 0.25), transparent)',
+        }}
+      />
 
-      {/* Data dots (amber/gold tones) */}
-      {Array.from({ length: 12 }).map((_, i) => (
+      {/* Data dots (amber/gold tones) - more dots for richer effect */}
+      {Array.from({ length: 20 }).map((_, i) => (
         <div
           key={`dot-${i}`}
           className="absolute scan-dot rounded-full"
           style={{
-            width: i % 3 === 0 ? 6 : 4,
-            height: i % 3 === 0 ? 6 : 4,
-            left: `${10 + Math.sin(i * 1.3) * 35 + 35}%`,
-            top: `${15 + Math.cos(i * 1.7) * 30 + 30}%`,
-            animationDelay: `${i * 0.2}s`,
-            background: i % 2 === 0
+            width: i % 4 === 0 ? 6 : i % 2 === 0 ? 5 : 4,
+            height: i % 4 === 0 ? 6 : i % 2 === 0 ? 5 : 4,
+            left: `${5 + (i * 4.5) % 90}%`,
+            top: `${10 + Math.sin(i * 0.8) * 35 + 35}%`,
+            animationDelay: `${i * 0.15}s`,
+            background: i % 3 === 0
               ? 'oklch(0.78 0.14 70)'
-              : 'oklch(0.58 0.16 250)',
+              : i % 3 === 1
+                ? 'oklch(0.58 0.16 250)'
+                : 'oklch(0.68 0.12 60)',
           }}
         />
       ))}
 
-      {/* Pulse lines */}
+      {/* Pulse lines - slightly thicker for visibility */}
       {Array.from({ length: 3 }).map((_, i) => (
         <div
           key={`pulse-${i}`}
-          className="scan-pulse absolute left-0 right-0 h-px"
+          className="scan-pulse absolute left-0 right-0 h-0.5"
           style={{
             top: `${25 + i * 25}%`,
             animationDelay: `${i * 0.7}s`,
-            background: 'linear-gradient(90deg, transparent, oklch(0.78 0.14 70 / 0.3), oklch(0.58 0.16 250 / 0.2), transparent)',
+            background: 'linear-gradient(90deg, transparent, oklch(0.78 0.14 70 / 0.4), oklch(0.58 0.16 250 / 0.3), transparent)',
           }}
         />
       ))}

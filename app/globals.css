@@ -229,9 +229,9 @@
 }
 
 /* ===== Signal Scanning ===== */
-@keyframes scan-line {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(300%); }
+@keyframes scan-sweep {
+  0% { left: -20%; }
+  100% { left: 120%; }
 }
 
 @keyframes scan-pulse {
@@ -245,7 +245,7 @@
   100% { transform: scale(0); opacity: 0; }
 }
 
-.scan-line { animation: scan-line 3s ease-in-out infinite; }
+.scan-sweep { animation: scan-sweep 3s ease-in-out infinite; }
 .scan-pulse { animation: scan-pulse 2s ease-in-out infinite; }
 .scan-dot { animation: scan-dot 1.5s ease-in-out infinite; }
 
