@@ -11,16 +11,17 @@ export async function middleware(request: NextRequest) {
   if (process.env.NODE_ENV === 'production' && canonicalAppUrl) {
     try {
       const canonicalUrl = new URL(canonicalAppUrl)
-      const requestHost = request.nextUrl.host
-      const canonicalHost = canonicalUrl.host
-      const protocol = request.headers.get('x-forwarded-proto') ?? request.nextUrl.protocol.replace(':', '')
+      const requestHost = request.nextUrl.hostname.replace(/\.$/, '').toLowerCase()
+      const canonicalHost = canonicalUrl.hostname.replace(/\.$/, '').toLowerCase()
 
-      if (requestHost !== canonicalHost || protocol !== canonicalUrl.protocol.replace(':', '')) {
+      // Only normalize host here. Protocol may be rewritten by upstream proxies/CDN,
+      // and strict protocol comparison can cause redirect loops in production.
+      if (requestHost !== canonicalHost) {
         const redirectUrl = new URL(request.url)
         redirectUrl.protocol = canonicalUrl.protocol
-        redirectUrl.host = canonicalHost
+        redirectUrl.hostname = canonicalUrl.hostname
         middlewareLogger.info('Redirecting to canonical domain', {
-          from: `${protocol}://${requestHost}`,
+          from: request.nextUrl.origin,
           to: canonicalUrl.origin,
           path: request.nextUrl.pathname,
         })
