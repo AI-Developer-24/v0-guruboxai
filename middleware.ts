@@ -5,11 +5,27 @@ import { logger } from './lib/logger'
 const middlewareLogger = logger.withContext('Middleware')
 
 export async function middleware(request: NextRequest) {
-  middlewareLogger.debug('Processing request', { path: request.nextUrl.pathname })
+  const startTime = Date.now()
+  middlewareLogger.debug('Processing request', {
+    path: request.nextUrl.pathname,
+    hostname: request.nextUrl.hostname,
+    origin: request.nextUrl.origin,
+  })
 
   // Domain canonicalization disabled - let DNS/CDN handle www/apex redirects
   // Middleware-based redirects can cause loops in certain deployment environments
   // where request.nextUrl.hostname may not reflect the actual user-facing domain
+
+  // Log all cookies for debugging
+  const allCookies = request.cookies.getAll()
+  const supabaseCookies = allCookies.filter(c => c.name.startsWith('sb-'))
+  middlewareLogger.debug('Cookies received', {
+    totalCookies: allCookies.length,
+    supabaseCookieCount: supabaseCookies.length,
+    supabaseCookieNames: supabaseCookies.map(c => c.name),
+    // Don't log values for security, just check if they exist
+    hasAuthToken: supabaseCookies.some(c => c.name.includes('auth-token')),
+  })
 
   let supabaseResponse = NextResponse.next({
     request,
@@ -24,6 +40,10 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
+          middlewareLogger.debug('Supabase setting cookies', {
+            count: cookiesToSet.length,
+            names: cookiesToSet.map(c => c.name),
+          })
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
@@ -43,10 +63,12 @@ export async function middleware(request: NextRequest) {
     error,
   } = await supabase.auth.getUser()
 
+  const elapsed = Date.now() - startTime
   middlewareLogger.debug('User check', {
     hasUser: !!user,
     userId: user?.id,
     error: error?.message,
+    elapsedMs: elapsed,
   })
 
   const isAccountPage = request.nextUrl.pathname.startsWith('/account')

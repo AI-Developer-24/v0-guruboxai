@@ -60,6 +60,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     for (let attempt = 1; attempt <= AUTH_INIT_ATTEMPTS; attempt++) {
+      // Check if onAuthStateChange already set the user (early exit)
+      if (currentUserIdRef.current) {
+        authLogger.info('getVerifiedUserWithRetry: user already set by onAuthStateChange, early exit', {
+          attempt,
+          userId: currentUserIdRef.current,
+        })
+        // Return a mock result indicating no user from this path
+        // The caller should check currentUserIdRef.current
+        return { data: { user: null }, error: null }
+      }
+
       const startTime = Date.now()
       authLogger.debug('getVerifiedUserWithRetry attempt', {
         attempt,
@@ -231,9 +242,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       try {
         // Use getUser() instead of getSession() for verified auth
+        // But check if onAuthStateChange already set the user (faster path)
         const { data: { user }, error } = await getVerifiedUserWithRetry()
 
         const elapsed = Date.now() - startTime
+
+        // Check if onAuthStateChange already handled the login
+        if (currentUserIdRef.current) {
+          authLogger.info('getInitialSession: user already set by onAuthStateChange, skipping', {
+            existingUserId: currentUserIdRef.current,
+            elapsedMs: elapsed,
+          })
+          initialCheckCompleteRef.current = true
+          return
+        }
+
         authLogger.info('getUser result', {
           hasUser: !!user,
           userId: user?.id,
@@ -276,6 +299,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         initialCheckCompleteRef.current = true
         const elapsed = Date.now() - startTime
+
+        // Check if onAuthStateChange already handled the login
+        if (currentUserIdRef.current) {
+          authLogger.info('getInitialSession failed but user already set by onAuthStateChange', {
+            existingUserId: currentUserIdRef.current,
+            error: error instanceof Error ? error.message : String(error),
+            elapsedMs: elapsed,
+          })
+          return
+        }
+
         authLogger.error('Error getting user during init', {
           error: error instanceof Error ? error.message : String(error),
           elapsedMs: elapsed,
@@ -458,10 +492,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (popup && args[1] === 'google-auth') {
         startPolling()
         // Stop polling when popup closes
+        // Note: popup.closed may throw due to COOP when popup navigates to cross-origin
         const checkClosed = setInterval(() => {
-          if (popup.closed) {
-            clearInterval(checkClosed)
-            stopPolling()
+          try {
+            if (popup.closed) {
+              clearInterval(checkClosed)
+              stopPolling()
+            }
+          } catch {
+            // Cross-Origin-Opener-Policy blocks access to popup.closed
+            // This is expected when popup navigates to Google OAuth
+            // Polling will continue until postMessage arrives or timeout
           }
         }, 500)
       }
