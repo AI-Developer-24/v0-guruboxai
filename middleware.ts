@@ -7,36 +7,9 @@ const middlewareLogger = logger.withContext('Middleware')
 export async function middleware(request: NextRequest) {
   middlewareLogger.debug('Processing request', { path: request.nextUrl.pathname })
 
-  const canonicalAppUrl = process.env.NEXT_PUBLIC_APP_URL
-  if (process.env.NODE_ENV === 'production' && canonicalAppUrl) {
-    try {
-      const canonicalUrl = new URL(canonicalAppUrl)
-      const requestHost = request.nextUrl.hostname.replace(/\.$/, '').toLowerCase()
-      const canonicalHost = canonicalUrl.hostname.replace(/\.$/, '').toLowerCase()
-
-      // Only normalize host here. Protocol may be rewritten by upstream proxies/CDN,
-      // and strict protocol comparison can cause redirect loops in production.
-      if (requestHost !== canonicalHost) {
-        // Use request.nextUrl instead of request.url to avoid issues with proxies/CDN
-        // that may rewrite the internal URL
-        const redirectUrl = new URL(request.nextUrl)
-        redirectUrl.hostname = canonicalUrl.hostname
-        // Preserve the protocol from the incoming request (handled by CDN/proxy)
-        // to avoid redirect loops
-        middlewareLogger.info('Redirecting to canonical domain', {
-          from: request.nextUrl.origin,
-          to: redirectUrl.origin,
-          path: request.nextUrl.pathname,
-        })
-        return NextResponse.redirect(redirectUrl, 308)
-      }
-    } catch (error) {
-      middlewareLogger.warn('Invalid NEXT_PUBLIC_APP_URL, skipping canonical redirect', {
-        value: canonicalAppUrl,
-        error: error instanceof Error ? error.message : String(error),
-      })
-    }
-  }
+  // Domain canonicalization disabled - let DNS/CDN handle www/apex redirects
+  // Middleware-based redirects can cause loops in certain deployment environments
+  // where request.nextUrl.hostname may not reflect the actual user-facing domain
 
   let supabaseResponse = NextResponse.next({
     request,
@@ -81,7 +54,7 @@ export async function middleware(request: NextRequest) {
   // Protect /account route
   if (isAccountPage && !user) {
     middlewareLogger.info('No user, redirecting from account page')
-    const redirectUrl = new URL('/tools/product-insight', request.url)
+    const redirectUrl = new URL('/tools/product-insight', request.nextUrl)
     return NextResponse.redirect(redirectUrl)
   }
 
