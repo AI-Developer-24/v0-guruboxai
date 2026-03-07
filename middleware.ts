@@ -6,10 +6,8 @@ const middlewareLogger = logger.withContext('Middleware')
 
 export async function middleware(request: NextRequest) {
   const startTime = Date.now()
-  const pathname = request.nextUrl.pathname
-
   middlewareLogger.debug('Processing request', {
-    path: pathname,
+    path: request.nextUrl.pathname,
     hostname: request.nextUrl.hostname,
     origin: request.nextUrl.origin,
   })
@@ -18,17 +16,7 @@ export async function middleware(request: NextRequest) {
   // Middleware-based redirects can cause loops in certain deployment environments
   // where request.nextUrl.hostname may not reflect the actual user-facing domain
 
-  // OPTIMIZATION: Only protect specific paths
-  const protectedPaths = ['/account']
-  const isProtectedPath = protectedPaths.some(p => pathname.startsWith(p))
-
-  // Skip authentication check for public paths
-  if (!isProtectedPath) {
-    middlewareLogger.debug('Public path, skipping auth check', { path: pathname })
-    return NextResponse.next()
-  }
-
-  // Log all cookies for debugging (only for protected paths)
+  // Log all cookies for debugging
   const allCookies = request.cookies.getAll()
   const supabaseCookies = allCookies.filter(c => c.name.startsWith('sb-'))
   middlewareLogger.debug('Cookies received', {
@@ -83,8 +71,10 @@ export async function middleware(request: NextRequest) {
     elapsedMs: elapsed,
   })
 
+  const isAccountPage = request.nextUrl.pathname.startsWith('/account')
+
   // Protect /account route
-  if (!user) {
+  if (isAccountPage && !user) {
     middlewareLogger.info('No user, redirecting from account page')
     const redirectUrl = new URL('/tools/product-insight', request.nextUrl)
     return NextResponse.redirect(redirectUrl)

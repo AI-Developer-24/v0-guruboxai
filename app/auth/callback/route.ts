@@ -80,16 +80,11 @@ export async function GET(request: NextRequest) {
     if (user) {
       // Ensure user record exists in users table using admin client (bypasses RLS)
       callbackLogger.debug('Upserting user to database...')
-
-      // Determine language from metadata or default to 'en'
-      const userLanguage = user.user_metadata?.language || 'en'
-
       const userData: UserInsert = {
         id: user.id,
         email: user.email!,
         name: user.user_metadata.full_name,
         avatar: user.user_metadata.avatar_url,
-        language: userLanguage,
       }
       const { error: upsertError } = await supabaseAdmin
         .from('users')
@@ -100,23 +95,7 @@ export async function GET(request: NextRequest) {
       if (upsertError) {
         callbackLogger.error('User upsert error', upsertError)
       } else {
-        callbackLogger.debug('User upsert successful', { language: userLanguage })
-      }
-
-      // Sync language to Auth metadata if not already set
-      if (!user.user_metadata?.language) {
-        callbackLogger.debug('Syncing language to Auth metadata...')
-        const { error: updateError } = await supabase.auth.updateUser({
-          data: {
-            ...user.user_metadata,
-            language: 'en',
-          }
-        })
-        if (updateError) {
-          callbackLogger.warn('Failed to sync language to metadata (non-critical)', {
-            error: updateError.message,
-          })
-        }
+        callbackLogger.debug('User upsert successful')
       }
     }
 

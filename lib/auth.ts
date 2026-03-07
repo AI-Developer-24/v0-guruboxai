@@ -2,6 +2,24 @@ import { supabase } from './supabase'
 import type { User } from './types'
 
 /**
+ * Sign in with Google OAuth
+ */
+export async function signInWithGoogle() {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
+    },
+  })
+
+  return { data, error }
+}
+
+/**
  * Sign out current user
  */
 export async function signOut() {
