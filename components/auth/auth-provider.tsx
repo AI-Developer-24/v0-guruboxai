@@ -20,9 +20,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
-// Database query timeout (for loadUser)
-const DB_QUERY_TIMEOUT = 5000
-
 // Popup login retry configuration
 const POPUP_LOGIN_RETRY_ATTEMPTS = 5
 const POPUP_LOGIN_RETRY_DELAYS_MS = [200, 400, 800, 1600, 3200]
@@ -36,6 +33,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const currentUserIdRef = useRef<string | null>(null)
   // Track if user loading is in progress (prevents duplicate loadUser calls)
   const isLoadingUserRef = useRef(false)
+  // Track the loaded user to prevent duplicate loads (fixes closure issue)
+  const loadedUserRef = useRef<AppUser | null>(null)
   // Polling state
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -58,110 +57,96 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hasMetadata: !!authUser.user_metadata,
       })
 
-      // Prevent duplicate calls for the same user
+      // Prevent duplicate calls for the same user (using ref to avoid closure issues)
       if (isLoadingUserRef.current) {
         authLogger.debug('loadUser: already loading a user, skipping', { userId: authUser.id })
         return
       }
+
+      // Check if this exact user has already been loaded
+      if (currentUserIdRef.current === authUser.id && loadedUserRef.current) {
+        authLogger.debug('User already loaded, skipping', { userId: authUser.id })
+        return
+      }
+
       isLoadingUserRef.current = true
 
-      // Create fallback user data (used on timeout or error)
-      const fallbackUser: AppUser = {
+      // QUICK INITIALIZATION: Use Auth metadata immediately
+      const quickUser: AppUser = {
         id: authUser.id,
         email: authUser.email!,
         name: authUser.user_metadata.full_name || authUser.email?.split('@')[0] || '',
         avatar: authUser.user_metadata.avatar_url || '',
-        language: 'en' as const,
+        language: authUser.user_metadata.language || 'en',
       }
 
+      // Immediately set user and release loading state
+      setUser(quickUser)
+      setLoading(false)
+      currentUserIdRef.current = authUser.id
+      loadedUserRef.current = quickUser
+
+      authLogger.info('Quick user initialization completed', {
+        userId: quickUser.id,
+        elapsedMs: Date.now() - startTime,
+      })
+
+      // BACKGROUND: Query database for additional fields (non-blocking)
+      // This is optional and can be used to sync extra fields like premium status
       try {
-        // Database query with timeout
-        authLogger.debug('Querying users table...')
-        const dbQueryPromise = supabase
+        authLogger.debug('Background: querying users table for additional data...')
+        const { data: userData, error } = await supabase
           .from('users')
           .select('*')
           .eq('id', authUser.id)
           .maybeSingle()
 
-        const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('DB_QUERY_TIMEOUT')), DB_QUERY_TIMEOUT)
-        )
-
-        const { data: userData, error } = await Promise.race([dbQueryPromise, timeoutPromise])
+        if (!mounted) {
+          authLogger.debug('Component unmounted, aborting background query')
+          isLoadingUserRef.current = false
+          return
+        }
 
         if (error) {
-          authLogger.error('Error loading user from database', {
+          authLogger.warn('Background query error (non-critical)', {
             error: error.message,
             code: error.code,
           })
-        } else {
-          authLogger.debug('Users table query result', {
-            found: !!userData,
-            userId: userData?.id,
-          })
-        }
-
-        if (!mounted) {
-          authLogger.debug('Component unmounted, aborting loadUser')
-          isLoadingUserRef.current = false
-          return
-        }
-
-        if (userData) {
-          authLogger.info('User loaded from database', {
+        } else if (userData) {
+          authLogger.debug('Background query: found user data', {
             userId: userData.id,
-            email: userData.email,
             language: userData.language,
-            elapsedMs: Date.now() - startTime,
           })
-          setUser(userData as AppUser)
+          // Update user if database has different data
+          if (JSON.stringify(userData) !== JSON.stringify(quickUser)) {
+            setUser(userData as AppUser)
+            loadedUserRef.current = userData as AppUser
+            authLogger.info('User data updated from database', {
+              userId: userData.id,
+              elapsedMs: Date.now() - startTime,
+            })
+          }
         } else {
-          // User not found in database, use fallback and create record
-          authLogger.info('User not found in database, using fallback', {
-            userId: authUser.id,
-          })
-          setUser(fallbackUser)
-
-          // Create user record in database (non-blocking)
+          // User not in database, create record
+          authLogger.debug('User not found in database, creating record...')
           const { upsertUser } = await import("@/lib/supabase/user")
-          const { error: upsertError } = await upsertUser(fallbackUser)
+          const { error: upsertError } = await upsertUser(quickUser)
           if (upsertError) {
-            authLogger.error('Failed to create user record', {
+            authLogger.warn('Failed to create user record (non-critical)', {
               error: upsertError.message,
-              code: upsertError.code,
             })
           } else {
-            authLogger.info('User record created in database', { userId: fallbackUser.id })
+            authLogger.info('User record created in database', { userId: quickUser.id })
           }
         }
       } catch (error) {
-        const elapsed = Date.now() - startTime
-        const isTimeout = error instanceof Error && error.message === 'DB_QUERY_TIMEOUT'
-
-        if (isTimeout) {
-          authLogger.warn('Database query timed out, using fallback user', {
-            elapsedMs: elapsed,
-            timeoutMs: DB_QUERY_TIMEOUT,
-          })
-        } else {
-          authLogger.error('Error in loadUser', {
-            error: error instanceof Error ? error.message : String(error),
-            elapsedMs: elapsed,
-          })
-        }
-
-        if (!mounted) {
-          isLoadingUserRef.current = false
-          return
-        }
-
-        // Use fallback user data
-        authLogger.info('Using fallback user data from auth', { userId: fallbackUser.id })
-        setUser(fallbackUser)
+        authLogger.warn('Background query error (non-critical)', {
+          error: error instanceof Error ? error.message : String(error),
+          elapsedMs: Date.now() - startTime,
+        })
       } finally {
         isLoadingUserRef.current = false
-        setLoading(false)
-        authLogger.debug('loadUser completed', {
+        authLogger.debug('loadUser background task completed', {
           elapsedMs: Date.now() - startTime,
         })
       }
@@ -509,6 +494,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
     setSession(null)
     currentUserIdRef.current = null
+    loadedUserRef.current = null
   }, [])
 
   const setLanguage = useCallback(async (language: string) => {
