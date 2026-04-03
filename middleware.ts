@@ -1,20 +1,44 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getSeoLocaleOrFallback, isSeoLocale } from './lib/seo/locales'
 import { logger } from './lib/logger'
 
 const middlewareLogger = logger.withContext('Middleware')
 
 export async function middleware(request: NextRequest) {
   const startTime = Date.now()
+  const pathname = request.nextUrl.pathname
+  const pathnameLocale = pathname.split('/')[1] ?? ''
+  const resolvedLocale = isSeoLocale(pathnameLocale)
+    ? pathnameLocale
+    : getSeoLocaleOrFallback('en')
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-seo-locale', resolvedLocale)
+  const isAccountPage = pathname === '/account' || pathname.startsWith('/account/')
+
   middlewareLogger.debug('Processing request', {
-    path: request.nextUrl.pathname,
+    path: pathname,
     hostname: request.nextUrl.hostname,
     origin: request.nextUrl.origin,
+    locale: resolvedLocale,
   })
 
   // Domain canonicalization disabled - let DNS/CDN handle www/apex redirects
   // Middleware-based redirects can cause loops in certain deployment environments
   // where request.nextUrl.hostname may not reflect the actual user-facing domain
+
+  if (!isAccountPage) {
+    middlewareLogger.debug('Skipping auth for non-protected route', {
+      path: pathname,
+      locale: resolvedLocale,
+    })
+
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    })
+  }
 
   // Log all cookies for debugging
   const allCookies = request.cookies.getAll()
@@ -28,7 +52,9 @@ export async function middleware(request: NextRequest) {
   })
 
   let supabaseResponse = NextResponse.next({
-    request,
+    request: {
+      headers: requestHeaders,
+    },
   })
 
   const supabase = createServerClient(
@@ -46,7 +72,9 @@ export async function middleware(request: NextRequest) {
           })
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
-            request,
+            request: {
+              headers: requestHeaders,
+            },
           })
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
@@ -70,9 +98,6 @@ export async function middleware(request: NextRequest) {
     error: error?.message,
     elapsedMs: elapsed,
   })
-
-  const isAccountPage = request.nextUrl.pathname.startsWith('/account')
-
   // Protect /account route
   if (isAccountPage && !user) {
     middlewareLogger.info('No user, redirecting from account page')
@@ -90,8 +115,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization)
      * - favicon.ico (favicon)
+     * - robots.txt / sitemap.xml (SEO assets)
      * - public folder
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

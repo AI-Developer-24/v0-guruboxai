@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { headers } from 'next/headers'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
@@ -7,20 +8,14 @@ import { I18nProvider } from '@/components/i18n/i18n-provider'
 import { GradientBackground } from '@/components/layout/gradient-background'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
+import { getHtmlLang, getSeoLocaleOrFallback } from '@/lib/seo/locales'
+import { siteRootMetadata } from '@/lib/seo/metadata'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
-export const metadata: Metadata = {
-  title: 'BadgerSignal - AI Product Insight',
-  description: 'Expert-level AI opportunity discovery. Enter your product direction and receive 300 evaluated opportunities.',
-  generator: 'BadgerSignal',
-  icons: {
-    icon: '/images/logo.jpg',
-    apple: '/images/logo.jpg',
-  },
-}
+export const metadata: Metadata = siteRootMetadata
 
 export const viewport: Viewport = {
   themeColor: '#f7f8fc',
@@ -28,13 +23,17 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const headerStore = await headers()
+  const currentLocale = headerStore.get('x-seo-locale')
+  const htmlLang = getHtmlLang(getSeoLocaleOrFallback(currentLocale ?? 'en'))
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={htmlLang} suppressHydrationWarning>
         <body className="font-sans antialiased flex min-h-screen flex-col" suppressHydrationWarning>
         <AuthProvider>
           <I18nProvider>
