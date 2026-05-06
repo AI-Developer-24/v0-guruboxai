@@ -1,29 +1,22 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { usePathname } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
-import { User, LogOut, Check, Globe2, Menu } from "lucide-react"
-import { useAuth } from "@/components/auth/auth-provider"
-import { useI18n } from "@/components/i18n/i18n-provider"
-import type { Language } from "@/lib/types"
-import { LoginDialog } from "@/components/auth/login-dialog"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import {
-  getMarketingPagePath,
-  type MarketingPageKey,
-} from "@/lib/seo/metadata"
-import {
-  ALL_SEO_LOCALES,
-  getHtmlLang,
-  type SeoLocale,
-} from "@/lib/seo/locales"
+import { useState } from 'react'
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
+import { User, LogOut, Check, Globe2, Menu } from 'lucide-react'
+import { useAuth } from '@/components/auth/auth-provider'
+import { useI18n } from '@/components/i18n/i18n-provider'
+import type { Language } from '@/lib/types'
+import { LoginDialog } from '@/components/auth/login-dialog'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { getMarketingPagePath, type MarketingPageKey } from '@/lib/seo/metadata'
+import { ALL_SEO_LOCALES, getHtmlLang, type SeoLocale } from '@/lib/seo/locales'
 import {
   getMarketingRouteState,
   isExampleMarketingPage,
   SEO_LOCALE_LABELS,
-} from "@/lib/seo/marketing-shell"
+} from '@/lib/seo/marketing-shell'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,13 +27,13 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-import { SUPPORTED_LANGUAGES } from "@/lib/constants"
-import { cn } from "@/lib/utils"
-import { toast } from "sonner"
-import { translations } from "@/lib/translations"
-import { logger } from "@/lib/logger"
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { SUPPORTED_LANGUAGES } from '@/lib/constants'
+import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
+import { translations } from '@/lib/translations'
+import { logger } from '@/lib/logger'
 
 const navLogger = logger.withContext('Navbar')
 
@@ -58,77 +51,76 @@ const MARKETING_COPY: Record<
   }
 > = {
   en: {
-    home: "Home",
-    generator: "Idea Generator",
-    validation: "Validation",
-    analysis: "Opportunity Analysis",
-    examples: "Public Examples",
-    startAnalysis: "Start Analysis",
-    menuLabel: "Explore pages",
-    localeSwitcherLabel: "Language",
+    home: 'Home',
+    generator: 'Idea Generator',
+    validation: 'Validation',
+    analysis: 'Opportunity Analysis',
+    examples: 'Public Examples',
+    startAnalysis: 'Start Analysis',
+    menuLabel: 'Explore pages',
+    localeSwitcherLabel: 'Language',
   },
   zh: {
-    home: "首页",
-    generator: "点子生成",
-    validation: "点子验证",
-    analysis: "机会分析",
-    examples: "公开样例",
-    startAnalysis: "开始分析",
-    menuLabel: "浏览页面",
-    localeSwitcherLabel: "语言",
+    home: '首页',
+    generator: '点子生成',
+    validation: '点子验证',
+    analysis: '机会分析',
+    examples: '公开样例',
+    startAnalysis: '开始分析',
+    menuLabel: '浏览页面',
+    localeSwitcherLabel: '语言',
   },
   de: {
-    home: "Start",
-    generator: "Ideengenerator",
-    validation: "Validierung",
-    analysis: "Chancenanalyse",
-    examples: "Beispiele",
-    startAnalysis: "Analyse starten",
-    menuLabel: "Seiten ansehen",
-    localeSwitcherLabel: "Sprache",
+    home: 'Start',
+    generator: 'Ideengenerator',
+    validation: 'Validierung',
+    analysis: 'Chancenanalyse',
+    examples: 'Beispiele',
+    startAnalysis: 'Analyse starten',
+    menuLabel: 'Seiten ansehen',
+    localeSwitcherLabel: 'Sprache',
   },
   fr: {
-    home: "Accueil",
-    generator: "Generateur",
-    validation: "Validation",
-    analysis: "Analyse",
-    examples: "Exemples",
+    home: 'Accueil',
+    generator: 'Generateur',
+    validation: 'Validation',
+    analysis: 'Analyse',
+    examples: 'Exemples',
     startAnalysis: "Lancer l'analyse",
-    menuLabel: "Explorer les pages",
-    localeSwitcherLabel: "Langue",
+    menuLabel: 'Explorer les pages',
+    localeSwitcherLabel: 'Langue',
   },
   it: {
-    home: "Home",
-    generator: "Generatore",
-    validation: "Validazione",
-    analysis: "Analisi",
-    examples: "Esempi",
-    startAnalysis: "Avvia analisi",
-    menuLabel: "Esplora le pagine",
-    localeSwitcherLabel: "Lingua",
+    home: 'Home',
+    generator: 'Generatore',
+    validation: 'Validazione',
+    analysis: 'Analisi',
+    examples: 'Esempi',
+    startAnalysis: 'Avvia analisi',
+    menuLabel: 'Esplora le pagine',
+    localeSwitcherLabel: 'Lingua',
   },
   es: {
-    home: "Inicio",
-    generator: "Generador",
-    validation: "Validacion",
-    analysis: "Analisis",
-    examples: "Ejemplos",
-    startAnalysis: "Iniciar analisis",
-    menuLabel: "Explorar paginas",
-    localeSwitcherLabel: "Idioma",
+    home: 'Inicio',
+    generator: 'Generador',
+    validation: 'Validacion',
+    analysis: 'Analisis',
+    examples: 'Ejemplos',
+    startAnalysis: 'Iniciar analisis',
+    menuLabel: 'Explorar paginas',
+    localeSwitcherLabel: 'Idioma',
   },
   pt: {
-    home: "Inicio",
-    generator: "Gerador",
-    validation: "Validacao",
-    analysis: "Analise",
-    examples: "Exemplos",
-    startAnalysis: "Iniciar analise",
-    menuLabel: "Explorar paginas",
-    localeSwitcherLabel: "Idioma",
+    home: 'Inicio',
+    generator: 'Gerador',
+    validation: 'Validacao',
+    analysis: 'Analise',
+    examples: 'Exemplos',
+    startAnalysis: 'Iniciar analise',
+    menuLabel: 'Explorar paginas',
+    localeSwitcherLabel: 'Idioma',
   },
 }
-
 
 export function Navbar() {
   const [showLogin, setShowLogin] = useState(false)
@@ -139,31 +131,31 @@ export function Navbar() {
   const uiLocale = marketingRoute.isMarketingRoute ? marketingRoute.locale : locale
   const uiTranslations = translations[uiLocale] ?? translations.en
   const marketingCopy = MARKETING_COPY[marketingRoute.locale]
-  const marketingPageKey = marketingRoute.pageKey ?? "home"
+  const marketingPageKey = marketingRoute.pageKey ?? 'home'
   const marketingNavItems = [
     {
       label: marketingCopy.home,
-      href: getMarketingPagePath("home", marketingRoute.locale),
-      isActive: marketingRoute.pageKey === "home",
+      href: getMarketingPagePath('home', marketingRoute.locale),
+      isActive: marketingRoute.pageKey === 'home',
     },
     {
       label: marketingCopy.generator,
-      href: getMarketingPagePath("ai-startup-idea-generator", marketingRoute.locale),
-      isActive: marketingRoute.pageKey === "ai-startup-idea-generator",
+      href: getMarketingPagePath('ai-startup-idea-generator', marketingRoute.locale),
+      isActive: marketingRoute.pageKey === 'ai-startup-idea-generator',
     },
     {
       label: marketingCopy.validation,
-      href: getMarketingPagePath("saas-idea-validation", marketingRoute.locale),
-      isActive: marketingRoute.pageKey === "saas-idea-validation",
+      href: getMarketingPagePath('saas-idea-validation', marketingRoute.locale),
+      isActive: marketingRoute.pageKey === 'saas-idea-validation',
     },
     {
       label: marketingCopy.analysis,
-      href: getMarketingPagePath("ai-business-opportunity-analysis", marketingRoute.locale),
-      isActive: marketingRoute.pageKey === "ai-business-opportunity-analysis",
+      href: getMarketingPagePath('ai-business-opportunity-analysis', marketingRoute.locale),
+      isActive: marketingRoute.pageKey === 'ai-business-opportunity-analysis',
     },
     {
       label: marketingCopy.examples,
-      href: getMarketingPagePath("examples-ai-tools-for-freelancers", marketingRoute.locale),
+      href: getMarketingPagePath('examples-ai-tools-for-freelancers', marketingRoute.locale),
       isActive: isExampleMarketingPage(marketingRoute.pageKey),
     },
   ]
@@ -181,29 +173,29 @@ export function Navbar() {
       }
     }
     // Use translations directly with new locale to avoid stale closure
-    toast.success(translations[newLocale]?.language_updated || "Language updated")
+    toast.success(translations[newLocale]?.language_updated || 'Language updated')
   }
 
   const accountDropdown = (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2.5 rounded-full py-1 px-1.5 transition-colors hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <button className="focus-visible:ring-ring flex items-center gap-2.5 rounded-full border border-[var(--line-soft)] bg-[linear-gradient(180deg,oklch(1_0_0_/_0.82),var(--surface-tint))] px-1.5 py-1 shadow-[inset_0_1px_0_oklch(1_0_0_/_0.65)] transition-colors hover:border-[var(--line-strong)] focus:outline-none focus-visible:ring-2">
           <Avatar className="size-7">
-            <AvatarImage src={user?.avatar ?? undefined} alt={user?.name ?? "User"} />
-            <AvatarFallback className="text-xs bg-primary/10 text-primary">
-              {user?.name?.charAt(0) ?? "U"}
+            <AvatarImage src={user?.avatar ?? undefined} alt={user?.name ?? 'User'} />
+            <AvatarFallback className="bg-[var(--brand-blue-soft)] text-xs text-[var(--brand-blue)]">
+              {user?.name?.charAt(0) ?? 'U'}
             </AvatarFallback>
           </Avatar>
-          <span className="hidden text-sm font-medium text-foreground sm:inline">
-            {user?.name?.split(" ")[0]}
+          <span className="text-foreground hidden text-sm font-medium sm:inline">
+            {user?.name?.split(' ')[0]}
           </span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium leading-none">{user?.name}</p>
-            <p className="text-xs text-muted-foreground">{user?.email}</p>
+            <p className="text-sm leading-none font-medium">{user?.name}</p>
+            <p className="text-muted-foreground text-xs">{user?.email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -211,14 +203,11 @@ export function Navbar() {
           <>
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
-                {t("account_language")}: {SUPPORTED_LANGUAGES.find((l) => l.code === locale)?.label}
+                {t('account_language')}: {SUPPORTED_LANGUAGES.find((l) => l.code === locale)?.label}
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
                 {SUPPORTED_LANGUAGES.map((lang) => (
-                  <DropdownMenuItem
-                    key={lang.code}
-                    onClick={() => handleLanguageChange(lang.code)}
-                  >
+                  <DropdownMenuItem key={lang.code} onClick={() => handleLanguageChange(lang.code)}>
                     <span className="flex-1">{lang.label}</span>
                     {locale === lang.code && <Check className="size-4" />}
                   </DropdownMenuItem>
@@ -235,10 +224,7 @@ export function Navbar() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={logout}
-          className="flex items-center gap-2 text-destructive"
-        >
+        <DropdownMenuItem onClick={logout} className="text-destructive flex items-center gap-2">
           <LogOut className="size-4" />
           {uiTranslations.nav_logout}
         </DropdownMenuItem>
@@ -247,40 +233,43 @@ export function Navbar() {
   )
 
   return (
-    <header className="glass-nav fixed top-0 left-0 right-0 z-50">
-      <nav className="mx-auto flex h-16 max-w-[74rem] items-center justify-between gap-4 px-4 sm:px-6">
+    <header className="glass-nav fixed top-0 right-0 left-0 z-50">
+      <nav className="mx-auto flex h-16 max-w-[78rem] items-center justify-between gap-4 px-5 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-5 lg:gap-8">
           <Link
             href={
               marketingRoute.isMarketingRoute
-                ? getMarketingPagePath("home", marketingRoute.locale)
-                : "/tools/product-insight"
+                ? getMarketingPagePath('home', marketingRoute.locale)
+                : '/tools/product-insight'
             }
-            className="flex shrink-0 items-center gap-3 transition-opacity hover:opacity-80"
+            className="group flex shrink-0 items-center gap-3"
           >
-            <Image
-              src="/images/logo.jpg"
-              alt="BadgerSignal"
-              width={34}
-              height={34}
-              className="rounded-xl"
-            />
-            <span className="font-semibold text-lg tracking-tight text-foreground">
-              Badger<span className="bg-gradient-to-r from-[oklch(0.78_0.14_70)] to-[oklch(0.58_0.16_250)] bg-clip-text text-transparent">Signal</span>
+            <span className="flex h-11 w-11 items-center justify-center rounded-[1.2rem] border border-[var(--line-soft)] bg-[linear-gradient(180deg,oklch(1_0_0_/_0.84),var(--surface-tint))] shadow-[0_18px_34px_oklch(0.18_0.02_250_/_0.05),inset_0_1px_0_oklch(1_0_0_/_0.7)] transition-transform duration-300 group-hover:-translate-y-[1px]">
+              <Image
+                src="/images/logo.jpg"
+                alt="BadgerSignal"
+                width={34}
+                height={34}
+                className="rounded-[0.95rem]"
+              />
+            </span>
+            <span className="text-[1.02rem] font-semibold tracking-[-0.05em] text-[var(--brand-ink)]">
+              Badger
+              <span className="bg-gradient-to-r from-[var(--brand-gold)] to-[var(--brand-blue)] bg-clip-text text-transparent">
+                Signal
+              </span>
             </span>
           </Link>
 
           {marketingRoute.isMarketingRoute ? (
-            <div className="hidden lg:flex items-center gap-1">
+            <div className="hidden items-center gap-1.5 lg:flex">
               {marketingNavItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-active={item.isActive}
                   className={cn(
-                    "rounded-full px-3 py-2 text-[13px] font-medium tracking-[0.04em] transition-colors",
-                    item.isActive
-                      ? "bg-white/80 text-foreground shadow-sm backdrop-blur-sm"
-                      : "text-muted-foreground hover:text-foreground"
+                    'marketing-nav-link px-2 py-2 text-[12px] font-medium tracking-[0.06em]'
                   )}
                 >
                   {item.label}
@@ -298,7 +287,7 @@ export function Navbar() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="hidden md:inline-flex h-10 rounded-full border-border/60 bg-white/62 px-4 shadow-sm backdrop-blur-sm"
+                    className="marketing-cta-secondary hidden h-9 rounded-full px-3.5 text-sm text-[var(--brand-ink)] md:inline-flex"
                     aria-label={`${marketingCopy.localeSwitcherLabel}: ${SEO_LOCALE_LABELS[marketingRoute.locale]}`}
                   >
                     <Globe2 className="size-4" />
@@ -307,7 +296,10 @@ export function Navbar() {
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-52 rounded-[1rem] border-[var(--line-soft)] bg-[linear-gradient(180deg,oklch(1_0_0_/_0.9),var(--surface-tint))] shadow-[0_24px_54px_oklch(0.18_0.02_250_/_0.08)] backdrop-blur-xl"
+                >
                   <DropdownMenuLabel>{marketingCopy.localeSwitcherLabel}</DropdownMenuLabel>
                   {ALL_SEO_LOCALES.map((targetLocale) => {
                     const isActive = targetLocale === marketingRoute.locale
@@ -328,7 +320,11 @@ export function Navbar() {
                   })}
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button asChild size="sm" className="btn-glow hidden sm:inline-flex">
+              <Button
+                asChild
+                size="sm"
+                className="marketing-cta-primary text-background hidden h-9 rounded-full px-4 text-sm sm:inline-flex"
+              >
                 <Link href="/tools/product-insight">{marketingCopy.startAnalysis}</Link>
               </Button>
               <DropdownMenu>
@@ -336,13 +332,16 @@ export function Navbar() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="size-9 rounded-full border-border/70 bg-white/58 shadow-sm backdrop-blur-sm lg:hidden"
+                    className="marketing-cta-secondary size-9 rounded-full text-[var(--brand-ink)] lg:hidden"
                     aria-label={marketingCopy.menuLabel}
                   >
                     <Menu className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-64 rounded-[1rem] border-[var(--line-soft)] bg-[linear-gradient(180deg,oklch(1_0_0_/_0.9),var(--surface-tint))] shadow-[0_24px_54px_oklch(0.18_0.02_250_/_0.08)] backdrop-blur-xl"
+                >
                   <DropdownMenuLabel>{marketingCopy.menuLabel}</DropdownMenuLabel>
                   {marketingNavItems.map((item) => (
                     <DropdownMenuItem key={item.href} asChild>
@@ -376,7 +375,7 @@ export function Navbar() {
           ) : null}
 
           {loading ? (
-            <div className="h-9 w-24 animate-pulse rounded-lg bg-muted" />
+            <div className="bg-muted h-9 w-24 animate-pulse rounded-lg" />
           ) : isLoggedIn ? (
             accountDropdown
           ) : marketingRoute.isMarketingRoute ? (
@@ -384,7 +383,7 @@ export function Navbar() {
               variant="ghost"
               size="sm"
               onClick={() => setShowLogin(true)}
-              className="hidden lg:inline-flex text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hidden text-[13px] font-medium hover:text-[var(--brand-ink)] lg:inline-flex"
             >
               {uiTranslations.nav_login}
             </Button>

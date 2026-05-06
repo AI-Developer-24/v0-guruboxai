@@ -234,31 +234,31 @@ const PAGE_HERO_FIELDS: Partial<Record<
       sectionLabel: 'AI startup idea generator',
       title: 'Generate structured AI startup ideas.',
       description:
-        'Use one product direction to surface 20+ evaluated startup opportunities, compare wedges, and see which ideas deserve deeper validation next.',
+        'Start from one product direction, compare evaluated startup wedges, and carry the strongest idea into validation.',
     },
     'saas-idea-validation': {
       sectionLabel: 'SaaS idea validation',
       title: 'Validate a SaaS direction before you build.',
       description:
-        'Pressure-test one SaaS direction with structured scoring, clearer trade-offs, and a visible read on whether the idea deserves deeper commitment.',
+        'Pressure-test one SaaS idea, see the trade-offs faster, and decide whether to keep going or cut it.',
     },
     'ai-business-opportunity-analysis': {
       sectionLabel: 'AI business opportunity analysis',
       title: 'Find the AI opportunity worth your next move.',
       description:
-        'Start with a broader direction, compare the most promising AI opportunities inside it, and see which market wedge looks strong enough to prioritize next.',
+        'Map a broader market, rank the strongest AI wedges inside it, and choose the next opportunity to validate.',
     },
     'examples-ai-tools-for-freelancers': {
       sectionLabel: 'Public sample report',
       title: 'AI tools for freelancers, ranked by workflow.',
       description:
-        'Explore a public opportunity report built around freelancer operations work, ranked by repeat pain, urgency, and practical willingness to pay.',
+        'Read a public freelancer report that ranks workflow wedges by repeated pain, time recovery, and willingness to pay.',
     },
     'examples-ai-tools-for-small-business': {
       sectionLabel: 'Public sample report',
       title: 'AI tools for small business, ranked by workflow.',
       description:
-        'Review a public opportunity report built around owner-led small-business operations, ranked by revenue impact, workflow frequency, and ease of adoption.',
+        'Review a public small-business report that ranks workflow wedges by revenue recovery, urgency, and operational simplicity.',
     },
   },
   zh: {
@@ -270,29 +270,29 @@ const PAGE_HERO_FIELDS: Partial<Record<
     'ai-startup-idea-generator': {
       sectionLabel: 'AI 创业点子生成器',
       title: '把方向扩展成更靠谱的 AI 创业点子',
-      description: '围绕一个产品方向生成 20+ 个经过评估的创业机会，比较不同切口，并更快判断哪些点子值得继续验证。',
+      description: '围绕一个产品方向比较经过评估的创业切口，更快决定先验证哪一个。',
     },
     'saas-idea-validation': {
       sectionLabel: 'SaaS 点子验证',
       title: '先验证这个 SaaS 方向值不值得做',
-      description: '通过结构化评分、关键取舍和更清晰的判断依据，对一个 SaaS 方向做压力测试，先确认它是否值得继续投入。',
+      description: '围绕一个 SaaS 点子做压力测试，更快看清关键取舍，并判断该继续还是停下。',
     },
     'ai-business-opportunity-analysis': {
       sectionLabel: 'AI 商业机会分析',
       title: '找出最值得投入的 AI 机会',
-      description: '从一个更宽的市场或流程方向出发，比较其中最有潜力的 AI 机会，并更清楚地看见哪个细分切口值得优先推进。',
+      description: '从更宽的市场方向出发，比较其中最强的 AI 机会切口，找出下一步该优先验证的方向。',
     },
     'examples-ai-tools-for-freelancers': {
       sectionLabel: '公开样例报告',
       title: '自由职业者 AI 工具机会排序',
       description:
-        '这是一份围绕自由职业者运营工作流构建的公开机会报告，按痛点强度、重复频率和付费可能性对产品切口排序。',
+        '阅读一份自由职业者公开样例报告，看不同工作流切口如何按痛点强度、时间回收和付费意愿排序。',
     },
     'examples-ai-tools-for-small-business': {
       sectionLabel: '公开样例报告',
       title: '中小企业 AI 工具机会排序',
       description:
-        '这是一份围绕老板主导型中小企业运营流程构建的公开机会报告，按收入影响、重复频率和落地难度来排序产品切口。',
+        '查看一份中小企业公开样例报告，看不同工作流切口如何按收入影响、紧迫度和执行复杂度排序。',
     },
   },
   de: {
@@ -306,31 +306,31 @@ const PAGE_HERO_FIELDS: Partial<Record<
       sectionLabel: 'KI-Startup-Ideengenerator',
       title: 'Forme aus einer Richtung klare KI-Startup-Ideen.',
       description:
-        'Nutze eine Produktrichtung, um 20+ bewertete Startup-Chancen sichtbar zu machen, Keile zu vergleichen und zu sehen, welche Ideen als Nächstes tiefer validiert werden sollten.',
+        'Starte mit einer Produktrichtung, vergleiche bewertete Startup-Keile und nimm den starksten in die Validierung.',
     },
     'saas-idea-validation': {
       sectionLabel: 'SaaS-Ideenvalidierung',
       title: 'Prufe eine SaaS-Richtung vor dem Bauen.',
       description:
-        'Teste eine SaaS-Richtung mit strukturierter Bewertung, klaren Abwagungen und einem sichtbaren Signal dafur, ob sich eine tiefere Validierung lohnt.',
+        'Prufe eine SaaS-Idee, sieh die Abwagungen fruher und entscheide schneller zwischen weiter oder stoppen.',
     },
     'ai-business-opportunity-analysis': {
       sectionLabel: 'KI-Geschaftschancenanalyse',
       title: 'Finde die KI-Chance fur deinen nachsten Schritt.',
       description:
-        'Starte mit einer breiteren Richtung, vergleiche die vielversprechendsten KI-Chancen darin und erkenne, welcher Marktkeil genug Signal fur Prioritat hat.',
+        'Kartiere einen breiteren Markt, priorisiere die starksten KI-Keile darin und wahl den nachsten Validierungsschritt.',
     },
     'examples-ai-tools-for-freelancers': {
       sectionLabel: 'Offentlicher Beispielbericht',
       title: 'KI-Tools fur Freelancer, priorisiert nach Workflow.',
       description:
-        'Sieh dir einen offentlichen Chancenbericht fur Freelancer-Workflows an, priorisiert nach wiederkehrendem Schmerz, Dringlichkeit und realistischer Zahlungsbereitschaft.',
+        'Lies einen offentlichen Freelancer-Bericht, der Workflow-Keile nach Schmerz, Zeiterholung und Zahlungsbereitschaft ordnet.',
     },
     'examples-ai-tools-for-small-business': {
       sectionLabel: 'Offentlicher Beispielbericht',
       title: 'KI-Tools fur kleine Unternehmen, priorisiert nach Workflow.',
       description:
-        'Prufe einen offentlichen Chancenbericht fur inhabergefuhrte Kleinunternehmen, priorisiert nach Umsatzeffekt, Workflow-Haufigkeit und Einfuhrungsaufwand.',
+        'Prufe einen offentlichen Bericht fur kleine Unternehmen, der Workflow-Keile nach Umsatzhebel, Dringlichkeit und Einfachheit ordnet.',
     },
   },
   fr: {
@@ -344,31 +344,31 @@ const PAGE_HERO_FIELDS: Partial<Record<
       sectionLabel: "Generateur d'idees startup IA",
       title: "Transformez une direction en idees startup IA plus nettes.",
       description:
-        "Utilisez une direction produit pour faire apparaitre 20+ opportunites startup evaluees, comparer les angles et voir quelles idees meritent une validation plus poussee.",
+        "Partez d une direction produit, comparez des wedges startup evalues et retenez celui a valider ensuite.",
     },
     'saas-idea-validation': {
       sectionLabel: "Validation d'idee SaaS",
       title: 'Validez une direction SaaS avant de construire.',
       description:
-        "Mettez une direction SaaS a l'epreuve avec une notation structuree, des arbitrages plus visibles et un signal plus clair sur l'interet d'aller plus loin.",
+        "Mettez une idee SaaS a l epreuve, voyez les arbitrages plus vite et decidez de continuer ou non.",
     },
     'ai-business-opportunity-analysis': {
       sectionLabel: 'Analyse des opportunites IA',
       title: 'Identifiez l opportunite IA pour votre prochain mouvement.',
       description:
-        "Partez d'une direction plus large, comparez les opportunites IA les plus prometteuses qu'elle contient et voyez quel angle de marche semble assez solide pour etre priorise.",
+        'Cartographiez un marche plus large, classez les wedges IA les plus solides et choisissez la prochaine piste a valider.',
     },
     'examples-ai-tools-for-freelancers': {
       sectionLabel: "Rapport d'exemple public",
       title: 'Outils IA pour freelances, tries par workflow.',
       description:
-        "Explorez un rapport d'opportunites public centre sur les operations freelances, classe selon la repetition de la douleur, l'urgence et la volonte de payer.",
+        'Lisez un rapport public freelance qui classe les wedges workflow par douleur repetee, temps recupere et volonte de payer.',
     },
     'examples-ai-tools-for-small-business': {
       sectionLabel: "Rapport d'exemple public",
       title: 'Outils IA pour petites entreprises, tries par workflow.',
       description:
-        "Consultez un rapport d'opportunites public centre sur les operations de petites entreprises dirigees par leur proprietaire, classe selon l'impact revenu, la frequence et la facilite d'adoption.",
+        'Consultez un rapport public petites entreprises qui classe les wedges workflow par effet revenu, urgence et simplicite operationnelle.',
     },
   },
   it: {
@@ -382,31 +382,31 @@ const PAGE_HERO_FIELDS: Partial<Record<
       sectionLabel: 'Generatore di idee startup AI',
       title: 'Trasforma una direzione in idee startup AI piu solide.',
       description:
-        'Usa una direzione di prodotto per far emergere 20+ opportunita startup valutate, confrontare i diversi angoli e capire quali idee meritano una validazione piu profonda.',
+        'Parti da una direzione prodotto, confronta wedge startup valutati e porta avanti quello piu forte.',
     },
     'saas-idea-validation': {
       sectionLabel: 'Validazione idea SaaS',
       title: 'Valida una direzione SaaS prima di sviluppare.',
       description:
-        'Metti alla prova una direzione SaaS con valutazioni strutturate, trade-off piu chiari e un segnale piu leggibile su quanto valga la pena andare avanti.',
+        'Metti alla prova un idea SaaS, chiarisci prima i trade-off e decidi se continuare o fermarti.',
     },
     'ai-business-opportunity-analysis': {
       sectionLabel: 'Analisi opportunita AI',
       title: 'Trova l opportunita AI per il tuo prossimo passo.',
       description:
-        'Parti da una direzione piu ampia, confronta le opportunita AI piu promettenti al suo interno e vedi quale wedge di mercato ha abbastanza segnale da meritare priorita.',
+        'Mappa un mercato piu ampio, ordina i wedge AI piu forti e scegli la prossima opportunita da validare.',
     },
     'examples-ai-tools-for-freelancers': {
       sectionLabel: 'Report pubblico di esempio',
       title: 'Strumenti AI per freelance, ordinati per workflow.',
       description:
-        'Esplora un report pubblico di opportunita costruito intorno ai workflow dei freelance, ordinato per dolore ripetuto, urgenza e disponibilita pratica a pagare.',
+        'Leggi un report pubblico freelance che ordina i wedge di workflow per dolore ricorrente, tempo recuperato e volonta di pagare.',
     },
     'examples-ai-tools-for-small-business': {
       sectionLabel: 'Report pubblico di esempio',
       title: 'Strumenti AI per piccole imprese, ordinati per workflow.',
       description:
-        'Consulta un report pubblico di opportunita costruito attorno alle operazioni delle piccole imprese guidate dal titolare, ordinato per impatto sul fatturato, frequenza e facilita di adozione.',
+        'Consulta un report pubblico per piccole imprese che ordina i wedge di workflow per recupero ricavi, urgenza e semplicita operativa.',
     },
   },
   es: {
@@ -420,31 +420,31 @@ const PAGE_HERO_FIELDS: Partial<Record<
       sectionLabel: 'Generador de ideas de startup con IA',
       title: 'Convierte una direccion en ideas de startup con IA mas claras.',
       description:
-        'Usa una direccion de producto para descubrir 20+ oportunidades de startup evaluadas, comparar distintos angulos y ver que ideas merecen validacion posterior.',
+        'Parte de una direccion de producto, compara wedges de startup evaluados y lleva el mas fuerte a validacion.',
     },
     'saas-idea-validation': {
       sectionLabel: 'Validacion de idea SaaS',
       title: 'Valida una direccion SaaS antes de construirla.',
       description:
-        'Pon a prueba una direccion SaaS con puntuacion estructurada, trade-offs mas visibles y una lectura mas clara de si merece una validacion mas profunda.',
+        'Pon a prueba una idea SaaS, aclara antes los trade-offs y decide si seguir o parar.',
     },
     'ai-business-opportunity-analysis': {
       sectionLabel: 'Analisis de oportunidades IA',
       title: 'Encuentra la oportunidad IA para tu siguiente paso.',
       description:
-        'Parte de una direccion mas amplia, compara las oportunidades IA mas prometedoras dentro de ella y detecta que wedge de mercado tiene suficiente senal para priorizar.',
+        'Mapea un mercado mas amplio, ordena los wedges IA mas fuertes y elige la siguiente oportunidad a validar.',
     },
     'examples-ai-tools-for-freelancers': {
       sectionLabel: 'Reporte publico de ejemplo',
       title: 'Herramientas IA para freelancers, ordenadas por flujo.',
       description:
-        'Explora un reporte publico de oportunidades centrado en operaciones de freelancers, priorizado por dolor repetido, urgencia y disposicion real a pagar.',
+        'Lee un reporte publico para freelancers que ordena wedges de workflow por dolor repetido, tiempo recuperado y disposicion a pagar.',
     },
     'examples-ai-tools-for-small-business': {
       sectionLabel: 'Reporte publico de ejemplo',
       title: 'Herramientas IA para pequenas empresas, ordenadas por flujo.',
       description:
-        'Revisa un reporte publico de oportunidades centrado en operaciones de pequenas empresas lideradas por su dueno, priorizado por impacto en ingresos, frecuencia y facilidad de adopcion.',
+        'Revisa un reporte publico para pequenas empresas que ordena wedges de workflow por impacto en ingresos, urgencia y simplicidad operativa.',
     },
   },
   pt: {
@@ -458,31 +458,31 @@ const PAGE_HERO_FIELDS: Partial<Record<
       sectionLabel: 'Gerador de ideias de startup com IA',
       title: 'Transforme uma direcao em ideias de startup com IA mais claras.',
       description:
-        'Use uma direcao de produto para revelar 20+ oportunidades de startup avaliadas, comparar angulos e ver quais ideias merecem validacao mais profunda.',
+        'Comece com uma direcao de produto, compare wedges de startup avaliados e leve adiante o mais forte.',
     },
     'saas-idea-validation': {
       sectionLabel: 'Validacao de ideia SaaS',
       title: 'Valide uma direcao SaaS antes de construir.',
       description:
-        'Teste uma direcao SaaS com pontuacao estruturada, trade-offs mais visiveis e uma leitura mais clara sobre se vale aprofundar a validacao.',
+        'Teste uma ideia SaaS, enxergue antes os trade-offs e decida se continua ou para.',
     },
     'ai-business-opportunity-analysis': {
       sectionLabel: 'Analise de oportunidades IA',
       title: 'Encontre a oportunidade IA para o seu proximo passo.',
       description:
-        'Comece por uma direcao mais ampla, compare as oportunidades de IA mais promissoras dentro dela e veja qual wedge de mercado tem sinal suficiente para ser priorizado.',
+        'Mapeie um mercado mais amplo, ordene os wedges de IA mais fortes e escolha a proxima oportunidade para validar.',
     },
     'examples-ai-tools-for-freelancers': {
       sectionLabel: 'Relatorio publico de exemplo',
       title: 'Ferramentas de IA para freelancers, ordenadas por workflow.',
       description:
-        'Explore um relatorio publico de oportunidades focado em operacoes de freelancers, ranqueado por dor recorrente, urgencia e disposicao pratica para pagar.',
+        'Leia um relatorio publico para freelancers que ordena wedges de workflow por dor recorrente, tempo recuperado e disposicao para pagar.',
     },
     'examples-ai-tools-for-small-business': {
       sectionLabel: 'Relatorio publico de exemplo',
       title: 'Ferramentas de IA para pequenas empresas, ordenadas por workflow.',
       description:
-        'Revise um relatorio publico de oportunidades focado em operacoes de pequenas empresas lideradas pelo dono, ranqueado por impacto em receita, frequencia e facilidade de adocao.',
+        'Revise um relatorio publico para pequenas empresas que ordena wedges de workflow por impacto em receita, urgencia e simplicidade operacional.',
     },
   },
 }
@@ -1126,9 +1126,9 @@ const CORE_PAGE_OVERRIDES: Partial<Record<
         },
       ],
       detailEyebrow: 'Input and output example',
-      detailTitle: 'The generator works best when you start with a real direction, not a blank page.',
+      detailTitle: 'The clearest idea spread starts from a direction with a visible user, workflow, or market edge.',
       detailDescription:
-        'Instead of asking for startup ideas in the abstract, the workflow uses one concrete direction to produce a structured spread of adjacent ideas, ranked options, and clearer follow-up questions.',
+        'A stronger prompt gives the generator something specific to expand. The output then turns that direction into adjacent wedges you can compare side by side, not just a loose batch of startup suggestions.',
       inputLabel: 'Example input',
       inputExample: [
         'An AI tool for solo consultants who spend too much time turning calls into project follow-ups.',
@@ -1234,9 +1234,9 @@ const CORE_PAGE_OVERRIDES: Partial<Record<
         },
       ],
       detailEyebrow: 'Input and output example',
-      detailTitle: 'Validation works best when the page can inspect one concrete SaaS thesis.',
+      detailTitle: 'Validation is most useful when the candidate idea already names one buyer, one workflow, and one pain.',
       detailDescription:
-        'A validation workflow is different from a generator workflow. You are no longer asking for more ideas. You are checking whether one candidate direction looks strong enough to justify deeper execution.',
+        'The input should be concrete enough to judge the wedge on fit, urgency, and product shape. The output should help you see the biggest risks fast and make a cleaner continue, refine, or stop decision.',
       inputLabel: 'Example input',
       inputExample: [
         'A SaaS for independent recruiters that turns interview notes into candidate summaries and next actions.',
@@ -1342,9 +1342,9 @@ const CORE_PAGE_OVERRIDES: Partial<Record<
         },
       ],
       detailEyebrow: 'Input and output example',
-      detailTitle: 'Opportunity analysis works best when the starting point is bigger than one product idea.',
+      detailTitle: 'The best input is a market or workflow frame that is still wide enough to contain several credible wedges.',
       detailDescription:
-        'This workflow sits between idea generation and idea validation. You are not asking for abstract startup inspiration, and you are not yet pressure-testing one exact SaaS concept. You are identifying which opportunity inside a wider space deserves the next step.',
+        'You should come in with a clear space to inspect, not a finished product thesis. The output is most useful when it helps you see which sub-opportunities deserve deeper validation and which ones are weaker than they first appear.',
       inputLabel: 'Example input',
       inputExample: [
         'AI opportunities inside customer-support workflows for mid-market software teams.',
@@ -1452,9 +1452,9 @@ const CORE_PAGE_OVERRIDES: Partial<Record<
         },
       ],
       detailEyebrow: '输入输出样例',
-      detailTitle: '这个生成器最适合从真实方向出发，而不是面对一张白纸硬想。',
+      detailTitle: '当输入里已经带有清晰用户、工作流或市场边界时，生成结果会更有比较价值。',
       detailDescription:
-        '与其抽象地询问“有什么创业点子”，这个流程更适合围绕一个明确方向展开，把它拆成一组相邻切口、可比较选项和更清晰的后续问题。',
+        '一个更具体的起点，能让生成器沿着同一条线展开相邻切口。输出重点也不是再给你一堆散点灵感，而是给你一组可以横向比较的候选方向。',
       inputLabel: '输入示例',
       inputExample: [
         '一个面向独立顾问的 AI 工具，帮助他们把通话内容更快转成项目跟进。',
@@ -1560,9 +1560,9 @@ const CORE_PAGE_OVERRIDES: Partial<Record<
         },
       ],
       detailEyebrow: '输入输出样例',
-      detailTitle: '验证页最适合评估一个已经成形的 SaaS 假设。',
+      detailTitle: '当候选点子已经说清买家、工作流和核心痛点时，验证结果会更有判断力。',
       detailDescription:
-        '验证流程和生成流程不同。你不再是在问“还能做什么”，而是在检验“这个具体方向值不值得继续投入”。',
+        '输入越具体，页面越能更快看清这个切口的贴合度、风险和产品形态。输出的价值在于帮你更干净地做出“继续、收紧、还是停下”的决定。',
       inputLabel: '输入示例',
       inputExample: [
         '一个面向独立招聘顾问的 SaaS，把面试记录自动整理成候选人摘要与后续动作。',
@@ -1668,9 +1668,9 @@ const CORE_PAGE_OVERRIDES: Partial<Record<
         },
       ],
       detailEyebrow: '输入输出样例',
-      detailTitle: '机会分析最适合从“比一个具体产品更宽”的起点出发。',
+      detailTitle: '最合适的输入，是一个仍然容得下多个切口的市场或工作流框架。',
       detailDescription:
-        '这个工作流位于点子生成和点子验证之间。你既不是在要抽象灵感，也不是在立刻验证一个精确 SaaS 假设，而是在判断一个更大空间里，哪个机会最值得你下一步推进。',
+        '你带进来的应该是一个清晰但还没缩到单一产品的空间。这个页面真正要帮你做的，是看清里面哪些子机会值得继续验证，哪些看起来热闹但其实不该优先推进。',
       inputLabel: '输入示例',
       inputExample: [
         '面向中型软件团队客户支持工作流中的 AI 机会。',
@@ -1770,7 +1770,7 @@ const EXAMPLE_PAGE_OVERRIDES: Partial<Record<
       supportEyebrow: 'Scenario brief',
       supportTitle: 'AI tools for freelancers: a public sample report built around admin-heavy client work.',
       supportDescription:
-        'This sample report looks at where freelancers lose the most time between client conversations and billable delivery. The goal is not to list generic AI tools. The goal is to identify which product wedges solve repeated, monetizable workflow pain.',
+        'This sample report looks at where freelancers lose the most time between client conversations and billable delivery. It frames the market slice, the core workflow pain, and the first wedge worth testing before you read the rankings.',
       supportSnapshots: [
         {
           label: 'Market slice',
@@ -1849,9 +1849,9 @@ const EXAMPLE_PAGE_OVERRIDES: Partial<Record<
         },
       ],
       detailEyebrow: 'Why these opportunities scored well',
-      detailTitle: 'The strongest freelancer AI opportunities sit where messy context becomes unpaid operations work.',
+      detailTitle: 'These scores favor wedges with fast payback, repeated usage, and low setup friction.',
       detailDescription:
-        'The sample ranking is less about “AI for freelancers” in the abstract and more about repeated workflow pain. The best wedges are the ones that recover time, reduce dropped tasks, and create a clear before-and-after value story.',
+        'The top-ranked ideas are not just painful. They also fit how freelancers buy software: a narrow job to be done, an obvious time-saving story, and a workflow simple enough to adopt without extra ops overhead.',
       diagnosticColumns: [
         {
           title: 'Why freelancers buy',
@@ -1921,7 +1921,7 @@ const EXAMPLE_PAGE_OVERRIDES: Partial<Record<
       supportEyebrow: 'Scenario brief',
       supportTitle: 'AI tools for small business: a public sample report built around owner-led service operations.',
       supportDescription:
-        'This sample report focuses on the places where small businesses lose momentum between inquiry, quote, schedule, and payment. The point is not to list broad “AI for small business” ideas. The point is to identify the workflow wedges that owners will pay for because they protect revenue and reduce follow-up drag.',
+        'This sample report focuses on the places where small businesses lose momentum between inquiry, quote, schedule, and payment. It sets up the operating context, the main revenue leak, and the most plausible first wedge before the ranked opportunities begin.',
       supportSnapshots: [
         {
           label: 'Market slice',
@@ -2000,9 +2000,9 @@ const EXAMPLE_PAGE_OVERRIDES: Partial<Record<
         },
       ],
       detailEyebrow: 'Why these opportunities scored well',
-      detailTitle: 'The best small-business AI wedges sit where manual coordination quietly slows revenue down.',
+      detailTitle: 'These scores reward wedges with visible ROI, light rollout cost, and owner-level urgency.',
       detailDescription:
-        'This ranking focuses on the operational gaps that owners feel every week: leads cooling off, schedules slipping, and invoices stalling. The strongest wedges are the ones that improve cash movement without asking the business to adopt a heavy new system.',
+        'The strongest ideas here are not just operationally painful. They also match how small businesses adopt tools: quick to explain, easy to pilot, and valuable before a team is asked to change its whole operating system.',
       diagnosticColumns: [
         {
           title: 'Why small businesses buy',
@@ -2074,7 +2074,7 @@ const EXAMPLE_PAGE_OVERRIDES: Partial<Record<
       supportEyebrow: '场景摘要',
       supportTitle: '自由职业者 AI 工具：一份围绕高行政摩擦工作流构建的公开样例报告。',
       supportDescription:
-        '这份样例报告关注的是：自由职业者在客户沟通和真正可计费交付之间，究竟在哪些环节最容易损失时间。目标不是列一串泛 AI 工具，而是找出那些足够重复、足够可付费、且更适合先做的产品切口。',
+        '这份样例报告关注的是：自由职业者在客户沟通和真正可计费交付之间，究竟在哪些环节最容易损失时间。它会先交代市场切片、核心痛点和最值得先试的切口，再进入后面的机会排序。',
       supportSnapshots: [
         {
           label: '市场切片',
@@ -2153,9 +2153,9 @@ const EXAMPLE_PAGE_OVERRIDES: Partial<Record<
         },
       ],
       detailEyebrow: '为什么这组机会得分更高',
-      detailTitle: '自由职业者的强机会，往往出现在“混乱上下文变成无偿运营工作”的环节。',
+      detailTitle: '这组得分更高的切口，通常同时满足“回报快、使用频繁、接入成本低”。',
       detailDescription:
-        '这份样例的排序重点不是抽象的“给自由职业者做 AI”，而是寻找那些能明显回收时间、减少遗漏、并形成清晰价值对比的工作流切口。',
+        '这些高分机会不只是痛点强，还更符合自由职业者的购买逻辑：任务边界清楚、节省时间的价值容易感知，而且不用额外搭一整套运营流程才能开始使用。',
       diagnosticColumns: [
         {
           title: '自由职业者为什么愿意买',
@@ -2225,7 +2225,7 @@ const EXAMPLE_PAGE_OVERRIDES: Partial<Record<
       supportEyebrow: '场景摘要',
       supportTitle: '中小企业 AI 工具：一份围绕老板主导型服务业务构建的公开样例报告。',
       supportDescription:
-        '这份样例报告关注的是：中小企业在询盘、报价、排期和回款之间，究竟在哪些环节最容易无声地损失收入。目标不是列一串泛化的“面向中小企业的 AI 点子”，而是找出那些老板更愿意先付费、也更容易快速感知价值的工作流切口。',
+        '这份样例报告关注的是：中小企业在询盘、报价、排期和回款之间，究竟在哪些环节最容易无声地损失收入。它会先交代业务背景、主要漏损点和最像样的第一切口，再进入后面的排序结果。',
       supportSnapshots: [
         {
           label: '市场切片',
@@ -2304,9 +2304,9 @@ const EXAMPLE_PAGE_OVERRIDES: Partial<Record<
         },
       ],
       detailEyebrow: '为什么这组机会得分更高',
-      detailTitle: '中小企业的强机会，往往出现在“人工协调悄悄拖慢收入流转”的环节。',
+      detailTitle: '这组得分更高的切口，通常同时具备“回报可见、上线够轻、老板会着急”。',
       detailDescription:
-        '这份排序重点放在老板每周都会感受到的运营缝隙：线索慢慢变冷、排期反复卡住、回款迟迟不到。最强的切口通常是那些能改善现金流推进，却又不要求企业一次性上重系统的产品。',
+        '高分机会不只是运营上有痛，还更符合中小企业采纳工具的方式：价值容易讲清楚、试运行门槛低，而且不用先推动整家公司迁移到一套更重的平台。',
       diagnosticColumns: [
         {
           title: '中小企业为什么愿意买',

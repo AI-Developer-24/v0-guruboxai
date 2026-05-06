@@ -20,6 +20,8 @@ import {
   type MarketingClosing,
   type MarketingColumn,
   type MarketingFaqItem,
+  type MarketingHeroBodySize,
+  type MarketingHeroVariant,
   type MarketingOpportunity,
   type MarketingOpportunityLabels,
   type MarketingSnapshot,
@@ -27,6 +29,7 @@ import {
   type MarketingStep,
   type MarketingAsideItem,
   type MarketingVisualRow,
+  type MarketingVisualHeaderVariant,
 } from '@/components/marketing/marketing-sections'
 
 interface SharedTemplateProps {
@@ -36,6 +39,11 @@ interface SharedTemplateProps {
   primaryAction: MarketingAction
   secondaryAction?: MarketingAction
   signals: MarketingSignal[]
+  heroVariant?: MarketingHeroVariant
+  visualHeaderVariant?: MarketingVisualHeaderVariant
+  showProofStrip?: boolean
+  heroBodySize?: MarketingHeroBodySize
+  maxTitleMeasure?: string
 }
 
 export interface HomepageTemplateProps extends SharedTemplateProps {
@@ -136,11 +144,15 @@ export function HomepageTemplate(props: HomepageTemplateProps & TemplateRuntimeP
       <MarketingHeroShell
         sectionLabel={props.sectionLabel}
         title={props.title}
-        titleClassName="font-[580] sm:max-w-[18ch] lg:max-w-[28ch] lg:text-[clamp(2.7rem,2.85vw,3.75rem)]"
         description={props.description}
         primaryAction={props.primaryAction}
         secondaryAction={props.secondaryAction}
         signals={props.signals}
+        variant={props.heroVariant ?? 'home'}
+        visualHeaderVariant={props.visualHeaderVariant ?? 'headline'}
+        showProofStrip={props.showProofStrip ?? true}
+        heroBodySize={props.heroBodySize ?? 'regular'}
+        maxTitleMeasure={props.maxTitleMeasure ?? '10.8ch'}
         visual={
           <MarketingPosterVisual
             locale={props.locale}
@@ -156,6 +168,7 @@ export function HomepageTemplate(props: HomepageTemplateProps & TemplateRuntimeP
             eyebrow={props.supportEyebrow}
             title={props.supportTitle}
             description={props.supportDescription}
+            layoutVariant="offset"
             aside={
               <MarketingSectionAside
                 eyebrow={props.supportEyebrow}
@@ -167,11 +180,12 @@ export function HomepageTemplate(props: HomepageTemplateProps & TemplateRuntimeP
             <MarketingBalancedFeatureGrid
               items={props.supportColumns}
               icon={<Layers3 className="size-4 text-[oklch(0.58_0.16_250)]" />}
+              variant="staggered"
             />
           </MarketingNarrativeSection>
         </MarketingContainer>
       </MarketingSurface>
-      <MarketingSurface className="border-t border-border/45 py-16 sm:py-20">
+      <MarketingSurface className="border-border/45 border-t py-16 sm:py-20">
         <MarketingContainer>
           <MarketingNarrativeSection
             eyebrow={props.detailEyebrow}
@@ -225,15 +239,18 @@ export function CoreLandingTemplate(props: CoreLandingTemplateProps & TemplateRu
       <MarketingHeroShell
         sectionLabel={props.sectionLabel}
         title={props.title}
-        titleClassName="font-[560] sm:max-w-[18.5ch] lg:max-w-[25ch] lg:text-[clamp(2.6rem,2.65vw,3.55rem)]"
         description={props.description}
         primaryAction={props.primaryAction}
         secondaryAction={props.secondaryAction}
         signals={props.signals}
+        variant={props.heroVariant ?? 'core'}
+        visualHeaderVariant={props.visualHeaderVariant ?? 'compact'}
+        showProofStrip={props.showProofStrip ?? false}
+        heroBodySize={props.heroBodySize ?? 'compact'}
+        maxTitleMeasure={props.maxTitleMeasure ?? '11.8ch'}
         visual={
           <MarketingDiagnosticVisual
             eyebrow={props.heroVisualEyebrow}
-            title={props.heroVisualTitle}
             rows={props.heroVisualRows}
           />
         }
@@ -244,6 +261,7 @@ export function CoreLandingTemplate(props: CoreLandingTemplateProps & TemplateRu
             eyebrow={props.supportEyebrow}
             title={props.supportTitle}
             description={props.supportDescription}
+            layoutVariant="offset"
             aside={
               <MarketingSectionAside
                 eyebrow={props.supportEyebrow}
@@ -255,11 +273,12 @@ export function CoreLandingTemplate(props: CoreLandingTemplateProps & TemplateRu
             <MarketingBalancedFeatureGrid
               items={props.diagnosticColumns}
               icon={<LineChart className="size-4 text-[oklch(0.58_0.16_250)]" />}
+              variant="editorial"
             />
           </MarketingNarrativeSection>
         </MarketingContainer>
       </MarketingSurface>
-      <MarketingSurface className="border-t border-border/45 py-16 sm:py-20">
+      <MarketingSurface className="border-border/45 border-t py-16 sm:py-20">
         <MarketingContainer>
           <MarketingNarrativeSection
             eyebrow={props.detailEyebrow}
@@ -282,7 +301,7 @@ export function CoreLandingTemplate(props: CoreLandingTemplateProps & TemplateRu
           </MarketingNarrativeSection>
         </MarketingContainer>
       </MarketingSurface>
-      <MarketingSurface className="border-t border-border/45 py-16 sm:py-20">
+      <MarketingSurface className="border-border/45 border-t py-16 sm:py-20">
         <MarketingContainer>
           <MarketingNarrativeSection
             eyebrow={props.faqEyebrow}
@@ -300,12 +319,13 @@ export function CoreLandingTemplate(props: CoreLandingTemplateProps & TemplateRu
           </MarketingNarrativeSection>
         </MarketingContainer>
       </MarketingSurface>
-      <MarketingSurface className="border-t border-border/45 py-16 sm:py-20">
+      <MarketingSurface className="border-border/45 border-t py-16 sm:py-20">
         <MarketingContainer>
           <MarketingNarrativeSection
             eyebrow={props.relatedEyebrow}
             title={props.relatedTitle}
             description={props.relatedDescription}
+            layoutVariant="offset"
             aside={
               <MarketingSectionAside
                 eyebrow={props.relatedEyebrow}
@@ -358,16 +378,19 @@ export function PublicExampleTemplate(props: PublicExampleTemplateProps & Templa
       <MarketingHeroShell
         sectionLabel={props.sectionLabel}
         title={props.title}
-        titleClassName="font-[540] sm:max-w-[19ch] lg:max-w-[27ch] lg:text-[clamp(2.45rem,2.45vw,3.2rem)]"
         description={props.description}
         primaryAction={props.primaryAction}
         secondaryAction={props.secondaryAction}
         signals={props.signals}
+        variant={props.heroVariant ?? 'example'}
+        visualHeaderVariant={props.visualHeaderVariant ?? 'report'}
+        showProofStrip={props.showProofStrip ?? false}
+        heroBodySize={props.heroBodySize ?? 'compact'}
+        maxTitleMeasure={props.maxTitleMeasure ?? '12.3ch'}
         visual={
           <MarketingExampleVisual
             eyebrow={props.heroVisualEyebrow}
-            title={props.heroVisualTitle}
-            steps={props.heroVisualSteps}
+            snapshots={props.supportSnapshots}
           />
         }
       />
@@ -389,12 +412,13 @@ export function PublicExampleTemplate(props: PublicExampleTemplateProps & Templa
           </MarketingNarrativeSection>
         </MarketingContainer>
       </MarketingSurface>
-      <MarketingSurface className="border-t border-border/45 py-16 sm:py-20">
+      <MarketingSurface className="border-border/45 border-t py-16 sm:py-20">
         <MarketingContainer>
           <MarketingNarrativeSection
             eyebrow={props.opportunityEyebrow}
             title={props.opportunityTitle}
             description={props.opportunityDescription}
+            layoutVariant="offset"
             aside={
               <MarketingSectionAside
                 eyebrow={props.opportunityEyebrow}
@@ -410,12 +434,13 @@ export function PublicExampleTemplate(props: PublicExampleTemplateProps & Templa
           </MarketingNarrativeSection>
         </MarketingContainer>
       </MarketingSurface>
-      <MarketingSurface className="border-t border-border/45 py-16 sm:py-20">
+      <MarketingSurface className="border-border/45 border-t py-16 sm:py-20">
         <MarketingContainer>
           <MarketingNarrativeSection
             eyebrow={props.detailEyebrow}
             title={props.detailTitle}
             description={props.detailDescription}
+            layoutVariant="offset"
             aside={
               <MarketingSectionAside
                 eyebrow={props.detailEyebrow}
@@ -427,11 +452,12 @@ export function PublicExampleTemplate(props: PublicExampleTemplateProps & Templa
             <MarketingBalancedFeatureGrid
               items={props.diagnosticColumns}
               icon={<FileSearch className="size-4 text-[oklch(0.78_0.14_70)]" />}
+              variant="editorial"
             />
           </MarketingNarrativeSection>
         </MarketingContainer>
       </MarketingSurface>
-      <MarketingSurface className="border-t border-border/45 py-16 sm:py-20">
+      <MarketingSurface className="border-border/45 border-t py-16 sm:py-20">
         <MarketingContainer>
           <MarketingNarrativeSection
             eyebrow={props.relatedEyebrow}

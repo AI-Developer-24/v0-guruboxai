@@ -1,12 +1,6 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import Link from 'next/link'
-import {
-  ArrowRight,
-  FileSearch,
-  Layers3,
-  ScanSearch,
-  Sparkles,
-} from 'lucide-react'
+import { ArrowRight, FileSearch, Layers3, ScanSearch, Sparkles } from 'lucide-react'
 import { type SeoLocale } from '@/lib/seo/locales'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -83,6 +77,253 @@ export type MarketingAsideItem = {
   meta?: string
 }
 
+type MarketingTone = 'default' | 'analysis' | 'report'
+type MarketingSectionLayout = 'balanced' | 'offset'
+type MarketingFeatureGridVariant = 'grid' | 'staggered' | 'editorial'
+export type MarketingHeroVariant = 'home' | 'core' | 'example'
+export type MarketingVisualHeaderVariant = 'headline' | 'compact' | 'report'
+export type MarketingHeroBodySize = 'regular' | 'compact'
+
+const DETAIL_SURFACE_CLASS =
+  'relative overflow-hidden rounded-[1.25rem] border border-[var(--line-soft)] bg-[linear-gradient(180deg,oklch(1_0_0_/_0.82),var(--surface-tint))] shadow-[inset_0_1px_0_oklch(1_0_0_/_0.6)]'
+
+function getToneClasses(tone: MarketingTone) {
+  if (tone === 'analysis') {
+    return {
+      badge:
+        'border-[var(--line-soft)] bg-[linear-gradient(135deg,var(--brand-blue-soft),oklch(1_0_0_/_0.88))] text-[var(--brand-blue)]',
+      line: 'bg-[linear-gradient(90deg,var(--brand-blue),transparent)]',
+      glow: 'bg-[var(--glow-blue)]',
+      chip: 'border-[var(--line-soft)] bg-[linear-gradient(180deg,oklch(1_0_0_/_0.82),var(--brand-blue-soft))] text-[var(--brand-ink)]',
+      fill: 'bg-[linear-gradient(90deg,var(--brand-blue),var(--brand-gold))]',
+    }
+  }
+
+  if (tone === 'report') {
+    return {
+      badge:
+        'border-[var(--line-soft)] bg-[linear-gradient(135deg,var(--brand-gold-soft),oklch(1_0_0_/_0.9))] text-[oklch(0.72_0.12_70)]',
+      line: 'bg-[linear-gradient(90deg,var(--brand-gold),var(--brand-blue),transparent)]',
+      glow: 'bg-[var(--glow-gold)]',
+      chip: 'border-[var(--line-soft)] bg-[linear-gradient(180deg,oklch(1_0_0_/_0.86),var(--brand-gold-soft))] text-[var(--brand-ink)]',
+      fill: 'bg-[linear-gradient(90deg,var(--brand-gold),var(--brand-blue))]',
+    }
+  }
+
+  return {
+    badge:
+      'border-[var(--line-soft)] bg-[linear-gradient(135deg,var(--brand-gold-soft),var(--brand-blue-soft))] text-[var(--brand-ink)]',
+    line: 'bg-[linear-gradient(90deg,var(--brand-gold),var(--brand-blue),transparent)]',
+    glow: 'bg-[var(--glow-gold)]',
+    chip: 'border-[var(--line-soft)] bg-[linear-gradient(180deg,oklch(1_0_0_/_0.84),var(--surface-tint))] text-[var(--brand-ink)]',
+    fill: 'bg-[linear-gradient(90deg,var(--brand-gold),var(--brand-blue))]',
+  }
+}
+
+function getLayerLabel(locale: SeoLocale, index: number) {
+  return locale === 'zh' ? `层级 0${index + 1}` : `Layer 0${index + 1}`
+}
+
+function getFeatureGridContainerClass(variant: MarketingFeatureGridVariant) {
+  if (variant === 'staggered') {
+    return 'grid gap-4 border-t border-[var(--line-soft)] pt-8 lg:auto-rows-fr lg:grid-cols-6'
+  }
+
+  return 'grid gap-4 border-t border-[var(--line-soft)] pt-8 lg:grid-cols-3'
+}
+
+function getFeatureGridItemClass(
+  variant: MarketingFeatureGridVariant,
+  index: number,
+  total: number
+) {
+  if (variant === 'staggered') {
+    if (index === 0) {
+      return 'lg:col-span-3 lg:row-span-2'
+    }
+
+    if (index === 1 || index === 2) {
+      return 'lg:col-span-3'
+    }
+
+    return 'lg:col-span-2'
+  }
+
+  if (variant === 'editorial' && total > 2 && index === 0) {
+    return 'lg:col-span-2'
+  }
+
+  return ''
+}
+
+function SurfacePanel({
+  children,
+  className,
+}: Readonly<{
+  children: ReactNode
+  className?: string
+}>) {
+  return (
+    <article
+      className={cn(
+        'marketing-panel transition-transform duration-300 hover:-translate-y-[2px]',
+        className
+      )}
+    >
+      <div className="relative z-10 h-full">{children}</div>
+    </article>
+  )
+}
+
+function MarketingVisualBadge({
+  icon,
+  tone = 'default',
+}: Readonly<{
+  icon: ReactNode
+  tone?: MarketingTone
+}>) {
+  return (
+    <div
+      className={cn(
+        'flex h-11 w-11 shrink-0 items-center justify-center rounded-[1.1rem] border',
+        getToneClasses(tone).badge
+      )}
+    >
+      {icon}
+    </div>
+  )
+}
+
+function MarketingVisualFrame({
+  eyebrow,
+  title,
+  tone = 'default',
+  icon,
+  children,
+  headerVariant = 'headline',
+}: Readonly<{
+  eyebrow: string
+  title?: string
+  tone?: MarketingTone
+  icon: ReactNode
+  children: ReactNode
+  headerVariant?: MarketingVisualHeaderVariant
+}>) {
+  const toneClasses = getToneClasses(tone)
+  const frameClass =
+    headerVariant === 'headline'
+      ? 'min-h-[24rem] p-5 sm:p-6 lg:p-7'
+      : headerVariant === 'compact'
+        ? 'min-h-[18.5rem] p-4 sm:p-5 lg:min-h-[19.5rem] lg:p-6'
+        : 'min-h-[17.5rem] p-4 sm:p-5 lg:min-h-[18.5rem] lg:p-6'
+  const summaryClass =
+    headerVariant === 'compact'
+      ? 'max-w-[16rem] text-[0.94rem] leading-6 font-medium text-[var(--brand-ink)]/78'
+      : 'max-w-[15rem] text-[0.88rem] leading-6 font-medium text-[var(--brand-ink)]/68'
+
+  return (
+    <SurfacePanel className={frameClass}>
+      <div
+        className={cn(
+          'absolute top-[-12%] right-[-8%] h-36 w-36 rounded-full opacity-75 blur-3xl',
+          toneClasses.glow
+        )}
+      />
+      <div
+        className={cn(
+          'relative z-10 flex h-full flex-col',
+          headerVariant === 'headline' ? 'gap-6' : 'gap-4'
+        )}
+      >
+        <div className="flex items-start justify-between gap-5">
+          <div className={cn(headerVariant === 'headline' ? 'space-y-3' : 'space-y-2')}>
+            <p className="marketing-kicker">{eyebrow}</p>
+            {headerVariant === 'headline' && title ? (
+              <h3 className="max-w-[15ch] text-[clamp(1.6rem,2.25vw,2.4rem)] leading-[0.98] font-[560] tracking-[-0.058em] text-balance text-[var(--brand-ink)]">
+                {title}
+              </h3>
+            ) : title ? (
+              <p className={summaryClass}>{title}</p>
+            ) : null}
+          </div>
+          <MarketingVisualBadge tone={tone} icon={icon} />
+        </div>
+        {children}
+      </div>
+    </SurfacePanel>
+  )
+}
+
+function renderOpportunityCard(
+  item: MarketingOpportunity,
+  labels: MarketingOpportunityLabels,
+  featured: boolean
+) {
+  return (
+    <SurfacePanel className={cn('p-5 sm:p-6', featured ? 'lg:p-8' : undefined)}>
+      <div className="flex h-full flex-col gap-5">
+        <div className="flex flex-col gap-4 border-b border-[var(--line-soft)] pb-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="space-y-3">
+            {item.rank ? <p className="marketing-kicker">{item.rank}</p> : null}
+            <h3
+              className={cn(
+                'leading-[0.98] font-[560] tracking-[-0.05em] text-balance text-[var(--brand-ink)]',
+                featured ? 'text-[1.65rem] sm:text-[2rem]' : 'text-[1.28rem] sm:text-[1.45rem]'
+              )}
+            >
+              {item.title}
+            </h3>
+          </div>
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--line-soft)] bg-[linear-gradient(180deg,oklch(1_0_0_/_0.88),var(--surface-tint))] px-3.5 py-1.5 text-sm font-medium text-[var(--brand-ink)] shadow-[inset_0_1px_0_oklch(1_0_0_/_0.65)]">
+            <span className="text-muted-foreground">{labels.score}</span>
+            <span>{item.score}</span>
+          </div>
+        </div>
+        <p
+          className={cn(
+            'text-muted-foreground',
+            featured ? 'text-base leading-8' : 'text-sm leading-7 sm:text-base'
+          )}
+        >
+          {item.description}
+        </p>
+        {item.audience || item.whyNow || item.nextMove ? (
+          <dl className="grid gap-4 text-sm sm:grid-cols-3">
+            {item.audience ? (
+              <div className="space-y-1.5">
+                <dt className="marketing-kicker text-[10px]">{labels.audience}</dt>
+                <dd className="text-foreground/90 leading-7">{item.audience}</dd>
+              </div>
+            ) : null}
+            {item.whyNow ? (
+              <div className="space-y-1.5">
+                <dt className="marketing-kicker text-[10px]">{labels.whyNow}</dt>
+                <dd className="text-foreground/90 leading-7">{item.whyNow}</dd>
+              </div>
+            ) : null}
+            {item.nextMove ? (
+              <div className="space-y-1.5">
+                <dt className="marketing-kicker text-[10px]">{labels.nextMove}</dt>
+                <dd className="text-foreground/90 leading-7">{item.nextMove}</dd>
+              </div>
+            ) : null}
+          </dl>
+        ) : null}
+        {item.highlights?.length ? (
+          <div className="grid gap-3 border-t border-[var(--line-soft)] pt-4 sm:grid-cols-3">
+            {item.highlights.map((highlight) => (
+              <div key={highlight} className="text-foreground/90 flex gap-3 text-sm leading-7">
+                <span className="mt-2 size-1.5 shrink-0 rounded-full bg-[var(--brand-gold)]" />
+                <p>{highlight}</p>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    </SurfacePanel>
+  )
+}
+
 export function MarketingSurface({
   children,
   className,
@@ -90,7 +331,9 @@ export function MarketingSurface({
   children: ReactNode
   className?: string
 }>) {
-  return <section className={cn('relative overflow-hidden page-fade', className)}>{children}</section>
+  return (
+    <section className={cn('page-fade relative overflow-hidden', className)}>{children}</section>
+  )
 }
 
 export function MarketingContainer({
@@ -100,7 +343,11 @@ export function MarketingContainer({
   children: ReactNode
   className?: string
 }>) {
-  return <div className={cn('mx-auto w-full max-w-[74rem] px-4 sm:px-6', className)}>{children}</div>
+  return (
+    <div className={cn('mx-auto w-full max-w-[78rem] px-5 sm:px-6 lg:px-8', className)}>
+      {children}
+    </div>
+  )
 }
 
 export function MarketingActions({
@@ -112,10 +359,14 @@ export function MarketingActions({
 }>) {
   return (
     <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-      <Button asChild size="lg" className="btn-glow h-11 rounded-full px-6 text-sm">
+      <Button
+        asChild
+        size="lg"
+        className="group marketing-cta-primary text-background h-11 rounded-full px-6 text-sm transition-transform duration-300"
+      >
         <Link href={primaryAction.href}>
-          {primaryAction.label}
-          <ArrowRight className="size-4" />
+          <span>{primaryAction.label}</span>
+          <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
         </Link>
       </Button>
       {secondaryAction ? (
@@ -123,9 +374,11 @@ export function MarketingActions({
           asChild
           variant={secondaryAction.variant ?? 'outline'}
           size="lg"
-          className="h-11 rounded-full border-border/70 bg-white/55 px-6 text-sm shadow-sm backdrop-blur-sm"
+          className="group marketing-cta-secondary h-11 rounded-full px-6 text-sm transition-transform duration-300"
         >
-          <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
+          <Link href={secondaryAction.href}>
+            <span>{secondaryAction.label}</span>
+          </Link>
         </Button>
       ) : null}
     </div>
@@ -138,20 +391,12 @@ export function MarketingProofStrip({
   signals: MarketingSignal[]
 }>) {
   return (
-    <dl className="grid gap-0 border-t border-border/40 pt-4 sm:grid-cols-3">
-      {signals.map((signal, index) => (
-        <div
-          key={signal.label}
-          className={cn(
-            'px-0 py-3 sm:px-4',
-            index > 0 ? 'sm:border-l sm:border-border/35' : undefined
-          )}
-        >
-          <div className="space-y-1">
-            <dt className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-              {signal.label}
-            </dt>
-            <dd className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
+    <dl className="grid gap-3 sm:grid-cols-3">
+      {signals.map((signal) => (
+        <div key={signal.label} className="marketing-panel px-4 py-4 sm:px-5">
+          <div className="relative z-10 space-y-3">
+            <dt className="marketing-kicker text-[10px]">{signal.label}</dt>
+            <dd className="text-[1.55rem] leading-none font-semibold tracking-[-0.07em] text-[var(--brand-ink)] sm:text-[1.75rem]">
               {signal.value}
             </dd>
           </div>
@@ -171,14 +416,10 @@ export function MarketingSectionHeading({
   description: string
 }>) {
   return (
-    <div className="max-w-2xl space-y-4">
-      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        {eyebrow}
-      </p>
-      <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-        {title}
-      </h2>
-      <p className="text-base leading-7 text-muted-foreground sm:text-lg">{description}</p>
+    <div className="max-w-3xl space-y-4">
+      <p className="marketing-kicker">{eyebrow}</p>
+      <h2 className="marketing-heading">{title}</h2>
+      <p className="marketing-body max-w-[38rem]">{description}</p>
     </div>
   )
 }
@@ -189,20 +430,29 @@ export function MarketingNarrativeSection({
   description,
   aside,
   children,
+  layoutVariant = 'balanced',
 }: Readonly<{
   eyebrow: string
   title: string
   description: string
   aside: ReactNode
   children: ReactNode
+  layoutVariant?: MarketingSectionLayout
 }>) {
+  const layoutClass =
+    layoutVariant === 'offset'
+      ? 'lg:grid-cols-[minmax(0,1.02fr)_minmax(300px,0.72fr)] lg:gap-12'
+      : 'lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.82fr)] lg:gap-10'
+  const asideClass =
+    layoutVariant === 'offset'
+      ? 'lg:max-w-[22rem] lg:justify-self-end lg:pt-8'
+      : 'lg:max-w-[24rem] lg:justify-self-end lg:pt-3'
+
   return (
-    <div className="space-y-8 sm:space-y-10">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.8fr)] lg:items-start lg:gap-8">
-        <div className="max-w-2xl">
-          <MarketingSectionHeading eyebrow={eyebrow} title={title} description={description} />
-        </div>
-        <div className="lg:pt-1">{aside}</div>
+    <div className="space-y-10 sm:space-y-12">
+      <div className={cn('grid gap-7 lg:items-start', layoutClass)}>
+        <MarketingSectionHeading eyebrow={eyebrow} title={title} description={description} />
+        <div className={asideClass}>{aside}</div>
       </div>
       {children}
     </div>
@@ -216,72 +466,39 @@ export function MarketingSectionAside({
 }: Readonly<{
   eyebrow: string
   items: MarketingAsideItem[]
-  tone?: 'default' | 'analysis' | 'report'
+  tone?: MarketingTone
 }>) {
+  const toneClasses = getToneClasses(tone)
+
   return (
-    <div className="border-t border-border/35 pt-4 lg:min-h-[10.5rem]">
-      <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-        {eyebrow}
-      </p>
-      <div className="mt-4 grid gap-3">
+    <div className="relative border-t border-[var(--line-soft)] pt-4">
+      <p className="marketing-kicker">{eyebrow}</p>
+      <div className="mt-5 grid gap-3">
         {items.map((item) => (
           <div
             key={`${item.label}-${item.title}`}
-            className="grid grid-cols-[1.85rem_minmax(0,1fr)] items-start gap-3 border-b border-border/25 pb-3 last:border-b-0 last:pb-0"
+            className="grid grid-cols-[2.65rem_minmax(0,1fr)] gap-4 rounded-[1.15rem] px-0 py-1 transition-transform duration-300 hover:translate-x-[2px]"
           >
             <div
               className={cn(
-                'mt-0.5 flex h-7 w-7 items-center justify-center text-[10px] font-semibold text-foreground',
-                tone === 'report'
-                  ? 'rounded-full border border-border/55 bg-white/70 shadow-sm'
-                  : tone === 'analysis'
-                    ? 'rounded-sm bg-[linear-gradient(135deg,oklch(0.58_0.16_250_/_0.16),oklch(0.78_0.14_70_/_0.16))]'
-                    : 'rounded-full border border-border/45 bg-white/55'
+                'flex h-10 w-10 items-center justify-center rounded-[1rem] border text-[10px] font-semibold tracking-[0.16em]',
+                toneClasses.badge
               )}
             >
               {item.label}
             </div>
-            <div className="space-y-1">
-              <p className="max-w-[18rem] text-sm font-medium leading-6 text-foreground sm:text-[15px]">
+            <div className="space-y-1.5">
+              <p className="text-[0.98rem] leading-6 font-medium text-[var(--brand-ink)] sm:text-[1.04rem]">
                 {item.title}
               </p>
               {item.meta ? (
-                <p className="max-w-[19rem] text-[13px] leading-6 text-muted-foreground">
-                  {item.meta}
-                </p>
+                <p className="text-muted-foreground text-[13px] leading-6">{item.meta}</p>
               ) : null}
             </div>
           </div>
         ))}
       </div>
-      {tone === 'analysis' ? (
-        <div className="mt-4 h-px w-full bg-[linear-gradient(90deg,oklch(0.58_0.16_250),transparent_70%)]" />
-      ) : null}
-      {tone === 'report' ? (
-        <div className="mt-4 h-px w-full bg-[linear-gradient(90deg,oklch(0.78_0.14_70),transparent_70%)]" />
-      ) : null}
-      {tone === 'default' ? (
-        <div className="mt-4 h-px w-full bg-[linear-gradient(90deg,oklch(0.82_0.12_85_/_0.7),transparent_72%)]" />
-      ) : null}
-    </div>
-  )
-}
-
-function MarketingSurfaceGridItem({
-  children,
-  className,
-}: Readonly<{
-  children: ReactNode
-  className?: string
-}>) {
-  return (
-    <div
-      className={cn(
-        'h-full rounded-[1.5rem] border border-border/35 bg-[linear-gradient(145deg,oklch(1_0_0_/_0.48),oklch(0.985_0.005_250_/_0.24))] px-5 py-5 shadow-[0_14px_40px_oklch(0.58_0.08_250_/_0.04)]',
-        className
-      )}
-    >
-      {children}
+      <div className={cn('mt-5 h-px w-full', toneClasses.line)} />
     </div>
   )
 }
@@ -289,32 +506,71 @@ function MarketingSurfaceGridItem({
 export function MarketingBalancedFeatureGrid({
   items,
   icon,
+  variant = 'grid',
 }: Readonly<{
   items: MarketingColumn[]
   icon: ReactNode
+  variant?: MarketingFeatureGridVariant
 }>) {
   return (
-    <div className="grid gap-6 border-t border-border/45 pt-8 lg:grid-cols-3">
-      {items.map((item) => (
-        <MarketingSurfaceGridItem key={item.title} className="space-y-4">
-          <div className="flex items-center gap-3 text-foreground">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-white/55 shadow-sm backdrop-blur-sm">
-              {icon}
+    <div className={getFeatureGridContainerClass(variant)}>
+      {items.map((item, index) => {
+        const isStrong = variant === 'staggered' && index === 0
+
+        return (
+          <SurfacePanel
+            key={item.title}
+            className={cn(
+              'p-5 sm:p-6',
+              getFeatureGridItemClass(variant, index, items.length),
+              isStrong ? 'lg:p-7' : undefined
+            )}
+          >
+            <div className="flex h-full flex-col gap-5">
+              <div className="flex items-start gap-4">
+                <div
+                  className={cn(
+                    DETAIL_SURFACE_CLASS,
+                    'flex shrink-0 items-center justify-center',
+                    isStrong ? 'h-12 w-12 rounded-[1.1rem]' : 'h-10 w-10 rounded-[1rem]'
+                  )}
+                >
+                  {icon}
+                </div>
+                <div className="space-y-3">
+                  <h3
+                    className={cn(
+                      'leading-[1.02] font-[560] tracking-[-0.04em] text-[var(--brand-ink)]',
+                      isStrong
+                        ? 'text-[1.35rem] sm:text-[1.55rem]'
+                        : 'text-[1.08rem] sm:text-[1.14rem]'
+                    )}
+                  >
+                    {item.title}
+                  </h3>
+                  <p
+                    className={cn(
+                      'text-muted-foreground',
+                      isStrong ? 'text-base leading-8' : 'text-sm leading-7 sm:text-base'
+                    )}
+                  >
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+              {item.href && item.actionLabel ? (
+                <Link
+                  href={item.href}
+                  className="marketing-inline-link inline-flex w-fit items-center gap-2 pt-1 text-sm font-medium text-[var(--brand-ink)]"
+                >
+                  <span>{item.actionLabel}</span>
+                  <ArrowRight className="size-4" />
+                </Link>
+              ) : null}
             </div>
-            <h3 className="text-xl font-semibold tracking-tight">{item.title}</h3>
-          </div>
-          <p className="text-sm leading-7 text-muted-foreground sm:text-base">{item.description}</p>
-          {item.href && item.actionLabel ? (
-            <Link
-              href={item.href}
-              className="inline-flex items-center gap-2 text-sm font-medium text-foreground transition-opacity hover:opacity-75"
-            >
-              <span>{item.actionLabel}</span>
-              <ArrowRight className="size-4" />
-            </Link>
-          ) : null}
-        </MarketingSurfaceGridItem>
-      ))}
+          </SurfacePanel>
+        )
+      })}
     </div>
   )
 }
@@ -325,15 +581,35 @@ export function MarketingBalancedProcessSteps({
   steps: MarketingStep[]
 }>) {
   return (
-    <div className="grid gap-6 border-t border-border/45 pt-8 lg:grid-cols-4">
-      {steps.map((step) => (
-        <MarketingSurfaceGridItem key={step.label} className="space-y-4">
-          <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">{step.label}</p>
-          <h3 className="text-xl font-semibold tracking-tight text-foreground">{step.title}</h3>
-          <p className="text-sm leading-7 text-muted-foreground sm:text-base">
-            {step.description}
-          </p>
-        </MarketingSurfaceGridItem>
+    <div className="grid gap-4 border-t border-[var(--line-soft)] pt-8 lg:grid-cols-4">
+      {steps.map((step, index) => (
+        <SurfacePanel
+          key={step.label}
+          className={cn('p-5 sm:p-6', index % 2 === 1 ? 'lg:translate-y-8' : undefined)}
+        >
+          <div className="flex h-full flex-col gap-5">
+            <div className="flex items-start justify-between gap-4">
+              <p className="marketing-kicker">{step.label}</p>
+              <span className="text-[3.4rem] leading-none font-semibold tracking-[-0.12em] text-[oklch(0.58_0.16_250_/_0.12)]">
+                {`${index + 1}`.padStart(2, '0')}
+              </span>
+            </div>
+            <h3 className="text-[1.14rem] leading-[1.02] font-[560] tracking-[-0.045em] text-[var(--brand-ink)]">
+              {step.title}
+            </h3>
+            <p className="text-muted-foreground text-sm leading-7 sm:text-base">
+              {step.description}
+            </p>
+            <div
+              className={cn(
+                'mt-auto h-px w-20',
+                index % 2 === 0
+                  ? 'bg-[linear-gradient(90deg,var(--brand-gold),var(--brand-blue))]'
+                  : 'bg-[linear-gradient(90deg,var(--brand-blue),var(--brand-gold))]'
+              )}
+            />
+          </div>
+        </SurfacePanel>
       ))}
     </div>
   )
@@ -345,12 +621,16 @@ export function MarketingBalancedFaqList({
   items: MarketingFaqItem[]
 }>) {
   return (
-    <div className="grid gap-6 border-t border-border/45 pt-8 lg:grid-cols-2">
+    <div className="grid gap-4 border-t border-[var(--line-soft)] pt-8 lg:grid-cols-2">
       {items.map((item) => (
-        <MarketingSurfaceGridItem key={item.question} className="space-y-3">
-          <h3 className="text-lg font-semibold tracking-tight text-foreground">{item.question}</h3>
-          <p className="text-sm leading-7 text-muted-foreground sm:text-base">{item.answer}</p>
-        </MarketingSurfaceGridItem>
+        <SurfacePanel key={item.question} className="p-5 sm:p-6">
+          <div className="flex h-full flex-col gap-4">
+            <h3 className="text-[1.1rem] leading-[1.04] font-[560] tracking-[-0.04em] text-[var(--brand-ink)]">
+              {item.question}
+            </h3>
+            <p className="text-muted-foreground text-sm leading-7 sm:text-base">{item.answer}</p>
+          </div>
+        </SurfacePanel>
       ))}
     </div>
   )
@@ -359,106 +639,105 @@ export function MarketingBalancedFaqList({
 export function MarketingHeroShell({
   sectionLabel,
   title,
-  titleClassName,
   description,
   primaryAction,
   secondaryAction,
   signals,
   visual,
+  variant = 'home',
+  visualHeaderVariant = 'headline',
+  showProofStrip = true,
+  heroBodySize = 'regular',
+  maxTitleMeasure,
 }: Readonly<{
   sectionLabel: string
   title: string
-  titleClassName?: string
   description: string
   primaryAction: MarketingAction
   secondaryAction?: MarketingAction
   signals: MarketingSignal[]
   visual: ReactNode
+  variant?: MarketingHeroVariant
+  visualHeaderVariant?: MarketingVisualHeaderVariant
+  showProofStrip?: boolean
+  heroBodySize?: MarketingHeroBodySize
+  maxTitleMeasure?: string
 }>) {
+  const compactVisual = visualHeaderVariant !== 'headline'
+  const outerSpacingClass =
+    variant === 'home' ? 'py-6 sm:py-10 lg:py-14' : 'py-4 sm:py-8 lg:py-10'
+  const stageSpacingClass =
+    variant === 'home'
+      ? 'px-5 py-6 sm:px-7 sm:py-8 lg:px-10 lg:py-10'
+      : 'px-5 py-5 sm:px-7 sm:py-7 lg:px-9 lg:py-8'
+  const layoutClass =
+    variant === 'home'
+      ? 'lg:grid-cols-[minmax(0,1.02fr)_minmax(360px,0.98fr)] lg:gap-10'
+      : variant === 'core'
+        ? 'lg:grid-cols-[minmax(0,1.08fr)_minmax(300px,0.72fr)] lg:gap-8'
+        : 'lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.72fr)] lg:gap-8'
+  const contentSpacingClass =
+    variant === 'home'
+      ? 'space-y-7 lg:space-y-8'
+      : compactVisual
+        ? 'space-y-5 lg:space-y-6'
+        : 'space-y-6 lg:space-y-7'
+  const textWidthClass = variant === 'home' ? 'max-w-[40rem] space-y-5' : 'max-w-[42rem] space-y-4.5'
+  const descriptionClass =
+    heroBodySize === 'compact'
+      ? 'max-w-[31rem] text-[0.98rem] leading-7'
+      : 'max-w-[34rem]'
+  const visualWrapperClass =
+    variant === 'home'
+      ? 'relative lg:pl-4'
+      : variant === 'core'
+        ? 'relative lg:max-w-[21.5rem] lg:justify-self-end'
+        : 'relative lg:max-w-[24rem] lg:justify-self-end'
+  const titleStyle: CSSProperties | undefined = maxTitleMeasure
+    ? { maxWidth: maxTitleMeasure }
+    : undefined
+
   return (
-    <MarketingSurface className="border-b border-border/45">
-      <div className="absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_14%_18%,oklch(0.84_0.11_78_/_0.3),transparent_32%),radial-gradient(circle_at_84%_24%,oklch(0.64_0.14_248_/_0.18),transparent_28%),linear-gradient(180deg,oklch(1_0_0_/_0.12),transparent)]" />
-      <MarketingContainer className="py-7 sm:py-9 lg:py-12">
-        <div className="relative overflow-hidden rounded-[2rem] border border-white/40 bg-[linear-gradient(145deg,oklch(1_0_0_/_0.64),oklch(0.985_0.005_250_/_0.42))] px-5 py-6 shadow-[0_24px_90px_oklch(0.58_0.08_250_/_0.06)] backdrop-blur-sm sm:px-7 sm:py-8 lg:px-8 lg:py-9">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,oklch(0.84_0.11_78_/_0.15),transparent_30%),radial-gradient(circle_at_82%_78%,oklch(0.64_0.14_248_/_0.12),transparent_32%)]" />
-          <div className="relative space-y-8 sm:space-y-9">
-            <div className="mx-auto flex max-w-[56rem] flex-col items-center text-center">
-              <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-border/50 bg-white/72 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground shadow-sm">
-                <Sparkles className="size-3.5 text-[oklch(0.78_0.14_70)]" />
-                <span>{sectionLabel}</span>
-              </div>
-              <div className="mt-4 space-y-3">
-                <h1
-                  className={cn(
-                    'mx-auto text-balance text-center font-medium leading-[0.9] tracking-[-0.08em] text-foreground',
-                    'max-w-[272px] text-[clamp(1.8rem,7.4vw,2.45rem)] sm:max-w-[18ch] sm:text-[clamp(2.7rem,4.9vw,3.8rem)] lg:max-w-[23ch] lg:text-[clamp(2.95rem,3.2vw,4.1rem)]',
-                    titleClassName
-                  )}
-                >
+    <MarketingSurface className="border-b border-[var(--line-soft)]">
+      <div className="absolute inset-x-0 top-0 h-[40rem] bg-[radial-gradient(circle_at_18%_16%,oklch(1_0_0_/_0.46),transparent_28%),radial-gradient(circle_at_86%_14%,var(--glow-gold),transparent_26%),radial-gradient(circle_at_20%_78%,var(--glow-blue),transparent_24%)]" />
+      <MarketingContainer className={outerSpacingClass}>
+        <div className={cn('marketing-stage', stageSpacingClass)}>
+          <div className="absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,var(--brand-gold),var(--brand-blue),transparent)]" />
+          <div className={cn('relative z-10 grid gap-8 lg:items-start', layoutClass)}>
+            <div className={contentSpacingClass}>
+              <div className={textWidthClass}>
+                <div className="inline-flex items-center gap-3">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--line-soft)] bg-[linear-gradient(135deg,var(--brand-gold-soft),oklch(1_0_0_/_0.9))] text-[var(--brand-gold)]">
+                    <Sparkles className="size-3.5" />
+                  </span>
+                  <p className="marketing-kicker">{sectionLabel}</p>
+                </div>
+                <h1 style={titleStyle} className="marketing-display-xl max-w-[11.8ch]">
                   {title}
                 </h1>
+                <p className={cn('marketing-body', descriptionClass)}>{description}</p>
               </div>
+              <MarketingActions primaryAction={primaryAction} secondaryAction={secondaryAction} />
             </div>
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.02fr)_minmax(300px,0.88fr)] lg:items-start lg:gap-8">
-              <div className="max-w-[37rem] space-y-6">
-                <p className="max-w-[29rem] text-[15px] leading-7 text-muted-foreground sm:text-base sm:leading-8">
-                  {description}
-                </p>
-                <div className="max-w-[31rem] space-y-5">
-                  <MarketingActions primaryAction={primaryAction} secondaryAction={secondaryAction} />
-                  <MarketingProofStrip signals={signals} />
-                </div>
+            <div className={visualWrapperClass}>
+              {variant === 'home' ? (
+                <>
+                  <div className="absolute top-8 left-0 hidden h-[72%] w-px bg-[linear-gradient(180deg,transparent,var(--line-strong),transparent)] lg:block" />
+                  <div className="relative lg:pl-8">{visual}</div>
+                </>
+              ) : (
+                <div className="relative">{visual}</div>
+              )}
+            </div>
+            {showProofStrip ? (
+              <div className="max-w-[37rem] lg:col-span-2">
+                <MarketingProofStrip signals={signals} />
               </div>
-              <div className="relative lg:border-l lg:border-border/35 lg:pl-8">{visual}</div>
-            </div>
+            ) : null}
           </div>
         </div>
       </MarketingContainer>
     </MarketingSurface>
-  )
-}
-
-function getVisualTitleClassName(title: string) {
-  const titleLength = title.trim().length
-
-  if (titleLength > 72) {
-    return 'text-[1.18rem] leading-[1.16] sm:text-[1.34rem] lg:text-[1.42rem]'
-  }
-
-  if (titleLength > 56) {
-    return 'text-[1.28rem] leading-[1.14] sm:text-[1.48rem] lg:text-[1.58rem]'
-  }
-
-  if (titleLength > 40) {
-    return 'text-[1.38rem] leading-[1.12] sm:text-[1.58rem] lg:text-[1.74rem]'
-  }
-
-  return 'text-[1.48rem] leading-[1.08] sm:text-[1.72rem] lg:text-[1.9rem]'
-}
-
-function MarketingVisualBadge({
-  icon,
-  tone = 'default',
-}: Readonly<{
-  icon: ReactNode
-  tone?: 'default' | 'analysis' | 'report'
-}>) {
-  const toneClassName =
-    tone === 'analysis'
-      ? 'bg-[linear-gradient(145deg,oklch(0.99_0.01_250_/_0.92),oklch(0.93_0.035_250_/_0.34))] text-[oklch(0.58_0.16_250)]'
-      : tone === 'report'
-        ? 'bg-[linear-gradient(145deg,oklch(1_0_0_/_0.9),oklch(0.95_0.03_85_/_0.3))] text-[oklch(0.76_0.13_78)]'
-        : 'bg-[linear-gradient(145deg,oklch(1_0_0_/_0.92),oklch(0.96_0.028_82_/_0.28),oklch(0.95_0.02_250_/_0.18))] text-[oklch(0.64_0.1_48)]'
-
-  return (
-    <div
-      className={cn(
-        'flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-border/55 shadow-[0_10px_24px_oklch(0.58_0.08_250_/_0.08)] backdrop-blur-sm',
-        toneClassName
-      )}
-    >
-      {icon}
-    </div>
   )
 }
 
@@ -474,41 +753,59 @@ export function MarketingPosterVisual({
   layers: string[]
 }>) {
   return (
-    <div className="relative w-full max-w-[32rem]">
-      <div className="absolute left-[6%] top-[8%] h-24 w-24 rounded-full bg-[oklch(0.82_0.12_82_/_0.24)] blur-3xl" />
-      <div className="relative space-y-5 pt-2">
-        <div className="space-y-3 border-b border-border/35 pb-5">
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-              {eyebrow}
-            </p>
-            <MarketingVisualBadge
-              icon={<Layers3 className="size-[1.05rem]" />}
-            />
+    <MarketingVisualFrame
+      tone="default"
+      eyebrow={eyebrow}
+      title={title}
+      headerVariant="headline"
+      icon={<Layers3 className="size-[1.05rem]" />}
+    >
+      <div className="grid gap-4 md:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
+        <div className={cn(DETAIL_SURFACE_CLASS, 'p-4 sm:p-5')}>
+          <div className="relative z-10">
+            <p className="marketing-kicker text-[10px]">{getLayerLabel(locale, 0)}</p>
+            <div className="mt-4 flex items-end gap-3">
+              <span className="text-[4.4rem] leading-none font-semibold tracking-[-0.12em] text-[oklch(0.78_0.14_70_/_0.22)]">
+                20+
+              </span>
+              <div className="space-y-2 pb-2">
+                <div className="h-px w-16 bg-[linear-gradient(90deg,var(--brand-gold),transparent)]" />
+                <p className="text-foreground/80 max-w-[11rem] text-sm leading-6">{layers[0]}</p>
+              </div>
+            </div>
+            <div className="mt-5 space-y-3">
+              {layers.slice(1).map((label, index) => (
+                <div
+                  key={label}
+                  className="flex items-start gap-3 border-t border-[var(--line-soft)] pt-3"
+                >
+                  <span className="text-muted-foreground mt-0.5 text-[10px] font-semibold tracking-[0.18em]">
+                    0{index + 2}
+                  </span>
+                  <p className="text-foreground/90 text-sm leading-6">{label}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          <p
-            className={cn(
-              'max-w-[23rem] text-balance font-semibold tracking-[-0.045em] text-foreground',
-              getVisualTitleClassName(title)
-            )}
-          >
-            {title}
-          </p>
         </div>
         <div className="grid gap-3">
           {layers.map((label, index) => (
             <div
               key={label}
-              className="grid grid-cols-[2.35rem_1fr] gap-3 border-b border-border/30 pb-3.5"
+              className={cn(
+                DETAIL_SURFACE_CLASS,
+                'p-4',
+                index === 1
+                  ? 'bg-[linear-gradient(180deg,oklch(1_0_0_/_0.82),var(--brand-blue-soft))]'
+                  : undefined
+              )}
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-white/72 text-[11px] font-semibold text-foreground shadow-sm">
-                0{index + 1}
-              </div>
-              <div className="space-y-1.5">
-                <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  {locale === 'zh' ? `层级 0${index + 1}` : `Layer 0${index + 1}`}
-                </p>
-                <p className="text-sm font-medium leading-6 text-foreground sm:text-base">
+              <div className="relative z-10 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="marketing-kicker text-[10px]">{getLayerLabel(locale, index)}</p>
+                  <div className="h-px w-10 bg-[linear-gradient(90deg,var(--brand-gold),var(--brand-blue))]" />
+                </div>
+                <p className="text-[0.98rem] leading-6 font-medium text-[var(--brand-ink)] sm:text-[1.02rem]">
                   {label}
                 </p>
               </div>
@@ -516,116 +813,94 @@ export function MarketingPosterVisual({
           ))}
         </div>
       </div>
-    </div>
+    </MarketingVisualFrame>
   )
 }
 
 export function MarketingDiagnosticVisual({
   eyebrow,
-  title,
   rows,
 }: Readonly<{
   eyebrow: string
-  title: string
   rows: MarketingVisualRow[]
 }>) {
   return (
-    <div className="relative w-full max-w-[32rem]">
-      <div className="absolute left-[4%] top-[10%] h-24 w-24 rounded-full bg-[oklch(0.58_0.16_250_/_0.16)] blur-3xl" />
-      <div className="relative space-y-5 pt-2">
-        <div className="space-y-3 border-b border-border/35 pb-5">
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-              {eyebrow}
-            </p>
-            <MarketingVisualBadge
-              tone="analysis"
-              icon={<ScanSearch className="size-[1.05rem]" />}
-            />
-          </div>
-          <p
+    <MarketingVisualFrame
+      tone="analysis"
+      eyebrow={eyebrow}
+      headerVariant="compact"
+      icon={<ScanSearch className="size-[1.05rem]" />}
+    >
+      <div className="grid gap-4">
+        {rows.map((row, index) => (
+          <div
+            key={row.label}
             className={cn(
-              'max-w-[23rem] text-balance font-semibold tracking-[-0.045em] text-foreground',
-              getVisualTitleClassName(title)
+              DETAIL_SURFACE_CLASS,
+              'p-4 sm:p-[1.125rem]',
+              index === 1 ? 'bg-[linear-gradient(180deg,oklch(1_0_0_/_0.84),var(--brand-blue-soft))]' : undefined
             )}
           >
-            {title}
-          </p>
-        </div>
-        <div className="grid gap-3">
-          {rows.map((row, index) => (
-            <div key={row.label} className="space-y-2 border-b border-border/30 pb-3.5">
-              <div className="flex flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  {row.label}
-                </p>
-                <p className="text-base font-semibold tracking-tight text-foreground sm:text-lg">
-                  {row.value}
-                </p>
-              </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/55">
+            <div className="relative z-10 flex items-start justify-between gap-4">
+              <div className="space-y-2">
+                <p className="marketing-kicker text-[10px]">{row.label}</p>
                 <div
-                  className="h-full rounded-full bg-[linear-gradient(90deg,oklch(0.58_0.16_250),oklch(0.78_0.14_70))]"
-                  style={{ width: `${66 + index * 13}%` }}
+                  className={cn(
+                    'h-px w-14',
+                    index % 2 === 0
+                      ? 'bg-[linear-gradient(90deg,var(--brand-blue),transparent)]'
+                      : 'bg-[linear-gradient(90deg,var(--brand-gold),transparent)]'
+                  )}
                 />
               </div>
+              <p className="text-[1.02rem] leading-6 font-semibold tracking-[-0.03em] text-[var(--brand-ink)]">
+                {row.value}
+              </p>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-    </div>
+    </MarketingVisualFrame>
   )
 }
 
 export function MarketingExampleVisual({
   eyebrow,
-  title,
-  steps,
+  snapshots,
 }: Readonly<{
   eyebrow: string
-  title: string
-  steps: string[]
+  snapshots: MarketingSnapshot[]
 }>) {
   return (
-    <div className="relative w-full max-w-[32rem]">
-      <div className="absolute left-[5%] top-[10%] h-24 w-24 rounded-full bg-[oklch(1_0_0_/_0.22)] blur-2xl" />
-      <div className="relative space-y-5 pt-2">
-        <div className="space-y-3 border-b border-border/35 pb-5">
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-              {eyebrow}
-            </p>
-            <MarketingVisualBadge
-              tone="report"
-              icon={<FileSearch className="size-[1.05rem]" />}
-            />
-          </div>
-          <p
+    <MarketingVisualFrame
+      tone="report"
+      eyebrow={eyebrow}
+      headerVariant="report"
+      icon={<FileSearch className="size-[1.05rem]" />}
+    >
+      <div className="grid gap-3">
+        {snapshots.slice(0, 3).map((snapshot, index) => (
+          <div
+            key={`${snapshot.label}-${snapshot.value}`}
             className={cn(
-              'max-w-[23rem] text-balance font-semibold tracking-[-0.045em] text-foreground',
-              getVisualTitleClassName(title)
+              DETAIL_SURFACE_CLASS,
+              'p-4',
+              index === 2 ? 'bg-[linear-gradient(180deg,oklch(1_0_0_/_0.86),var(--brand-gold-soft))]' : undefined
             )}
           >
-            {title}
-          </p>
-        </div>
-        <div className="grid gap-3">
-          {steps.map((label, index) => (
-            <div key={label} className="grid grid-cols-[2.35rem_1fr] gap-3 border-b border-border/30 pb-3.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-white/72 text-[11px] font-semibold text-foreground shadow-sm">
-                0{index + 1}
-              </div>
-              <div className="space-y-1.5">
-                <div className="h-1.5 w-14 rounded-full bg-[linear-gradient(90deg,oklch(0.78_0.14_70),oklch(0.58_0.16_250))]" />
-                <p className="text-sm font-medium leading-6 text-foreground sm:text-base">
-                  {label}
-                </p>
-              </div>
+            <div className="relative z-10 space-y-2.5">
+              <p className="marketing-kicker text-[10px]">{snapshot.label}</p>
+              <p className="text-[1rem] leading-6 font-semibold tracking-[-0.03em] text-[var(--brand-ink)] sm:text-[1.06rem]">
+                {snapshot.value}
+              </p>
+              {index < 2 ? (
+                <div className="h-px w-14 bg-[linear-gradient(90deg,var(--brand-gold),var(--brand-blue))]" />
+              ) : null}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-    </div>
+    </MarketingVisualFrame>
   )
 }
 
@@ -636,32 +911,7 @@ export function MarketingFeatureGrid({
   items: MarketingColumn[]
   icon: ReactNode
 }>) {
-  return (
-    <div className="grid gap-8 border-t border-border/45 pt-8 lg:grid-cols-3">
-      {items.map((item) => (
-        <article key={item.title} className="space-y-4">
-          <div className="flex items-center gap-3 text-foreground">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-white/55 shadow-sm backdrop-blur-sm">
-              {icon}
-            </div>
-            <h3 className="text-xl font-semibold tracking-tight">{item.title}</h3>
-          </div>
-          <p className="max-w-sm text-sm leading-7 text-muted-foreground sm:text-base">
-            {item.description}
-          </p>
-          {item.href && item.actionLabel ? (
-            <Link
-              href={item.href}
-              className="inline-flex items-center gap-2 text-sm font-medium text-foreground transition-opacity hover:opacity-75"
-            >
-              <span>{item.actionLabel}</span>
-              <ArrowRight className="size-4" />
-            </Link>
-          ) : null}
-        </article>
-      ))}
-    </div>
-  )
+  return <MarketingBalancedFeatureGrid items={items} icon={icon} />
 }
 
 export function MarketingProcessSteps({
@@ -669,21 +919,7 @@ export function MarketingProcessSteps({
 }: Readonly<{
   steps: MarketingStep[]
 }>) {
-  return (
-    <div className="grid gap-8 border-t border-border/45 pt-8 lg:grid-cols-4">
-      {steps.map((step) => (
-        <article key={step.label} className="space-y-4">
-          <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-            {step.label}
-          </p>
-          <h3 className="text-xl font-semibold tracking-tight text-foreground">{step.title}</h3>
-          <p className="text-sm leading-7 text-muted-foreground sm:text-base">
-            {step.description}
-          </p>
-        </article>
-      ))}
-    </div>
-  )
+  return <MarketingBalancedProcessSteps steps={steps} />
 }
 
 export function MarketingExamplePreview({
@@ -703,35 +939,40 @@ export function MarketingExamplePreview({
   ]
 
   return (
-    <div className="grid gap-8 border-t border-border/45 pt-8 lg:grid-cols-2">
-      {columns.map((column) => (
-        <div key={column.label} className="space-y-5">
-          <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-            {column.label}
-          </p>
-          <div className="space-y-3">
-            {column.items.map((item) => (
-              <div
-                key={item}
-                className="flex gap-3 border-b border-border/35 pb-3 text-sm leading-7 text-foreground/90 sm:text-base"
-              >
-                <span className="mt-2 size-1.5 shrink-0 rounded-full bg-[oklch(0.78_0.14_70)]" />
-                <p>{item}</p>
-              </div>
-            ))}
+    <div className="grid gap-4 border-t border-[var(--line-soft)] pt-8 lg:grid-cols-2">
+      {columns.map((column, index) => (
+        <SurfacePanel
+          key={column.label}
+          className={cn('p-5 sm:p-6', index === 0 ? 'lg:-translate-y-2' : 'lg:translate-y-4')}
+        >
+          <div className="flex h-full flex-col gap-5">
+            <p className="marketing-kicker">{column.label}</p>
+            <div className="space-y-3">
+              {column.items.map((item) => (
+                <div
+                  key={item}
+                  className="text-foreground/90 flex gap-3 border-t border-[var(--line-soft)] pt-3 text-sm leading-7 sm:text-base"
+                >
+                  <span className="mt-2 size-1.5 shrink-0 rounded-full bg-[var(--brand-gold)]" />
+                  <p>{item}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </SurfacePanel>
       ))}
     </div>
   )
 }
 
-export function MarketingInputOutputPreview(props: Readonly<{
-  inputLabel: string
-  inputExample: string[]
-  outputLabel: string
-  outputExample: string[]
-}>) {
+export function MarketingInputOutputPreview(
+  props: Readonly<{
+    inputLabel: string
+    inputExample: string[]
+    outputLabel: string
+    outputExample: string[]
+  }>
+) {
   return <MarketingExamplePreview {...props} />
 }
 
@@ -742,75 +983,18 @@ export function MarketingOpportunityGrid({
   items: MarketingOpportunity[]
   labels: MarketingOpportunityLabels
 }>) {
+  const [featured, ...rest] = items
+
   return (
-    <div className="space-y-5 border-t border-border/45 pt-8">
-      {items.map((item) => (
-        <article
-          key={item.title}
-          className="relative overflow-hidden rounded-[1.75rem] border border-border/45 bg-[linear-gradient(145deg,oklch(1_0_0_/_0.64),oklch(0.98_0.006_250_/_0.48))] px-5 py-5 shadow-[0_18px_60px_oklch(0.58_0.08_250_/_0.05)] backdrop-blur-sm sm:px-6 sm:py-6"
-        >
-          <div className="absolute right-0 top-0 h-28 w-28 translate-x-8 -translate-y-8 rounded-full bg-[oklch(0.82_0.12_85_/_0.16)] blur-3xl" />
-          <div className="relative space-y-5">
-            <div className="flex flex-col gap-4 border-b border-border/40 pb-4 sm:flex-row sm:items-end sm:justify-between">
-              <div className="space-y-3">
-                {item.rank ? (
-                  <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                    {item.rank}
-                  </p>
-                ) : null}
-                <h3 className="text-2xl font-semibold tracking-tight text-foreground">
-                  {item.title}
-                </h3>
-              </div>
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border/60 bg-white/70 px-3 py-1.5 text-sm font-medium text-foreground shadow-sm">
-                <span className="text-muted-foreground">{labels.score}</span>
-                <span>{item.score}</span>
-              </div>
-            </div>
-            <p className="max-w-3xl text-sm leading-7 text-muted-foreground sm:text-base">
-              {item.description}
-            </p>
-            {(item.audience || item.whyNow || item.nextMove) ? (
-              <dl className="grid gap-4 text-sm sm:grid-cols-3">
-                {item.audience ? (
-                  <div className="space-y-1">
-                    <dt className="text-[11px] font-medium tracking-[0.18em] text-muted-foreground">
-                      {labels.audience}
-                    </dt>
-                    <dd className="leading-7 text-foreground/90">{item.audience}</dd>
-                  </div>
-                ) : null}
-                {item.whyNow ? (
-                  <div className="space-y-1">
-                    <dt className="text-[11px] font-medium tracking-[0.18em] text-muted-foreground">
-                      {labels.whyNow}
-                    </dt>
-                    <dd className="leading-7 text-foreground/90">{item.whyNow}</dd>
-                  </div>
-                ) : null}
-                {item.nextMove ? (
-                  <div className="space-y-1">
-                    <dt className="text-[11px] font-medium tracking-[0.18em] text-muted-foreground">
-                      {labels.nextMove}
-                    </dt>
-                    <dd className="leading-7 text-foreground/90">{item.nextMove}</dd>
-                  </div>
-                ) : null}
-              </dl>
-            ) : null}
-            {item.highlights?.length ? (
-              <div className="grid gap-3 border-t border-border/35 pt-4 sm:grid-cols-3">
-                {item.highlights.map((highlight) => (
-                  <div key={highlight} className="flex gap-3 text-sm leading-7 text-foreground/90">
-                    <span className="mt-2 size-1.5 shrink-0 rounded-full bg-[oklch(0.78_0.14_70)]" />
-                    <p>{highlight}</p>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </article>
-      ))}
+    <div className="space-y-4 border-t border-[var(--line-soft)] pt-8">
+      {featured ? renderOpportunityCard(featured, labels, true) : null}
+      {rest.length ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {rest.map((item) => (
+            <div key={item.title}>{renderOpportunityCard(item, labels, false)}</div>
+          ))}
+        </div>
+      ) : null}
     </div>
   )
 }
@@ -821,39 +1005,43 @@ export function MarketingSnapshotGrid({
   items: MarketingSnapshot[]
 }>) {
   return (
-    <div className="grid gap-5 border-t border-border/45 pt-8 lg:grid-cols-3">
-      {items.map((item) => (
-        <article
+    <div className="grid gap-4 border-t border-[var(--line-soft)] pt-8 lg:grid-cols-3">
+      {items.map((item, index) => (
+        <SurfacePanel
           key={item.label}
-          className="rounded-[1.5rem] border border-border/45 bg-[linear-gradient(145deg,oklch(1_0_0_/_0.58),oklch(0.98_0.006_250_/_0.42))] px-5 py-5 shadow-[0_14px_40px_oklch(0.58_0.08_250_/_0.04)] backdrop-blur-sm"
+          className={cn('p-5 sm:p-6', index === 0 ? 'lg:col-span-2 lg:min-h-[15rem]' : undefined)}
         >
-          <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">{item.label}</p>
-          <p className="mt-3 text-xl font-semibold tracking-tight text-foreground">{item.value}</p>
-          <p className="mt-3 text-sm leading-7 text-muted-foreground">{item.description}</p>
-        </article>
+          <div className="flex h-full flex-col gap-4">
+            <p className="marketing-kicker">{item.label}</p>
+            <p
+              className={cn(
+                'leading-[0.98] font-[560] tracking-[-0.05em] text-[var(--brand-ink)]',
+                index === 0 ? 'text-[1.8rem] sm:text-[2.2rem]' : 'text-[1.35rem] sm:text-[1.55rem]'
+              )}
+            >
+              {item.value}
+            </p>
+            <p
+              className={cn(
+                'text-muted-foreground',
+                index === 0 ? 'max-w-[28rem] text-base leading-8' : 'text-sm leading-7 sm:text-base'
+              )}
+            >
+              {item.description}
+            </p>
+          </div>
+        </SurfacePanel>
       ))}
     </div>
   )
 }
+
 export function MarketingFaqList({
   items,
 }: Readonly<{
   items: MarketingFaqItem[]
 }>) {
-  return (
-    <div className="grid gap-6 border-t border-border/45 pt-8 lg:grid-cols-2">
-      {items.map((item) => (
-        <article key={item.question} className="space-y-3 border-b border-border/35 pb-5">
-          <h3 className="text-lg font-semibold tracking-tight text-foreground">
-            {item.question}
-          </h3>
-          <p className="text-sm leading-7 text-muted-foreground sm:text-base">
-            {item.answer}
-          </p>
-        </article>
-      ))}
-    </div>
-  )
+  return <MarketingBalancedFaqList items={items} />
 }
 
 export function MarketingCtaBanner({
@@ -862,12 +1050,11 @@ export function MarketingCtaBanner({
   closing: MarketingClosing
 }>) {
   return (
-    <MarketingSurface className="border-t border-border/45 py-16 sm:py-20">
+    <MarketingSurface className="border-t border-[var(--line-soft)] py-16 sm:py-20">
       <MarketingContainer>
-        <div className="relative overflow-hidden rounded-[2rem] border border-border/45 bg-[linear-gradient(145deg,oklch(1_0_0_/_0.66),oklch(0.97_0.008_250_/_0.55))] px-6 py-8 shadow-[0_18px_70px_oklch(0.58_0.08_250_/_0.08)] backdrop-blur-sm sm:px-8 sm:py-10 lg:px-10">
-          <div className="absolute right-0 top-0 h-40 w-40 translate-x-10 -translate-y-10 rounded-full bg-[oklch(0.82_0.12_85_/_0.22)] blur-3xl" />
-          <div className="absolute bottom-0 left-0 h-44 w-44 -translate-x-10 translate-y-10 rounded-full bg-[oklch(0.58_0.16_250_/_0.18)] blur-3xl" />
-          <div className="relative grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(280px,0.75fr)] lg:items-end">
+        <div className="marketing-stage px-6 py-7 sm:px-8 sm:py-8 lg:px-10">
+          <div className="absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,var(--brand-gold),var(--brand-blue),transparent)]" />
+          <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <MarketingSectionHeading
               eyebrow={closing.eyebrow}
               title={closing.title}

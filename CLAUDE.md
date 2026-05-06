@@ -128,3 +128,26 @@ Theme: **"灵光乍现"** — Professional, Futuristic, Effortless. Reference: L
 ## Environment
 
 See `.env.example` for all required variables. Key groups: Supabase, AI provider keys + model names, Redis URL, Google OAuth for Docs export, app URL.
+
+`lib/env.ts` validates required vars at startup and guards against leaking sensitive vars to the client. Helper scripts for local setup:
+
+```bash
+node scripts/verify-env.mjs    # Check all required env vars are set
+node scripts/verify-db.mjs     # Verify Supabase connection
+node scripts/test-redis.mjs    # Verify Redis connection
+```
+
+## Observability
+
+- **Sentry**: Configured via `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`.
+- **Logger**: Use `lib/logger.ts` for all logging. Pattern: `const log = logger.withContext('ModuleName')`, then `log.info/warn/error/debug(msg, data)`.
+
+## SEO 落地页
+
+`app/[locale]/` 包含静态 SEO 落地页（无需登录即可访问）：
+- `ai-business-opportunity-analysis/`
+- `ai-startup-idea-generator/`
+- `saas-idea-validation/`
+- `examples/`
+
+这些页面通过 middleware 设置的 `x-seo-locale` 请求头来确定服务端语言环境。新增 SEO 页面时，在此目录下按照相同模式添加。支持的 SEO 语言列表定义在 `lib/seo/locales.ts` 中。
