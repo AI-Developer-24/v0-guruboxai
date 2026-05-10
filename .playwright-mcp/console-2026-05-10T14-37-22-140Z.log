@@ -1,0 +1,91 @@
+[     282ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[     340ms] [LOG] [HMR] connected @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[     411ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    ...
+      <MenuProvider scope={{Menu:[...], ...}} onClose={function Menu.useCallback} isUsingKeyboardRef={{current:false}} ...>
+        <DropdownMenuTrigger asChild={true}>
+          <DropdownMenuTrigger data-slot="dropdown-m..." asChild={true}>
+            <MenuAnchor asChild={true} __scopeMenu={{Menu:[...], ...}}>
+              <PopperAnchor __scopePopper={{Menu:[...], ...}} asChild={true} ref={null}>
+                <Primitive.div asChild={true} ref={function}>
+                  <Primitive.div.Slot ref={function}>
+                    <Primitive.div.SlotClone ref={function}>
+                      <Primitive.button type="button" id="radix-_R_m..." aria-haspopup="menu" aria-expanded={false} ...>
+                        <Primitive.button.Slot type="button" id="radix-_R_m..." aria-haspopup="menu" ...>
+                          <Primitive.button.SlotClone type="button" id="radix-_R_m..." aria-haspopup="menu" ...>
+                            <Button variant="outline" size="sm" className="marketing-..." aria-label="语言: 简体中文" ...>
+                              <button
+                                data-slot="dropdown-menu-trigger"
+                                className={"items-center justify-center whitespace-nowrap font-medium transition-all ..."}
+                                aria-label="语言: 简体中文"
+                                type="button"
++                               id="radix-_R_madb_"
+-                               id="radix-_R_2p9lb_"
+                                aria-haspopup="menu"
+                                aria-expanded={false}
+                                aria-controls={undefined}
+                                data-state="closed"
+                                data-disabled={undefined}
+                                disabled={false}
+                                onPointerDown={function handleEvent}
+                                onKeyDown={function handleEvent}
+                                ref={function}
+                              >
+        ...
+    <Button>
+    ...
+      <MenuProvider scope={{Menu:[...], ...}} onClose={function Menu.useCallback} isUsingKeyboardRef={{current:false}} ...>
+        <DropdownMenuTrigger asChild={true}>
+          <DropdownMenuTrigger data-slot="dropdown-m..." asChild={true}>
+            <MenuAnchor asChild={true} __scopeMenu={{Menu:[...], ...}}>
+              <PopperAnchor __scopePopper={{Menu:[...], ...}} asChild={true} ref={null}>
+                <Primitive.div asChild={true} ref={function}>
+                  <Primitive.div.Slot ref={function}>
+                    <Primitive.div.SlotClone ref={function}>
+                      <Primitive.button type="button" id="radix-_R_1..." aria-haspopup="menu" aria-expanded={false} ...>
+                        <Primitive.button.Slot type="button" id="radix-_R_1..." aria-haspopup="menu" ...>
+                          <Primitive.button.SlotClone type="button" id="radix-_R_1..." aria-haspopup="menu" ...>
+                            <Button variant="outline" size="icon" className="marketing-..." aria-label="浏览页面" ...>
+                              <button
+                                data-slot="dropdown-menu-trigger"
+                                className={"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm f..."}
+                                aria-label="浏览页面"
+                                type="button"
++                               id="radix-_R_1madb_"
+-                               id="radix-_R_6p9lb_"
+                                aria-haspopup="menu"
+                                aria-expanded={false}
+                                aria-controls={undefined}
+                                data-state="closed"
+                                data-disabled={undefined}
+                                disabled={false}
+                                onPointerDown={function handleEvent}
+                                onKeyDown={function handleEvent}
+                                ref={function}
+                              >
+        ...
+ @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3127
+[     416ms] [INFO] [32m[Client] [AuthProvider] [2026-05-10T14:37:22.555Z] INFO:[0m getInitialSession started {href: http://127.0.0.1:3000/zh, pathname: /zh} @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[     416ms] [INFO] [32m[Client] [AuthProvider] [2026-05-10T14:37:22.556Z] INFO:[0m Auth init diagnostics {currentOrigin: http://127.0.0.1:3000, configuredAppOrigin: http://localhost:3000, originsMatch: false, supabaseCookies: Array(0)} @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[     430ms] [INFO] [32m[Client] [AuthProvider] [2026-05-10T14:37:22.570Z] INFO:[0m getSession result {hasSession: false, userId: undefined, error: undefined, elapsedMs: 15} @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[     430ms] [INFO] [32m[Client] [AuthProvider] [2026-05-10T14:37:22.570Z] INFO:[0m getInitialSession completed without user (not logged in) {totalElapsedMs: 15} @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[     516ms] [INFO] [32m[Client] [AuthProvider] [2026-05-10T14:37:22.656Z] INFO:[0m Auth state changed {event: INITIAL_SESSION, hasSession: false, userId: undefined, userEmail: undefined, accessTokenPresent: false} @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[     516ms] [INFO] [32m[Client] [AuthProvider] [2026-05-10T14:37:22.656Z] INFO:[0m No session in auth state change, clearing user  @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[     519ms] [LOG] %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[     520ms] [LOG] %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {route: /[locale], path: /zh} @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[     520ms] [LOG] %c[Vercel Web Analytics]%c [view] http://127.0.0.1:3000/zh color: rgb(120, 120, 120) color: inherit {o: http://127.0.0.1:3000/zh, sv: 0.1.3, sdkn: @vercel/analytics/next, sdkv: 1.6.1, ts: 1778423842659} /_vercel/insights/view @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  167260ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  167282ms] [LOG] [Fast Refresh] done in 122ms @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[ 2144851ms] [LOG] [HMR] connected @ http://127.0.0.1:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297

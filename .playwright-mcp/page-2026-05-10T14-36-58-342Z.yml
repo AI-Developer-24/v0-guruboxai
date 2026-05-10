@@ -1,0 +1,358 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e16]:
+    - navigation [ref=e17]:
+      - generic [ref=e18]:
+        - link "BadgerSignal BadgerSignal" [ref=e19] [cursor=pointer]:
+          - /url: /en
+          - img "BadgerSignal" [ref=e21]
+          - generic [ref=e22]: BadgerSignal
+        - generic [ref=e23]:
+          - link "Home" [ref=e24] [cursor=pointer]:
+            - /url: /en
+          - link "Idea Generator" [ref=e25] [cursor=pointer]:
+            - /url: /en/ai-startup-idea-generator
+          - link "Validation" [ref=e26] [cursor=pointer]:
+            - /url: /en/saas-idea-validation
+          - link "Opportunity Analysis" [ref=e27] [cursor=pointer]:
+            - /url: /en/ai-business-opportunity-analysis
+          - link "Public Examples" [ref=e28] [cursor=pointer]:
+            - /url: /en/examples/ai-tools-for-freelancers
+      - generic [ref=e29]:
+        - 'button "Language: English" [ref=e30]':
+          - img
+          - generic [ref=e31]: English
+        - link "Start Analysis" [ref=e32] [cursor=pointer]:
+          - /url: /tools/product-insight
+  - main [ref=e34]:
+    - generic [ref=e35]:
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - img [ref=e46]
+              - paragraph [ref=e49]: AI startup research
+            - heading "Evaluate AI startup directions." [level=1] [ref=e50]
+            - paragraph [ref=e51]: BadgerSignal turns one product direction into 20+ evaluated opportunities, ranked workflows, and public sample reports so you can see value before any login wall.
+          - generic [ref=e52]:
+            - link "Start Analysis" [ref=e53] [cursor=pointer]:
+              - /url: /tools/product-insight
+              - generic [ref=e54]: Start Analysis
+              - img
+            - link "View Sample Report" [ref=e55] [cursor=pointer]:
+              - /url: /en/examples/ai-tools-for-freelancers
+              - generic [ref=e56]: View Sample Report
+        - article [ref=e60]:
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - generic [ref=e65]:
+                - paragraph [ref=e66]: What you get
+                - heading "Turn one direction into a ranked opportunity map" [level=3] [ref=e67]
+              - img [ref=e69]
+            - generic [ref=e73]:
+              - generic [ref=e75]:
+                - paragraph [ref=e76]: Layer 01
+                - generic [ref=e77]:
+                  - generic [ref=e78]: 20+
+                  - paragraph [ref=e81]: Product direction input
+                - generic [ref=e82]:
+                  - generic [ref=e83]:
+                    - generic [ref=e84]: "02"
+                    - paragraph [ref=e85]: Scoring dimensions and ranked opportunities
+                  - generic [ref=e86]:
+                    - generic [ref=e87]: "03"
+                    - paragraph [ref=e88]: Public sample reports before login
+              - generic [ref=e89]:
+                - generic [ref=e91]:
+                  - paragraph [ref=e93]: Layer 01
+                  - paragraph [ref=e95]: Product direction input
+                - generic [ref=e97]:
+                  - paragraph [ref=e99]: Layer 02
+                  - paragraph [ref=e101]: Scoring dimensions and ranked opportunities
+                - generic [ref=e103]:
+                  - paragraph [ref=e105]: Layer 03
+                  - paragraph [ref=e107]: Public sample reports before login
+        - generic [ref=e109]:
+          - generic [ref=e111]:
+            - term [ref=e112]: Evaluated opportunities
+            - definition [ref=e113]: 20+
+          - generic [ref=e115]:
+            - term [ref=e116]: Core workflows
+            - definition [ref=e117]: "3"
+          - generic [ref=e119]:
+            - term [ref=e120]: Public examples
+            - definition [ref=e121]: "5"
+      - generic [ref=e124]:
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - paragraph [ref=e127]: Choose your path
+            - heading "Start with the page that matches your next question." [level=2] [ref=e128]
+            - paragraph [ref=e129]: "Use the homepage as a decision hub: jump into a core workflow if you know what you need, or inspect a public sample report first if you want to see output quality before trying the product."
+          - generic [ref=e131]:
+            - paragraph [ref=e132]: Choose your path
+            - generic [ref=e133]:
+              - generic [ref=e134]:
+                - generic [ref=e135]: "01"
+                - generic [ref=e136]:
+                  - paragraph [ref=e137]: AI startup idea generator
+                  - paragraph [ref=e138]: Explore generator page
+              - generic [ref=e139]:
+                - generic [ref=e140]: "02"
+                - generic [ref=e141]:
+                  - paragraph [ref=e142]: SaaS idea validation
+                  - paragraph [ref=e143]: Open validation page
+              - generic [ref=e144]:
+                - generic [ref=e145]: "03"
+                - generic [ref=e146]:
+                  - paragraph [ref=e147]: AI business opportunity analysis
+                  - paragraph [ref=e148]: View analysis page
+        - generic [ref=e150]:
+          - article [ref=e151]:
+            - generic [ref=e153]:
+              - generic [ref=e154]:
+                - img [ref=e156]
+                - generic [ref=e160]:
+                  - heading "AI startup idea generator" [level=3] [ref=e161]
+                  - paragraph [ref=e162]: Explore startup directions from one product theme and compare which wedges look worth validating first.
+              - link "Explore generator page" [ref=e163] [cursor=pointer]:
+                - /url: /en/ai-startup-idea-generator
+                - generic [ref=e164]: Explore generator page
+                - img [ref=e165]
+          - article [ref=e167]:
+            - generic [ref=e169]:
+              - generic [ref=e170]:
+                - img [ref=e172]
+                - generic [ref=e176]:
+                  - heading "SaaS idea validation" [level=3] [ref=e177]
+                  - paragraph [ref=e178]: See how structured scoring helps narrow a SaaS direction before you spend time building the wrong thing.
+              - link "Open validation page" [ref=e179] [cursor=pointer]:
+                - /url: /en/saas-idea-validation
+                - generic [ref=e180]: Open validation page
+                - img [ref=e181]
+          - article [ref=e183]:
+            - generic [ref=e185]:
+              - generic [ref=e186]:
+                - img [ref=e188]
+                - generic [ref=e192]:
+                  - heading "AI business opportunity analysis" [level=3] [ref=e193]
+                  - paragraph [ref=e194]: Move from a broad market direction to a clearer read on which opportunity deserves the next step.
+              - link "View analysis page" [ref=e195] [cursor=pointer]:
+                - /url: /en/ai-business-opportunity-analysis
+                - generic [ref=e196]: View analysis page
+                - img [ref=e197]
+          - article [ref=e199]:
+            - generic [ref=e201]:
+              - generic [ref=e202]:
+                - img [ref=e204]
+                - generic [ref=e208]:
+                  - 'heading "Guide: validate an AI startup idea" [level=3] [ref=e209]'
+                  - paragraph [ref=e210]: Follow the practical validation sequence before you build, and see which questions matter before deeper product work.
+              - link "Open validation guide" [ref=e211] [cursor=pointer]:
+                - /url: /en/guides/how-to-validate-an-ai-startup-idea
+                - generic [ref=e212]: Open validation guide
+                - img [ref=e213]
+          - article [ref=e215]:
+            - generic [ref=e217]:
+              - generic [ref=e218]:
+                - img [ref=e220]
+                - generic [ref=e224]:
+                  - 'heading "Comparison: BadgerSignal vs ChatGPT" [level=3] [ref=e225]'
+                  - paragraph [ref=e226]: Compare generic prompting with structured validation before deciding which workflow matches your next decision.
+              - link "Open comparison page" [ref=e227] [cursor=pointer]:
+                - /url: /en/comparisons/badgersignal-vs-chatgpt-for-startup-idea-validation
+                - generic [ref=e228]: Open comparison page
+                - img [ref=e229]
+          - article [ref=e231]:
+            - generic [ref=e233]:
+              - generic [ref=e234]:
+                - img [ref=e236]
+                - generic [ref=e240]:
+                  - 'heading "Sample report: recruiters" [level=3] [ref=e241]'
+                  - paragraph [ref=e242]: Inspect a public recruiter workflow report before login and judge whether ranked hiring-operation wedges feel concrete enough.
+              - link "View recruiter sample" [ref=e243] [cursor=pointer]:
+                - /url: /en/examples/ai-tools-for-recruiters
+                - generic [ref=e244]: View recruiter sample
+                - img [ref=e245]
+          - article [ref=e247]:
+            - generic [ref=e249]:
+              - generic [ref=e250]:
+                - img [ref=e252]
+                - generic [ref=e256]:
+                  - 'heading "Guide: prioritize AI opportunities" [level=3] [ref=e257]'
+                  - paragraph [ref=e258]: Use a practical ranking method when you already see too many possible wedges and need to decide what deserves the next move.
+              - link "Open prioritization guide" [ref=e259] [cursor=pointer]:
+                - /url: /en/guides/how-to-prioritize-ai-business-opportunities
+                - generic [ref=e260]: Open prioritization guide
+                - img [ref=e261]
+          - article [ref=e263]:
+            - generic [ref=e265]:
+              - generic [ref=e266]:
+                - img [ref=e268]
+                - generic [ref=e272]:
+                  - 'heading "Sample report: agencies" [level=3] [ref=e273]'
+                  - paragraph [ref=e274]: Inspect a public agency workflow report built around delivery coordination, feedback loops, and margin-sensitive rework.
+              - link "View agency sample" [ref=e275] [cursor=pointer]:
+                - /url: /en/examples/ai-tools-for-agencies
+                - generic [ref=e276]: View agency sample
+                - img [ref=e277]
+          - article [ref=e279]:
+            - generic [ref=e281]:
+              - generic [ref=e282]:
+                - img [ref=e284]
+                - generic [ref=e288]:
+                  - 'heading "Guide: find an AI SaaS wedge" [level=3] [ref=e289]'
+                  - paragraph [ref=e290]: Learn how to narrow a broader AI direction into a sharper SaaS wedge before you build a tool that is too wide to validate.
+              - link "Open wedge guide" [ref=e291] [cursor=pointer]:
+                - /url: /en/guides/how-to-find-an-ai-saas-wedge
+                - generic [ref=e292]: Open wedge guide
+                - img [ref=e293]
+          - article [ref=e295]:
+            - generic [ref=e297]:
+              - generic [ref=e298]:
+                - img [ref=e300]
+                - generic [ref=e304]:
+                  - 'heading "Sample report: ecommerce operations" [level=3] [ref=e305]'
+                  - paragraph [ref=e306]: Inspect a public ecommerce-operations report built around catalog cleanup, support routing, and returns workflow drag.
+              - link "View ecommerce sample" [ref=e307] [cursor=pointer]:
+                - /url: /en/examples/ai-tools-for-ecommerce-operations
+                - generic [ref=e308]: View ecommerce sample
+                - img [ref=e309]
+      - generic [ref=e313]:
+        - generic [ref=e314]:
+          - generic [ref=e315]:
+            - paragraph [ref=e316]: Use the right public page
+            - heading "Use the homepage when you need orientation before choosing a workflow." [level=2] [ref=e317]
+            - paragraph [ref=e318]: The homepage is best when you do not yet know whether you need more ideas, sharper validation, or a public proof example. It helps you pick the right next page instead of dropping straight into the app.
+          - generic [ref=e320]:
+            - paragraph [ref=e321]: Use the right public page
+            - generic [ref=e322]:
+              - generic [ref=e323]:
+                - generic [ref=e324]: "01"
+                - paragraph [ref=e326]: Best for
+              - generic [ref=e327]:
+                - generic [ref=e328]: "02"
+                - paragraph [ref=e330]: Not for
+              - generic [ref=e331]:
+                - generic [ref=e332]: "03"
+                - paragraph [ref=e334]: Use it when
+        - generic [ref=e336]:
+          - article [ref=e337]:
+            - generic [ref=e340]:
+              - img [ref=e342]
+              - generic [ref=e347]:
+                - heading "Best for" [level=3] [ref=e348]
+                - paragraph [ref=e349]: Visitors comparing the overall product motion and deciding which public page fits their next question.
+          - article [ref=e350]:
+            - generic [ref=e353]:
+              - img [ref=e355]
+              - generic [ref=e360]:
+                - heading "Not for" [level=3] [ref=e361]
+                - paragraph [ref=e362]: People who already know they want one specific workflow and would be better served by opening that page directly.
+          - article [ref=e363]:
+            - generic [ref=e366]:
+              - img [ref=e368]
+              - generic [ref=e373]:
+                - heading "Use it when" [level=3] [ref=e374]
+                - paragraph [ref=e375]: You want a quick map of the public journey before committing to idea generation, validation, opportunity analysis, or sample reports.
+      - generic [ref=e378]:
+        - generic [ref=e379]:
+          - generic [ref=e380]:
+            - paragraph [ref=e381]: How it works
+            - heading "See the product workflow before you ever sign in." [level=2] [ref=e382]
+            - paragraph [ref=e383]: The homepage explains the motion from direction to ranked opportunity set so search visitors can understand the product without being pushed straight into the app.
+          - generic [ref=e385]:
+            - paragraph [ref=e386]: How it works
+            - generic [ref=e387]:
+              - generic [ref=e388]:
+                - generic [ref=e389]: Step 01
+                - paragraph [ref=e391]: Bring one product direction
+              - generic [ref=e392]:
+                - generic [ref=e393]: Step 02
+                - paragraph [ref=e395]: Review ranked opportunities
+              - generic [ref=e396]:
+                - generic [ref=e397]: Step 03
+                - paragraph [ref=e399]: Inspect scoring dimensions
+        - generic [ref=e401]:
+          - article [ref=e402]:
+            - generic [ref=e404]:
+              - generic [ref=e405]:
+                - paragraph [ref=e406]: Step 01
+                - generic [ref=e407]: "01"
+              - heading "Bring one product direction" [level=3] [ref=e408]
+              - paragraph [ref=e409]: Start with a market theme, user type, or product wedge you want to explore.
+          - article [ref=e411]:
+            - generic [ref=e413]:
+              - generic [ref=e414]:
+                - paragraph [ref=e415]: Step 02
+                - generic [ref=e416]: "02"
+              - heading "Review ranked opportunities" [level=3] [ref=e417]
+              - paragraph [ref=e418]: Compare a structured set of evaluated opportunities instead of collecting scattered ideas.
+          - article [ref=e420]:
+            - generic [ref=e422]:
+              - generic [ref=e423]:
+                - paragraph [ref=e424]: Step 03
+                - generic [ref=e425]: "03"
+              - heading "Inspect scoring dimensions" [level=3] [ref=e426]
+              - paragraph [ref=e427]: Use visible scoring logic and market-signal framing to understand why a direction stands out.
+          - article [ref=e429]:
+            - generic [ref=e431]:
+              - generic [ref=e432]:
+                - paragraph [ref=e433]: Step 04
+                - generic [ref=e434]: "04"
+              - heading "Continue with the strongest wedge" [level=3] [ref=e435]
+              - paragraph [ref=e436]: Take the next step with more confidence instead of guessing which opportunity to validate first.
+      - generic [ref=e442]:
+        - generic [ref=e443]:
+          - paragraph [ref=e444]: Ready to try it
+          - heading "Start with your own direction or review a public sample first." [level=2] [ref=e445]
+          - paragraph [ref=e446]: BadgerSignal is designed to show structure before friction. Enter your own direction when you are ready, or inspect a sample report to see how the workflow looks in practice.
+        - generic [ref=e448]:
+          - link "Start Analysis" [ref=e449] [cursor=pointer]:
+            - /url: /tools/product-insight
+            - generic [ref=e450]: Start Analysis
+            - img
+          - link "View Sample Report" [ref=e451] [cursor=pointer]:
+            - /url: /en/examples/ai-tools-for-freelancers
+            - generic [ref=e452]: View Sample Report
+  - contentinfo [ref=e453]:
+    - generic [ref=e454]:
+      - generic [ref=e457]:
+        - generic [ref=e458]:
+          - generic [ref=e459]:
+            - paragraph [ref=e460]: BadgerSignal
+            - paragraph [ref=e461]: Start Analysis
+            - paragraph [ref=e462]: Structured AI startup research with public examples, clearer workflows, and a faster path from search intent to product use.
+          - link "Start Analysis" [ref=e463] [cursor=pointer]:
+            - /url: /tools/product-insight
+            - generic [ref=e464]: Start Analysis
+            - img [ref=e465]
+        - generic [ref=e467]:
+          - generic [ref=e468]:
+            - paragraph [ref=e469]: Product
+            - generic [ref=e470]:
+              - link "Home" [ref=e471] [cursor=pointer]:
+                - /url: /en
+              - link "AI Startup Idea Generator" [ref=e472] [cursor=pointer]:
+                - /url: /en/ai-startup-idea-generator
+              - link "SaaS Idea Validation" [ref=e473] [cursor=pointer]:
+                - /url: /en/saas-idea-validation
+              - link "AI Opportunity Analysis" [ref=e474] [cursor=pointer]:
+                - /url: /en/ai-business-opportunity-analysis
+          - generic [ref=e475]:
+            - paragraph [ref=e476]: Examples
+            - generic [ref=e477]:
+              - link "Freelancer sample report" [ref=e478] [cursor=pointer]:
+                - /url: /en/examples/ai-tools-for-freelancers
+              - link "Small-business sample report" [ref=e479] [cursor=pointer]:
+                - /url: /en/examples/ai-tools-for-small-business
+          - generic [ref=e480]:
+            - paragraph [ref=e481]: Company
+            - generic [ref=e482]:
+              - link "Privacy Policy" [ref=e483] [cursor=pointer]:
+                - /url: /privacy
+              - link "Terms of Service" [ref=e484] [cursor=pointer]:
+                - /url: /terms
+      - paragraph [ref=e486]: © 2026 BadgerSignal. All rights reserved.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e492] [cursor=pointer]:
+    - img [ref=e493]
+  - alert [ref=e496]
