@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { ALL_SEO_LOCALES } from '@/lib/seo/locales'
 import {
+  getMarketingPageLocales,
   getMarketingPagePath,
   getSiteUrl,
   MARKETING_PAGE_KEYS,
@@ -30,14 +31,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date()
 
   return MARKETING_PAGE_KEYS.flatMap((pageKey) => {
+    const publishedLocales = getMarketingPageLocales(pageKey)
     const languages = Object.fromEntries(
-      ALL_SEO_LOCALES.map((locale) => [
+      publishedLocales.map((locale) => [
         locale,
         new URL(getMarketingPagePath(pageKey, locale), siteUrl).toString(),
       ])
     )
 
-    return ALL_SEO_LOCALES.map((locale) => ({
+    return publishedLocales.map((locale) => ({
       url: new URL(getMarketingPagePath(pageKey, locale), siteUrl).toString(),
       lastModified,
       changeFrequency: getPageChangeFrequency(pageKey),

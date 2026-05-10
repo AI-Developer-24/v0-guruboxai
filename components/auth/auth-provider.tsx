@@ -2,7 +2,11 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react"
 import type { User, Session } from "@supabase/supabase-js"
-import { supabase } from "@/lib/supabase"
+import {
+  clearSupabaseBrowserAuthState,
+  getSupabaseBrowserCookieNames,
+  supabase,
+} from "@/lib/supabase"
 import type { AppUser } from "@/lib/types"
 import { logger } from "@/lib/logger"
 
@@ -38,13 +42,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isLoadingUserRef = useRef(false)
   // Polling state
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
+  const hasAttemptedLocalRecoveryRef = useRef(false)
 
   const collectSupabaseCookieNames = useCallback(() => {
-    if (typeof document === 'undefined' || !document.cookie) return [] as string[]
-    return document.cookie
-      .split(';')
-      .map((cookie) => cookie.trim().split('=')[0])
-      .filter((name) => name.startsWith('sb-'))
+    return getSupabaseBrowserCookieNames()
   }, [])
 
   useEffect(() => {
@@ -192,6 +193,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
 
       try {
+        const recoverBrokenLocalSession = async (
+          reason: string,
+          error: unknown
+        ) => {
+          if (hasAttemptedLocalRecoveryRef.current) {
+            return
+          }
+
+          const existingCookies = collectSupabaseCookieNames()
+          if (existingCookies.length === 0) {
+            return
+          }
+
+          hasAttemptedLocalRecoveryRef.current = true
+          authLogger.warn('Recovering from broken local Supabase auth state', {
+            reason,
+            error: error instanceof Error ? error.message : String(error),
+            supabaseCookies: existingCookies,
+          })
+
+          try {
+            await supabase.auth.signOut({ scope: 'local' })
+          } catch (signOutError) {
+            authLogger.warn('Local Supabase signOut failed during recovery', {
+              error: signOutError instanceof Error ? signOutError.message : String(signOutError),
+            })
+          }
+
+          clearSupabaseBrowserAuthState()
+          currentUserIdRef.current = null
+          setSession(null)
+          setUser(null)
+        }
+
         // Use getSession() for fast local session check (no server validation)
         // onAuthStateChange will handle the actual auth state
         const { data: { session }, error } = await supabase.auth.getSession()
@@ -203,6 +238,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           error: error?.message,
           elapsedMs: elapsed,
         })
+
+        if (error) {
+          await recoverBrokenLocalSession('getSession_result_error', error)
+        }
 
         if (!mounted) {
           authLogger.debug('Component unmounted, aborting getInitialSession')
@@ -229,6 +268,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           error: error instanceof Error ? error.message : String(error),
           elapsedMs: elapsed,
         })
+        try {
+          const existingCookies = collectSupabaseCookieNames()
+          if (!hasAttemptedLocalRecoveryRef.current && existingCookies.length > 0) {
+            hasAttemptedLocalRecoveryRef.current = true
+            authLogger.warn('Clearing local Supabase auth state after session bootstrap exception', {
+              error: error instanceof Error ? error.message : String(error),
+              supabaseCookies: existingCookies,
+            })
+            try {
+              await supabase.auth.signOut({ scope: 'local' })
+            } catch (signOutError) {
+              authLogger.warn('Local Supabase signOut failed after bootstrap exception', {
+                error: signOutError instanceof Error ? signOutError.message : String(signOutError),
+              })
+            }
+            clearSupabaseBrowserAuthState()
+            currentUserIdRef.current = null
+            setSession(null)
+            setUser(null)
+          }
+        } catch {
+          // Ignore recovery errors and continue to clear loading state.
+        }
         if (mounted) {
           setLoading(false)
         }

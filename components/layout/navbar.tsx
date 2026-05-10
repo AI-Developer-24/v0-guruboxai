@@ -10,8 +10,12 @@ import { useI18n } from '@/components/i18n/i18n-provider'
 import type { Language } from '@/lib/types'
 import { LoginDialog } from '@/components/auth/login-dialog'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { getMarketingPagePath, type MarketingPageKey } from '@/lib/seo/metadata'
-import { ALL_SEO_LOCALES, getHtmlLang, type SeoLocale } from '@/lib/seo/locales'
+import {
+  getMarketingPageLocales,
+  getMarketingPagePath,
+  type MarketingPageKey,
+} from '@/lib/seo/metadata'
+import { getHtmlLang, type SeoLocale } from '@/lib/seo/locales'
 import {
   getMarketingRouteState,
   isExampleMarketingPage,
@@ -34,6 +38,11 @@ import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { translations } from '@/lib/translations'
 import { logger } from '@/lib/logger'
+import {
+  trackMarketingCtaClick,
+  trackMarketingLocaleSwitch,
+  trackMarketingLoginOpen,
+} from '@/lib/analytics/marketing-funnel'
 
 const navLogger = logger.withContext('Navbar')
 
@@ -132,6 +141,9 @@ export function Navbar() {
   const uiTranslations = translations[uiLocale] ?? translations.en
   const marketingCopy = MARKETING_COPY[marketingRoute.locale]
   const marketingPageKey = marketingRoute.pageKey ?? 'home'
+  const publishedMarketingLocales = getMarketingPageLocales(marketingPageKey)
+  const marketingChromeClass =
+    marketingRoute.isMarketingRoute && marketingRoute.locale === 'zh' ? 'marketing-zh-chrome' : undefined
   const marketingNavItems = [
     {
       label: marketingCopy.home,
@@ -174,6 +186,19 @@ export function Navbar() {
     }
     // Use translations directly with new locale to avoid stale closure
     toast.success(translations[newLocale]?.language_updated || 'Language updated')
+  }
+
+  const openMarketingLogin = (placement: string) => {
+    if (marketingRoute.pageKey) {
+      trackMarketingLoginOpen({
+        pageKey: marketingRoute.pageKey,
+        locale: marketingRoute.locale,
+        placement,
+        path: pathname ?? getMarketingPagePath(marketingRoute.pageKey, marketingRoute.locale),
+      })
+    }
+
+    setShowLogin(true)
   }
 
   const accountDropdown = (
@@ -233,7 +258,7 @@ export function Navbar() {
   )
 
   return (
-    <header className="glass-nav fixed top-0 right-0 left-0 z-50">
+    <header className={cn('glass-nav fixed top-0 right-0 left-0 z-50', marketingChromeClass)}>
       <nav className="mx-auto flex h-16 max-w-[78rem] items-center justify-between gap-4 px-5 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-5 lg:gap-8">
           <Link
@@ -253,7 +278,7 @@ export function Navbar() {
                 className="rounded-[0.95rem]"
               />
             </span>
-            <span className="text-[1.02rem] font-semibold tracking-[-0.05em] text-[var(--brand-ink)]">
+            <span className="marketing-brand-wordmark text-[1.02rem] font-semibold tracking-[-0.05em] text-[var(--brand-ink)]">
               Badger
               <span className="bg-gradient-to-r from-[var(--brand-gold)] to-[var(--brand-blue)] bg-clip-text text-transparent">
                 Signal
@@ -269,7 +294,7 @@ export function Navbar() {
                   href={item.href}
                   data-active={item.isActive}
                   className={cn(
-                    'marketing-nav-link px-2 py-2 text-[12px] font-medium tracking-[0.06em]'
+                    'marketing-nav-link marketing-nav-text px-2 py-2 text-[12px] font-medium tracking-[0.06em]'
                   )}
                 >
                   {item.label}
@@ -287,11 +312,11 @@ export function Navbar() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="marketing-cta-secondary hidden h-9 rounded-full px-3.5 text-sm text-[var(--brand-ink)] md:inline-flex"
+                    className="marketing-cta-secondary marketing-button-text hidden h-9 rounded-full px-3.5 text-sm text-[var(--brand-ink)] md:inline-flex"
                     aria-label={`${marketingCopy.localeSwitcherLabel}: ${SEO_LOCALE_LABELS[marketingRoute.locale]}`}
                   >
                     <Globe2 className="size-4" />
-                    <span className="max-w-[7.5rem] truncate text-sm">
+                    <span className="marketing-nav-text max-w-[7.5rem] truncate text-sm">
                       {SEO_LOCALE_LABELS[marketingRoute.locale]}
                     </span>
                   </Button>
@@ -301,16 +326,27 @@ export function Navbar() {
                   className="w-52 rounded-[1rem] border-[var(--line-soft)] bg-[linear-gradient(180deg,oklch(1_0_0_/_0.9),var(--surface-tint))] shadow-[0_24px_54px_oklch(0.18_0.02_250_/_0.08)] backdrop-blur-xl"
                 >
                   <DropdownMenuLabel>{marketingCopy.localeSwitcherLabel}</DropdownMenuLabel>
-                  {ALL_SEO_LOCALES.map((targetLocale) => {
+                  {publishedMarketingLocales.map((targetLocale) => {
                     const isActive = targetLocale === marketingRoute.locale
+                    const targetHref = getMarketingPagePath(marketingPageKey, targetLocale)
 
                     return (
                       <DropdownMenuItem key={targetLocale} asChild>
                         <Link
-                          href={getMarketingPagePath(marketingPageKey, targetLocale)}
+                          href={targetHref}
                           hrefLang={getHtmlLang(targetLocale)}
                           lang={getHtmlLang(targetLocale)}
                           className="flex items-center gap-2"
+                          onClick={() =>
+                            trackMarketingLocaleSwitch({
+                              pageKey: marketingPageKey,
+                              locale: marketingRoute.locale,
+                              fromLocale: marketingRoute.locale,
+                              toLocale: targetLocale,
+                              destinationHref: targetHref,
+                              placement: 'navbar_desktop',
+                            })
+                          }
                         >
                           <span className="flex-1">{SEO_LOCALE_LABELS[targetLocale]}</span>
                           {isActive ? <Check className="size-4" /> : null}
@@ -325,14 +361,29 @@ export function Navbar() {
                 size="sm"
                 className="marketing-cta-primary text-background hidden h-9 rounded-full px-4 text-sm sm:inline-flex"
               >
-                <Link href="/tools/product-insight">{marketingCopy.startAnalysis}</Link>
+                <Link
+                  href="/tools/product-insight"
+                  className="marketing-button-text"
+                  onClick={() =>
+                    trackMarketingCtaClick({
+                      pageKey: marketingPageKey,
+                      locale: marketingRoute.locale,
+                      placement: 'navbar_primary',
+                      actionLabel: marketingCopy.startAnalysis,
+                      destinationHref: '/tools/product-insight',
+                      actionKind: 'primary',
+                    })
+                  }
+                >
+                  {marketingCopy.startAnalysis}
+                </Link>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
                     size="icon"
-                    className="marketing-cta-secondary size-9 rounded-full text-[var(--brand-ink)] lg:hidden"
+                    className="marketing-cta-secondary marketing-button-text size-9 rounded-full text-[var(--brand-ink)] lg:hidden"
                     aria-label={marketingCopy.menuLabel}
                   >
                     <Menu className="size-4" />
@@ -349,23 +400,51 @@ export function Navbar() {
                     </DropdownMenuItem>
                   ))}
                   <DropdownMenuSeparator />
-                  {ALL_SEO_LOCALES.map((targetLocale) => (
-                    <DropdownMenuItem key={targetLocale} asChild>
-                      <Link
-                        href={getMarketingPagePath(marketingPageKey, targetLocale)}
-                        hrefLang={getHtmlLang(targetLocale)}
-                        lang={getHtmlLang(targetLocale)}
-                      >
-                        {SEO_LOCALE_LABELS[targetLocale]}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
+                  {publishedMarketingLocales.map((targetLocale) => {
+                    const targetHref = getMarketingPagePath(marketingPageKey, targetLocale)
+
+                    return (
+                      <DropdownMenuItem key={targetLocale} asChild>
+                        <Link
+                          href={targetHref}
+                          hrefLang={getHtmlLang(targetLocale)}
+                          lang={getHtmlLang(targetLocale)}
+                          onClick={() =>
+                            trackMarketingLocaleSwitch({
+                              pageKey: marketingPageKey,
+                              locale: marketingRoute.locale,
+                              fromLocale: marketingRoute.locale,
+                              toLocale: targetLocale,
+                              destinationHref: targetHref,
+                              placement: 'navbar_mobile',
+                            })
+                          }
+                        >
+                          {SEO_LOCALE_LABELS[targetLocale]}
+                        </Link>
+                      </DropdownMenuItem>
+                    )
+                  })}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/tools/product-insight">{marketingCopy.startAnalysis}</Link>
+                    <Link
+                      href="/tools/product-insight"
+                      onClick={() =>
+                        trackMarketingCtaClick({
+                          pageKey: marketingPageKey,
+                          locale: marketingRoute.locale,
+                          placement: 'navbar_mobile_primary',
+                          actionLabel: marketingCopy.startAnalysis,
+                          destinationHref: '/tools/product-insight',
+                          actionKind: 'primary',
+                        })
+                      }
+                    >
+                      {marketingCopy.startAnalysis}
+                    </Link>
                   </DropdownMenuItem>
                   {!isLoggedIn ? (
-                    <DropdownMenuItem onClick={() => setShowLogin(true)}>
+                    <DropdownMenuItem onClick={() => openMarketingLogin('navbar_mobile_login')}>
                       {uiTranslations.nav_login}
                     </DropdownMenuItem>
                   ) : null}
@@ -382,8 +461,8 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setShowLogin(true)}
-              className="text-muted-foreground hidden text-[13px] font-medium hover:text-[var(--brand-ink)] lg:inline-flex"
+              onClick={() => openMarketingLogin('navbar_desktop_login')}
+              className="marketing-login-text text-muted-foreground hidden text-[13px] font-medium hover:text-[var(--brand-ink)] lg:inline-flex"
             >
               {uiTranslations.nav_login}
             </Button>
@@ -400,7 +479,21 @@ export function Navbar() {
         </div>
       </nav>
 
-      <LoginDialog open={showLogin} onOpenChange={setShowLogin} />
+      <LoginDialog
+        open={showLogin}
+        onOpenChange={setShowLogin}
+        trackingSource={
+          marketingRoute.isMarketingRoute
+            ? {
+                surface: 'marketing_navbar',
+                currentPath:
+                  pathname ?? getMarketingPagePath(marketingPageKey, marketingRoute.locale),
+                locale: marketingRoute.locale,
+                sourcePageKey: marketingPageKey,
+              }
+            : undefined
+        }
+      />
     </header>
   )
 }

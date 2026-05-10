@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { ArrowRight, Loader2 } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
 import { useI18n } from "@/components/i18n/i18n-provider"
@@ -10,8 +10,13 @@ import { Button } from "@/components/ui/button"
 import { SUGGESTION_KEYS } from "@/lib/constants"
 import { api, ApiError } from "@/lib/api/client"
 import { toast } from "sonner"
-import Link from "next/link"
 import { logger } from "@/lib/logger"
+import {
+  clearMarketingAttribution,
+  trackProductAnalysisStarted,
+  trackProductAnalysisSubmit,
+  trackProductLoginOpen,
+} from "@/lib/analytics/marketing-funnel"
 
 const inputLogger = logger.withContext('InputSection')
 
@@ -21,8 +26,9 @@ export function InputSection() {
   const [pendingStart, setPendingStart] = useState(false)
   const [loading, setLoading] = useState(false)
   const { user, loading: authLoading } = useAuth()
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const router = useRouter()
+  const pathname = usePathname()
 
   // Use ref to track previous user state and avoid stale closures
   const prevUserRef = useRef<typeof user>(null)
@@ -41,6 +47,12 @@ export function InputSection() {
   // Function to start analysis (doesn't depend on user directly)
   const startAnalysis = useCallback(async (inputText: string, userId: string) => {
     setLoading(true)
+    trackProductAnalysisSubmit({
+      currentPath: pathname ?? '/tools/product-insight',
+      locale,
+      inputLength: inputText.trim().length,
+      authState: 'logged_in',
+    })
 
     try {
       inputLogger.debug('Starting analysis request', {
@@ -54,6 +66,12 @@ export function InputSection() {
       )
 
       inputLogger.info('Analysis started successfully', response)
+      trackProductAnalysisStarted({
+        currentPath: pathname ?? '/tools/product-insight',
+        locale,
+        inputLength: inputText.trim().length,
+      })
+      clearMarketingAttribution()
 
       toast.success(t("analysis_started") || "Analysis started!")
 
@@ -86,7 +104,7 @@ export function InputSection() {
     } finally {
       setLoading(false)
     }
-  }, [router, t])
+  }, [locale, pathname, router, t])
 
   // Continue analysis after successful login
   useEffect(() => {
@@ -117,6 +135,17 @@ export function InputSection() {
 
     if (!user) {
       inputLogger.debug('No user, showing login dialog')
+      trackProductAnalysisSubmit({
+        currentPath: pathname ?? '/tools/product-insight',
+        locale,
+        inputLength: input.trim().length,
+        authState: 'requires_login',
+      })
+      trackProductLoginOpen({
+        currentPath: pathname ?? '/tools/product-insight',
+        locale,
+        surface: 'tool_input',
+      })
       setPendingStart(true)
       setShowLogin(true)
       return
@@ -191,6 +220,11 @@ export function InputSection() {
       <LoginDialog
         open={showLogin}
         onOpenChange={setShowLogin}
+        trackingSource={{
+          surface: 'tool_input',
+          currentPath: pathname ?? '/tools/product-insight',
+          locale,
+        }}
       />
     </div>
   )

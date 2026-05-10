@@ -1,26 +1,12 @@
 import { notFound } from 'next/navigation'
 
 export const ALL_SEO_LOCALES = ['en', 'zh', 'de', 'fr', 'it', 'es', 'pt'] as const
-
-export const ACTIVE_SEO_LOCALES = ['en', 'zh'] as const
+export const SEO_LOCALE_COOKIE_NAME = 'badgersignal_locale'
 
 export type SeoLocale = (typeof ALL_SEO_LOCALES)[number]
-export type ActiveSeoLocale = (typeof ACTIVE_SEO_LOCALES)[number]
 
 export function isSeoLocale(value: string): value is SeoLocale {
   return ALL_SEO_LOCALES.includes(value as SeoLocale)
-}
-
-export function isActiveSeoLocale(value: string): value is ActiveSeoLocale {
-  return ACTIVE_SEO_LOCALES.includes(value as ActiveSeoLocale)
-}
-
-export function getActiveSeoLocaleOrThrow(value: string): ActiveSeoLocale {
-  if (!isActiveSeoLocale(value)) {
-    notFound()
-  }
-
-  return value
 }
 
 export function getSeoLocaleOrThrow(value: string): SeoLocale {
@@ -31,18 +17,72 @@ export function getSeoLocaleOrThrow(value: string): SeoLocale {
   return value
 }
 
-export function getActiveSeoLocaleOrFallback(
-  value: string,
-  fallback: ActiveSeoLocale = 'en'
-): ActiveSeoLocale {
-  return isActiveSeoLocale(value) ? value : fallback
-}
-
 export function getSeoLocaleOrFallback(
   value: string,
   fallback: SeoLocale = 'en'
 ): SeoLocale {
   return isSeoLocale(value) ? value : fallback
+}
+
+function resolveLocaleToken(token: string): SeoLocale | null {
+  const normalized = token.trim().toLowerCase()
+
+  if (!normalized) {
+    return null
+  }
+
+  const baseLocale = normalized.split('-')[0]
+  return isSeoLocale(baseLocale) ? baseLocale : null
+}
+
+export function getSeoLocaleFromAcceptLanguage(
+  acceptLanguageHeader: string | null | undefined
+): SeoLocale | null {
+  if (!acceptLanguageHeader) {
+    return null
+  }
+
+  const candidates = acceptLanguageHeader
+    .split(',')
+    .map((entry) => {
+      const [token, qValue] = entry.trim().split(';q=')
+      const quality = qValue ? Number.parseFloat(qValue) : 1
+
+      return {
+        locale: resolveLocaleToken(token),
+        quality: Number.isFinite(quality) ? quality : 0,
+      }
+    })
+    .filter((candidate): candidate is { locale: SeoLocale; quality: number } => !!candidate.locale)
+    .sort((left, right) => right.quality - left.quality)
+
+  return candidates[0]?.locale ?? null
+}
+
+export function resolvePreferredSeoLocale({
+  savedPreference,
+  acceptLanguage,
+  fallback = 'en',
+}: {
+  savedPreference?: string | null
+  acceptLanguage?: string | null
+  fallback?: SeoLocale
+}): SeoLocale {
+  if (savedPreference && isSeoLocale(savedPreference)) {
+    return savedPreference
+  }
+
+  return getSeoLocaleFromAcceptLanguage(acceptLanguage) ?? fallback
+}
+
+export function isCrawlerUserAgent(userAgent: string | null | undefined): boolean {
+  if (!userAgent) {
+    return false
+  }
+
+  return /bot|crawl|spider|slurp|bingpreview|facebookexternalhit|linkedinbot|slackbot|whatsapp|discordbot|google-inspectiontool/i.test(
+    userAgent
+  )
 }
 
 export function getHtmlLang(locale: SeoLocale): string {

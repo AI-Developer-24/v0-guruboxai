@@ -6,6 +6,7 @@ import {
   PublicExampleTemplate,
 } from '@/components/marketing/marketing-page-templates'
 import { getMarketingPageContent } from '@/lib/marketing-content'
+import { buildMarketingStructuredData } from '@/lib/seo/structured-data'
 
 interface RouteScaffoldPageProps {
   locale: SeoLocale
@@ -17,14 +18,55 @@ export function RouteScaffoldPage({
   pageKey,
 }: RouteScaffoldPageProps) {
   const content = getMarketingPageContent(locale, pageKey)
+  const structuredData = buildMarketingStructuredData(locale, pageKey, content)
+  const scopeClassName = locale === 'zh' ? 'marketing-zh-scope' : undefined
 
   if (content.templateKind === 'home') {
-    return <HomepageTemplate locale={locale} {...content.props} />
+    return (
+      <>
+        {structuredData.map((entry, index) => (
+          <script
+            key={`${pageKey}-schema-${index}`}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(entry) }}
+          />
+        ))}
+        <div className={scopeClassName}>
+          <HomepageTemplate locale={locale} pageKey={pageKey} {...content.props} />
+        </div>
+      </>
+    )
   }
 
   if (content.templateKind === 'core') {
-    return <CoreLandingTemplate locale={locale} {...content.props} />
+    return (
+      <>
+        {structuredData.map((entry, index) => (
+          <script
+            key={`${pageKey}-schema-${index}`}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(entry) }}
+          />
+        ))}
+        <div className={scopeClassName}>
+          <CoreLandingTemplate locale={locale} pageKey={pageKey} {...content.props} />
+        </div>
+      </>
+    )
   }
 
-  return <PublicExampleTemplate locale={locale} {...content.props} />
+  return (
+    <>
+      {structuredData.map((entry, index) => (
+        <script
+          key={`${pageKey}-schema-${index}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(entry) }}
+        />
+      ))}
+      <div className={scopeClassName}>
+        <PublicExampleTemplate locale={locale} pageKey={pageKey} {...content.props} />
+      </div>
+    </>
+  )
 }

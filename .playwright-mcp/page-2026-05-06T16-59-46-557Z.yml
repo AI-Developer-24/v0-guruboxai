@@ -1,0 +1,311 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e16]:
+    - navigation [ref=e17]:
+      - generic [ref=e18]:
+        - link "BadgerSignal BadgerSignal" [ref=e19] [cursor=pointer]:
+          - /url: /en
+          - img "BadgerSignal" [ref=e21]
+          - generic [ref=e22]: BadgerSignal
+        - generic [ref=e23]:
+          - link "Home" [ref=e24] [cursor=pointer]:
+            - /url: /en
+          - link "Idea Generator" [ref=e25] [cursor=pointer]:
+            - /url: /en/ai-startup-idea-generator
+          - link "Validation" [ref=e26] [cursor=pointer]:
+            - /url: /en/saas-idea-validation
+          - link "Opportunity Analysis" [ref=e27] [cursor=pointer]:
+            - /url: /en/ai-business-opportunity-analysis
+          - link "Public Examples" [ref=e28] [cursor=pointer]:
+            - /url: /en/examples/ai-tools-for-freelancers
+      - generic [ref=e29]:
+        - 'button "Language: English" [ref=e30]':
+          - img
+          - generic [ref=e31]: English
+        - link "Start Analysis" [ref=e32] [cursor=pointer]:
+          - /url: /tools/product-insight
+  - main [ref=e34]:
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - img [ref=e45]
+            - paragraph [ref=e48]: How-to guide
+          - heading "Validate an AI startup idea before you build." [level=1] [ref=e49]
+          - paragraph [ref=e50]: Use a practical validation workflow to narrow the market, inspect repeated pain, and decide whether an AI startup wedge deserves deeper work.
+        - generic [ref=e51]:
+          - link "Start Analysis" [ref=e52] [cursor=pointer]:
+            - /url: /tools/product-insight
+            - generic [ref=e53]: Start Analysis
+            - img
+          - link "View Sample Report" [ref=e54] [cursor=pointer]:
+            - /url: /en/examples/ai-tools-for-freelancers
+            - generic [ref=e55]: View Sample Report
+      - article [ref=e58]:
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - paragraph [ref=e64]: How-to validation
+            - img [ref=e66]
+          - generic [ref=e73]:
+            - generic [ref=e75]:
+              - paragraph [ref=e77]: Idea maturity
+              - paragraph [ref=e79]: Direction-first
+            - generic [ref=e81]:
+              - paragraph [ref=e83]: Pain test
+              - paragraph [ref=e85]: Repeated
+            - generic [ref=e87]:
+              - paragraph [ref=e89]: Next action
+              - paragraph [ref=e91]: Validation-ready
+    - generic [ref=e94]:
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - paragraph [ref=e97]: Why this guide exists
+          - heading "Most founders do not fail because they cannot generate ideas. They fail because they validate too late, too broadly, or against the wrong pain." [level=2] [ref=e98]
+          - paragraph [ref=e99]: "This guide is designed for visitors who need a practical method before they build. It turns AI startup validation into a sequence: narrow the space, test repeated pain, compare wedges, and leave with a cleaner next action."
+        - generic [ref=e101]:
+          - paragraph [ref=e102]: Why this guide exists
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - generic [ref=e105]: "01"
+              - paragraph [ref=e107]: Start with a bounded market
+            - generic [ref=e108]:
+              - generic [ref=e109]: "02"
+              - paragraph [ref=e111]: Look for repeated, paid pain
+            - generic [ref=e112]:
+              - generic [ref=e113]: "03"
+              - paragraph [ref=e115]: Pick the next test, not the final answer
+      - generic [ref=e117]:
+        - article [ref=e118]:
+          - generic [ref=e121]:
+            - img [ref=e123]
+            - generic [ref=e126]:
+              - heading "Start with a bounded market" [level=3] [ref=e127]
+              - paragraph [ref=e128]: Validation works better when the market slice is narrow enough to describe one buyer, one workflow, and one repeated operational pain.
+        - article [ref=e129]:
+          - generic [ref=e132]:
+            - img [ref=e134]
+            - generic [ref=e137]:
+              - heading "Look for repeated, paid pain" [level=3] [ref=e138]
+              - paragraph [ref=e139]: The strongest wedge is rarely the most novel idea. It is the one tied to recurring work, visible consequences, and believable willingness to pay.
+        - article [ref=e140]:
+          - generic [ref=e143]:
+            - img [ref=e145]
+            - generic [ref=e148]:
+              - heading "Pick the next test, not the final answer" [level=3] [ref=e149]
+              - paragraph [ref=e150]: Good validation should tell you what deserves deeper research now, not create a false sense of certainty before customer work happens.
+    - generic [ref=e153]:
+      - generic [ref=e154]:
+        - generic [ref=e155]:
+          - paragraph [ref=e156]: Best fit
+          - heading "Use this guide when you need a validation method before you sink more time into one AI startup wedge." [level=2] [ref=e157]
+          - paragraph [ref=e158]: This page is best for founders and operators who already have a direction in mind but still need a better way to judge whether the pain, buyer, and workflow are strong enough to keep exploring.
+        - generic [ref=e160]:
+          - paragraph [ref=e161]: Best fit
+          - generic [ref=e162]:
+            - generic [ref=e163]:
+              - generic [ref=e164]: "01"
+              - paragraph [ref=e166]: Best for
+            - generic [ref=e167]:
+              - generic [ref=e168]: "02"
+              - paragraph [ref=e170]: Not for
+            - generic [ref=e171]:
+              - generic [ref=e172]: "03"
+              - paragraph [ref=e174]: Use it when
+      - generic [ref=e176]:
+        - article [ref=e177]:
+          - generic [ref=e180]:
+            - img [ref=e182]
+            - generic [ref=e187]:
+              - heading "Best for" [level=3] [ref=e188]
+              - paragraph [ref=e189]: People who already see a possible market or wedge and want a repeatable way to decide whether it deserves interviews, scoping, or product time.
+        - article [ref=e190]:
+          - generic [ref=e193]:
+            - img [ref=e195]
+            - generic [ref=e200]:
+              - heading "Not for" [level=3] [ref=e201]
+              - paragraph [ref=e202]: Visitors who still need a much wider idea set before they can compare candidate wedges at all.
+        - article [ref=e203]:
+          - generic [ref=e206]:
+            - img [ref=e208]
+            - generic [ref=e213]:
+              - heading "Use it when" [level=3] [ref=e214]
+              - paragraph [ref=e215]: You want to stop guessing and move through a cleaner validation sequence before building or over-researching the wrong idea.
+    - generic [ref=e218]:
+      - generic [ref=e219]:
+        - generic [ref=e220]:
+          - paragraph [ref=e221]: Input and outcome
+          - heading "A good validation input names one buyer, one workflow, and one pain that happens often enough to matter." [level=2] [ref=e222]
+          - paragraph [ref=e223]: "The goal is not to prove the whole business in one shot. The goal is to turn a vague AI startup direction into a better next move: keep going, tighten the wedge, or walk away."
+        - generic [ref=e225]:
+          - paragraph [ref=e226]: Input and outcome
+          - generic [ref=e227]:
+            - generic [ref=e228]:
+              - generic [ref=e229]: "01"
+              - paragraph [ref=e231]: Whether the pain is repeated enough to support a real product wedge instead of a nice-to-have feature.
+            - generic [ref=e232]:
+              - generic [ref=e233]: "02"
+              - paragraph [ref=e235]: Whether one buyer and one workflow stand out strongly enough to justify deeper interviews or scoping.
+            - generic [ref=e236]:
+              - generic [ref=e237]: "03"
+              - paragraph [ref=e239]: Whether the next step should be tighter validation, a broader opportunity map, or abandoning the direction early.
+      - generic [ref=e241]:
+        - article [ref=e242]:
+          - generic [ref=e244]:
+            - paragraph [ref=e245]: Example starting point
+            - generic [ref=e246]:
+              - paragraph [ref=e249]: An AI workflow for recruiters who turn interview notes into candidate summaries and next actions.
+              - paragraph [ref=e252]: A tool for solo consultants who lose billable time after every client call because follow-up is manual.
+              - paragraph [ref=e255]: A product direction for small-business owners who send custom quotes but lose deals during slow follow-up.
+        - article [ref=e256]:
+          - generic [ref=e258]:
+            - paragraph [ref=e259]: What a good validation pass should clarify
+            - generic [ref=e260]:
+              - paragraph [ref=e263]: Whether the pain is repeated enough to support a real product wedge instead of a nice-to-have feature.
+              - paragraph [ref=e266]: Whether one buyer and one workflow stand out strongly enough to justify deeper interviews or scoping.
+              - paragraph [ref=e269]: Whether the next step should be tighter validation, a broader opportunity map, or abandoning the direction early.
+    - generic [ref=e272]:
+      - generic [ref=e273]:
+        - generic [ref=e274]:
+          - paragraph [ref=e275]: FAQ
+          - heading "Questions people ask when learning how to validate an AI startup idea" [level=2] [ref=e276]
+          - paragraph [ref=e277]: These answers help visitors understand how validation differs from ideation, what “good enough to test” means, and where structured workflows fit.
+        - generic [ref=e279]:
+          - paragraph [ref=e280]: FAQ
+          - generic [ref=e281]:
+            - generic [ref=e282]:
+              - generic [ref=e283]: Q1
+              - paragraph [ref=e285]: What is the first thing I should validate in an AI startup idea?
+            - generic [ref=e286]:
+              - generic [ref=e287]: Q2
+              - paragraph [ref=e289]: How do I know whether a wedge is still too broad?
+            - generic [ref=e290]:
+              - generic [ref=e291]: Q3
+              - paragraph [ref=e293]: Should I validate with ChatGPT prompts alone?
+      - generic [ref=e295]:
+        - article [ref=e296]:
+          - generic [ref=e298]:
+            - heading "What is the first thing I should validate in an AI startup idea?" [level=3] [ref=e299]
+            - paragraph [ref=e300]: Start by validating that the pain is repeated, expensive enough to matter, and narrow enough to tie to one buyer and one workflow before you worry about broad market stories.
+        - article [ref=e301]:
+          - generic [ref=e303]:
+            - heading "How do I know whether a wedge is still too broad?" [level=3] [ref=e304]
+            - paragraph [ref=e305]: If the same pitch could apply to many buyer types, many workflows, or many pains at once, the wedge is still too broad. Validation gets stronger when the context becomes easier to explain in one sentence.
+        - article [ref=e306]:
+          - generic [ref=e308]:
+            - heading "Should I validate with ChatGPT prompts alone?" [level=3] [ref=e309]
+            - paragraph [ref=e310]: Generic prompting can help surface risks, but it rarely creates a stable comparison frame. A structured workflow is more useful when you want to judge several validation signals together and leave with one next move.
+        - article [ref=e311]:
+          - generic [ref=e313]:
+            - heading "When should I move from this guide into the product?" [level=3] [ref=e314]
+            - paragraph [ref=e315]: Move into the product as soon as you have a direction worth pressure-testing. The guide teaches the sequence; the product helps you apply it with ranked outputs and clearer trade-offs.
+    - generic [ref=e318]:
+      - generic [ref=e319]:
+        - generic [ref=e320]:
+          - paragraph [ref=e321]: Keep exploring
+          - heading "Move to the next page that sharpens your decision." [level=2] [ref=e322]
+          - paragraph [ref=e323]: Each core workflow should connect to the homepage, a neighboring workflow, and at least one public sample so visitors can keep narrowing the decision without hitting a dead end.
+        - generic [ref=e325]:
+          - paragraph [ref=e326]: Keep exploring
+          - generic [ref=e327]:
+            - generic [ref=e328]:
+              - generic [ref=e329]: "01"
+              - generic [ref=e330]:
+                - paragraph [ref=e331]: SaaS idea validation
+                - paragraph [ref=e332]: Open validation workflow
+            - generic [ref=e333]:
+              - generic [ref=e334]: "02"
+              - generic [ref=e335]:
+                - paragraph [ref=e336]: BadgerSignal vs ChatGPT
+                - paragraph [ref=e337]: View comparison
+            - generic [ref=e338]:
+              - generic [ref=e339]: "03"
+              - generic [ref=e340]:
+                - paragraph [ref=e341]: Recruiter sample report
+                - paragraph [ref=e342]: View recruiter sample
+      - generic [ref=e344]:
+        - article [ref=e345]:
+          - generic [ref=e347]:
+            - generic [ref=e348]:
+              - img [ref=e350]
+              - generic [ref=e354]:
+                - heading "SaaS idea validation" [level=3] [ref=e355]
+                - paragraph [ref=e356]: Jump into the tighter workflow that pressure-tests one candidate wedge more directly.
+            - link "Open validation workflow" [ref=e357] [cursor=pointer]:
+              - /url: /en/saas-idea-validation
+              - generic [ref=e358]: Open validation workflow
+              - img [ref=e359]
+        - article [ref=e361]:
+          - generic [ref=e363]:
+            - generic [ref=e364]:
+              - img [ref=e366]
+              - generic [ref=e370]:
+                - heading "BadgerSignal vs ChatGPT" [level=3] [ref=e371]
+                - paragraph [ref=e372]: Compare structured validation against generic prompting before choosing which path to use next.
+            - link "View comparison" [ref=e373] [cursor=pointer]:
+              - /url: /en/comparisons/badgersignal-vs-chatgpt-for-startup-idea-validation
+              - generic [ref=e374]: View comparison
+              - img [ref=e375]
+        - article [ref=e377]:
+          - generic [ref=e379]:
+            - generic [ref=e380]:
+              - img [ref=e382]
+              - generic [ref=e386]:
+                - heading "Recruiter sample report" [level=3] [ref=e387]
+                - paragraph [ref=e388]: Read a public recruiter report to see what ranked validation output looks like before login.
+            - link "View recruiter sample" [ref=e389] [cursor=pointer]:
+              - /url: /en/examples/ai-tools-for-recruiters
+              - generic [ref=e390]: View recruiter sample
+              - img [ref=e391]
+    - generic [ref=e397]:
+      - generic [ref=e398]:
+        - paragraph [ref=e399]: Apply the method
+        - heading "Run your own AI startup direction through a structured validation workflow." [level=2] [ref=e400]
+        - paragraph [ref=e401]: Use the guide to sharpen your thinking, then move into the product to test one direction with visible scoring, ranked outputs, and a cleaner next decision.
+      - generic [ref=e403]:
+        - link "Start Analysis" [ref=e404] [cursor=pointer]:
+          - /url: /tools/product-insight
+          - generic [ref=e405]: Start Analysis
+          - img
+        - link "View Recruiter Sample" [ref=e406] [cursor=pointer]:
+          - /url: /en/examples/ai-tools-for-recruiters
+          - generic [ref=e407]: View Recruiter Sample
+  - contentinfo [ref=e408]:
+    - generic [ref=e409]:
+      - generic [ref=e412]:
+        - generic [ref=e413]:
+          - generic [ref=e414]:
+            - paragraph [ref=e415]: BadgerSignal
+            - paragraph [ref=e416]: Start Analysis
+            - paragraph [ref=e417]: Structured AI startup research with public examples, clearer workflows, and a faster path from search intent to product use.
+          - link "Start Analysis" [ref=e418] [cursor=pointer]:
+            - /url: /tools/product-insight
+            - generic [ref=e419]: Start Analysis
+            - img [ref=e420]
+        - generic [ref=e422]:
+          - generic [ref=e423]:
+            - paragraph [ref=e424]: Product
+            - generic [ref=e425]:
+              - link "Home" [ref=e426] [cursor=pointer]:
+                - /url: /en
+              - link "AI Startup Idea Generator" [ref=e427] [cursor=pointer]:
+                - /url: /en/ai-startup-idea-generator
+              - link "SaaS Idea Validation" [ref=e428] [cursor=pointer]:
+                - /url: /en/saas-idea-validation
+              - link "AI Opportunity Analysis" [ref=e429] [cursor=pointer]:
+                - /url: /en/ai-business-opportunity-analysis
+          - generic [ref=e430]:
+            - paragraph [ref=e431]: Examples
+            - generic [ref=e432]:
+              - link "Freelancer sample report" [ref=e433] [cursor=pointer]:
+                - /url: /en/examples/ai-tools-for-freelancers
+              - link "Small-business sample report" [ref=e434] [cursor=pointer]:
+                - /url: /en/examples/ai-tools-for-small-business
+          - generic [ref=e435]:
+            - paragraph [ref=e436]: Company
+            - generic [ref=e437]:
+              - link "Privacy Policy" [ref=e438] [cursor=pointer]:
+                - /url: /privacy
+              - link "Terms of Service" [ref=e439] [cursor=pointer]:
+                - /url: /terms
+      - paragraph [ref=e441]: © 2026 BadgerSignal. All rights reserved.
+  - region "Notifications alt+T"
+  - alert [ref=e442]

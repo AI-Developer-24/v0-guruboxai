@@ -1,6 +1,24 @@
 import { supabase } from './supabase'
 import type { User } from './types'
 
+function getAuthRedirectUrl(pathname: string): string {
+  const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL?.trim()
+
+  if (configuredAppUrl) {
+    try {
+      return new URL(pathname, configuredAppUrl).toString()
+    } catch {
+      // Fall through to local/browser-safe fallback below.
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    return new URL(pathname, window.location.origin).toString()
+  }
+
+  return new URL(pathname, 'http://localhost:3000').toString()
+}
+
 /**
  * Sign in with Google OAuth
  */
@@ -8,7 +26,7 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      redirectTo: getAuthRedirectUrl('/auth/callback'),
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',

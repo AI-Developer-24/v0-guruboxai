@@ -79,6 +79,31 @@ export interface ValidationResult {
   warnings: string[]
 }
 
+function normalizeAbsoluteUrl(rawUrl: string | undefined): URL | null {
+  if (!rawUrl?.trim()) {
+    return null
+  }
+
+  try {
+    return new URL(rawUrl)
+  } catch {
+    return null
+  }
+}
+
+function isLocalHostname(hostname: string): boolean {
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0' || hostname === '::1'
+}
+
+function shouldEnforceProductionRules(): boolean {
+  return (
+    isProduction ||
+    process.env.VERCEL_ENV === 'production' ||
+    process.env.APP_ENV === 'production' ||
+    process.env.DEPLOYMENT_ENV === 'production'
+  )
+}
+
 /**
  * 验证必需环境变量
  * 在应用启动时调用
@@ -94,24 +119,64 @@ export function validateEnv(): ValidationResult {
     }
   }
 
+  const enforceProductionRules = shouldEnforceProductionRules()
+  const redisUrl = process.env.REDIS_URL
+  const nextauthUrl = process.env.NEXTAUTH_URL
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL
+  const normalizedAuthUrl = normalizeAbsoluteUrl(nextauthUrl)
+  const normalizedAppUrl = normalizeAbsoluteUrl(appUrl)
+
+  if (redisUrl && !normalizeAbsoluteUrl(redisUrl)) {
+    errors.push('REDIS_URL must be a valid absolute URL')
+  }
+
+  if (nextauthUrl && !normalizedAuthUrl) {
+    errors.push('NEXTAUTH_URL must be a valid absolute URL')
+  }
+
+  if (appUrl && !normalizedAppUrl) {
+    errors.push('NEXT_PUBLIC_APP_URL must be a valid absolute URL')
+  }
+
   // 生产环境额外检查
-  if (isProduction) {
+  if (enforceProductionRules) {
     // 检查 Redis URL 是否使用 TLS
-    const redisUrl = process.env.REDIS_URL
     if (redisUrl && !redisUrl.startsWith('rediss://')) {
       errors.push('Production REDIS_URL must use TLS (rediss://)')
     }
 
-    // 检查 NEXTAUTH_URL 是否使用 HTTPS
-    const nextauthUrl = process.env.NEXTAUTH_URL
-    if (nextauthUrl && !nextauthUrl.startsWith('https://')) {
+    if (!normalizedAuthUrl) {
+      errors.push('Production NEXTAUTH_URL must be a valid absolute HTTPS URL')
+    }
+
+    if (!normalizedAppUrl) {
+      errors.push('Production NEXT_PUBLIC_APP_URL must be a valid absolute HTTPS URL')
+    }
+
+    if (normalizedAuthUrl && normalizedAuthUrl.protocol !== 'https:') {
       errors.push('Production NEXTAUTH_URL must use HTTPS')
     }
 
-    // 检查 NEXT_PUBLIC_APP_URL 是否使用 HTTPS
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL
-    if (appUrl && !appUrl.startsWith('https://')) {
-      warnings.push('Production NEXT_PUBLIC_APP_URL should use HTTPS')
+    if (normalizedAppUrl && normalizedAppUrl.protocol !== 'https:') {
+      errors.push('Production NEXT_PUBLIC_APP_URL must use HTTPS')
+    }
+
+    if (normalizedAuthUrl && isLocalHostname(normalizedAuthUrl.hostname)) {
+      errors.push('Production NEXTAUTH_URL cannot point to localhost')
+    }
+
+    if (normalizedAppUrl && isLocalHostname(normalizedAppUrl.hostname)) {
+      errors.push('Production NEXT_PUBLIC_APP_URL cannot point to localhost')
+    }
+
+    if (
+      normalizedAuthUrl &&
+      normalizedAppUrl &&
+      normalizedAuthUrl.origin !== normalizedAppUrl.origin
+    ) {
+      errors.push(
+        `NEXTAUTH_URL (${normalizedAuthUrl.origin}) and NEXT_PUBLIC_APP_URL (${normalizedAppUrl.origin}) must share the same origin in production`
+      )
     }
   }
 
@@ -235,7 +300,7 @@ if (typeof window === 'undefined') {
 
     if (!valid) {
       errors.forEach((error) => envLogger.error(error))
-      envLogger.warn('Some environment variables are missing. App may not work correctly.')
+      envLogger.warn('Some environment variables are missing or invalid. App may not work correctly.')
     } else {
       envLogger.info('Environment validation passed')
     }

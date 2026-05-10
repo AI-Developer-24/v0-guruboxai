@@ -1,0 +1,322 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e16]:
+    - navigation [ref=e17]:
+      - generic [ref=e18]:
+        - link "BadgerSignal BadgerSignal" [ref=e19] [cursor=pointer]:
+          - /url: /zh
+          - img "BadgerSignal" [ref=e21]
+          - generic [ref=e22]: BadgerSignal
+        - generic [ref=e23]:
+          - link "首页" [ref=e24] [cursor=pointer]:
+            - /url: /zh
+          - link "点子生成" [ref=e25] [cursor=pointer]:
+            - /url: /zh/ai-startup-idea-generator
+          - link "点子验证" [ref=e26] [cursor=pointer]:
+            - /url: /zh/saas-idea-validation
+          - link "机会分析" [ref=e27] [cursor=pointer]:
+            - /url: /zh/ai-business-opportunity-analysis
+          - link "公开样例" [ref=e28] [cursor=pointer]:
+            - /url: /zh/examples/ai-tools-for-freelancers
+      - generic [ref=e29]:
+        - 'button "语言: 简体中文" [ref=e30]':
+          - img
+          - generic [ref=e31]: 简体中文
+        - link "开始分析" [ref=e32] [cursor=pointer]:
+          - /url: /tools/product-insight
+        - button "登录" [ref=e33]
+  - main [ref=e34]:
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - img [ref=e45]
+            - paragraph [ref=e48]: 公开样例报告
+          - heading "招聘顾问 AI 工具机会排序" [level=1] [ref=e49]
+          - paragraph [ref=e50]: 阅读一份招聘顾问公开样例报告，看不同招聘工作流切口如何按跟进拖延、响应压力和产品深度排序。
+        - generic [ref=e51]:
+          - link "开始分析" [ref=e52] [cursor=pointer]:
+            - /url: /tools/product-insight
+            - generic [ref=e53]: 开始分析
+            - img
+          - link "查看样例报告" [ref=e54] [cursor=pointer]:
+            - /url: /zh/examples/ai-tools-for-freelancers
+            - generic [ref=e55]: 查看样例报告
+      - article [ref=e58]:
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - paragraph [ref=e64]: 样例骨架
+            - img [ref=e66]
+          - generic [ref=e71]:
+            - generic [ref=e73]:
+              - paragraph [ref=e74]: 市场切片
+              - paragraph [ref=e75]: 明确场景
+            - generic [ref=e78]:
+              - paragraph [ref=e79]: 核心痛点
+              - paragraph [ref=e80]: 重复性运营摩擦
+            - generic [ref=e83]:
+              - paragraph [ref=e84]: 最佳下一步
+              - paragraph [ref=e85]: 验证最强切口
+    - generic [ref=e88]:
+      - generic [ref=e89]:
+        - generic [ref=e90]:
+          - paragraph [ref=e91]: 模板职责
+          - heading "公开样例页模板已经按“先给结果，再谈登录”来组织。" [level=2] [ref=e92]
+          - paragraph [ref=e93]: 这就是后续公开样例报告会使用的结构，用来向搜索访客证明产品输出质量。
+        - generic [ref=e95]:
+          - paragraph [ref=e96]: 模板职责
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - generic [ref=e99]: 市场切片
+              - paragraph [ref=e101]: 明确场景
+            - generic [ref=e102]:
+              - generic [ref=e103]: 核心痛点
+              - paragraph [ref=e105]: 重复性运营摩擦
+            - generic [ref=e106]:
+              - generic [ref=e107]: 最佳下一步
+              - paragraph [ref=e109]: 验证最强切口
+      - generic [ref=e111]:
+        - article [ref=e112]:
+          - generic [ref=e114]:
+            - paragraph [ref=e115]: 市场切片
+            - paragraph [ref=e116]: 明确场景
+            - paragraph [ref=e117]: 真实公开样例必须先有清晰 audience 和使用场景，不能只写泛概念。
+        - article [ref=e118]:
+          - generic [ref=e120]:
+            - paragraph [ref=e121]: 核心痛点
+            - paragraph [ref=e122]: 重复性运营摩擦
+            - paragraph [ref=e123]: 样例页需要解释清楚，为什么这个问题足够频繁，值得用户为之付费。
+        - article [ref=e124]:
+          - generic [ref=e126]:
+            - paragraph [ref=e127]: 最佳下一步
+            - paragraph [ref=e128]: 验证最强切口
+            - paragraph [ref=e129]: 页面应该帮助访客得到更清晰的下一步动作，而不只是留下兴趣。
+    - generic [ref=e132]:
+      - generic [ref=e133]:
+        - generic [ref=e134]:
+          - paragraph [ref=e135]: 排序后的机会
+          - heading "这里专门用来承接最值得优先验证的产品切口。" [level=2] [ref=e136]
+          - paragraph [ref=e137]: 每个机会块都要同时给出评分、适配受众、时机判断，以及更具体的下一步验证动作。
+        - generic [ref=e139]:
+          - paragraph [ref=e140]: 排序后的机会
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - generic [ref=e143]: "01"
+              - generic [ref=e144]:
+                - paragraph [ref=e145]: Top 机会轨道
+                - paragraph [ref=e146]: "评分: 可接评分"
+            - generic [ref=e147]:
+              - generic [ref=e148]: "02"
+              - generic [ref=e149]:
+                - paragraph [ref=e150]: 场景贴合轨道
+                - paragraph [ref=e151]: "评分: 可接意图"
+            - generic [ref=e152]:
+              - generic [ref=e153]: "03"
+              - generic [ref=e154]:
+                - paragraph [ref=e155]: 决策轨道
+                - paragraph [ref=e156]: "评分: 可接 CTA"
+      - generic [ref=e158]:
+        - article [ref=e159]:
+          - generic [ref=e161]:
+            - generic [ref=e162]:
+              - heading "Top 机会轨道" [level=3] [ref=e164]
+              - generic [ref=e165]:
+                - generic [ref=e166]: 评分
+                - generic [ref=e167]: 可接评分
+            - paragraph [ref=e168]: 第一列已经按可排序机会摘要来组织，后面可以直接接上得分和优先级。
+        - generic [ref=e169]:
+          - article [ref=e171]:
+            - generic [ref=e173]:
+              - generic [ref=e174]:
+                - heading "场景贴合轨道" [level=3] [ref=e176]
+                - generic [ref=e177]:
+                  - generic [ref=e178]: 评分
+                  - generic [ref=e179]: 可接意图
+              - paragraph [ref=e180]: 第二列用于解释为什么这个场景值得做，不需要先让用户登录才能看到价值。
+          - article [ref=e182]:
+            - generic [ref=e184]:
+              - generic [ref=e185]:
+                - heading "决策轨道" [level=3] [ref=e187]
+                - generic [ref=e188]:
+                  - generic [ref=e189]: 评分
+                  - generic [ref=e190]: 可接 CTA
+              - paragraph [ref=e191]: 第三列负责把“有兴趣”推进到“愿意试用”，承接最终的产品入口。
+    - generic [ref=e194]:
+      - generic [ref=e195]:
+        - generic [ref=e196]:
+          - paragraph [ref=e197]: 样例结构
+          - heading "模板已经给方法、评分逻辑和场景上下文都留好了位置。" [level=2] [ref=e198]
+          - paragraph [ref=e199]: 这意味着后续样例页会更像完整公开报告，而不是只有几张截图的 teaser。
+        - generic [ref=e201]:
+          - paragraph [ref=e202]: 样例结构
+          - generic [ref=e203]:
+            - generic [ref=e204]:
+              - generic [ref=e205]: "01"
+              - paragraph [ref=e207]: 场景 brief
+            - generic [ref=e208]:
+              - generic [ref=e209]: "02"
+              - paragraph [ref=e211]: 机会排序
+            - generic [ref=e212]:
+              - generic [ref=e213]: "03"
+              - paragraph [ref=e215]: 为什么值得做
+      - generic [ref=e217]:
+        - article [ref=e218]:
+          - generic [ref=e221]:
+            - img [ref=e223]
+            - generic [ref=e228]:
+              - heading "场景 brief" [level=3] [ref=e229]
+              - paragraph [ref=e230]: 第一页先说明这是哪个市场切片，以及为什么要公开这个样例。
+        - article [ref=e231]:
+          - generic [ref=e234]:
+            - img [ref=e236]
+            - generic [ref=e241]:
+              - heading "机会排序" [level=3] [ref=e242]
+              - paragraph [ref=e243]: 中间区域天生适合放机会排序，而不是空泛的概念型文案。
+        - article [ref=e244]:
+          - generic [ref=e247]:
+            - img [ref=e249]
+            - generic [ref=e254]:
+              - heading "为什么值得做" [level=3] [ref=e255]
+              - paragraph [ref=e256]: 最后一区专门承接理由、评分和下一步 CTA，用来把兴趣推向使用。
+    - generic [ref=e259]:
+      - generic [ref=e260]:
+        - generic [ref=e261]:
+          - paragraph [ref=e262]: 常见问题
+          - heading "在阅读公开样例报告前，用户最常问什么" [level=2] [ref=e263]
+          - paragraph [ref=e264]: 这些问题帮助搜索访客理解：样例页能证明什么、应该怎么看，以及看完之后下一步该做什么。
+        - generic [ref=e266]:
+          - paragraph [ref=e267]: 常见问题
+          - generic [ref=e268]:
+            - generic [ref=e269]:
+              - generic [ref=e270]: Q1
+              - paragraph [ref=e272]: 我应该把这份样例报告当成什么来看？
+            - generic [ref=e273]:
+              - generic [ref=e274]: Q2
+              - paragraph [ref=e276]: 这份样例真的对应一个真实工作流场景吗？
+            - generic [ref=e277]:
+              - generic [ref=e278]: Q3
+              - paragraph [ref=e280]: 看完样例之后，我下一步应该做什么？
+      - generic [ref=e282]:
+        - article [ref=e283]:
+          - generic [ref=e285]:
+            - heading "我应该把这份样例报告当成什么来看？" [level=3] [ref=e286]
+            - paragraph [ref=e287]: 最适合把它当成“先判断输出质量”的公开参考。你可以先看排序结果是否具体、是否有可执行性，再决定要不要提交你自己的方向。
+        - article [ref=e288]:
+          - generic [ref=e290]:
+            - heading "这份样例真的对应一个真实工作流场景吗？" [level=3] [ref=e291]
+            - paragraph [ref=e292]: 是的。公开样例都会围绕一个具体受众和工作流来组织，让访客看到更像真实市场判断的输出，而不是泛化演示。
+        - article [ref=e293]:
+          - generic [ref=e295]:
+            - heading "看完样例之后，我下一步应该做什么？" [level=3] [ref=e296]
+            - paragraph [ref=e297]: 如果你觉得排序逻辑和输出质量对你的市场也有参考价值，下一步就是分析你自己的方向，或者继续对照别的公开样例。
+    - generic [ref=e300]:
+      - generic [ref=e301]:
+        - generic [ref=e302]:
+          - paragraph [ref=e303]: 继续浏览
+          - heading "把样例页当作进入其他公开页面的桥梁。" [level=2] [ref=e304]
+          - paragraph [ref=e305]: 一份公开样例不应该把访客留在终点，它应该自然连回首页，并把访客带到最相关的核心工作流页面。
+        - generic [ref=e307]:
+          - paragraph [ref=e308]: 继续浏览
+          - generic [ref=e309]:
+            - generic [ref=e310]:
+              - generic [ref=e311]: "01"
+              - generic [ref=e312]:
+                - paragraph [ref=e313]: 首页
+                - paragraph [ref=e314]: 返回首页
+            - generic [ref=e315]:
+              - generic [ref=e316]: "02"
+              - generic [ref=e317]:
+                - paragraph [ref=e318]: AI 创业点子生成器
+                - paragraph [ref=e319]: 查看生成器页面
+            - generic [ref=e320]:
+              - generic [ref=e321]: "03"
+              - generic [ref=e322]:
+                - paragraph [ref=e323]: SaaS 点子验证
+                - paragraph [ref=e324]: 进入验证页面
+      - generic [ref=e326]:
+        - article [ref=e327]:
+          - generic [ref=e329]:
+            - generic [ref=e330]:
+              - img [ref=e332]
+              - generic [ref=e336]:
+                - heading "首页" [level=3] [ref=e337]
+                - paragraph [ref=e338]: 回到公开站总入口，重新比较其他公开页面。
+            - link "返回首页" [ref=e339] [cursor=pointer]:
+              - /url: /zh
+              - generic [ref=e340]: 返回首页
+              - img [ref=e341]
+        - article [ref=e343]:
+          - generic [ref=e345]:
+            - generic [ref=e346]:
+              - img [ref=e348]
+              - generic [ref=e352]:
+                - heading "AI 创业点子生成器" [level=3] [ref=e353]
+                - paragraph [ref=e354]: 查看产品如何把一个方向扩展成一组可排序的创业切口。
+            - link "查看生成器页面" [ref=e355] [cursor=pointer]:
+              - /url: /zh/ai-startup-idea-generator
+              - generic [ref=e356]: 查看生成器页面
+              - img [ref=e357]
+        - article [ref=e359]:
+          - generic [ref=e361]:
+            - generic [ref=e362]:
+              - img [ref=e364]
+              - generic [ref=e368]:
+                - heading "SaaS 点子验证" [level=3] [ref=e369]
+                - paragraph [ref=e370]: 继续查看那个更适合判断单个候选点子是否该继续投入的工作流。
+            - link "进入验证页面" [ref=e371] [cursor=pointer]:
+              - /url: /zh/saas-idea-validation
+              - generic [ref=e372]: 进入验证页面
+              - img [ref=e373]
+    - generic [ref=e379]:
+      - generic [ref=e380]:
+        - paragraph [ref=e381]: 下一阶段
+        - heading "这个样例页模板已经准备好接公开报告内容了。" [level=2] [ref=e382]
+        - paragraph [ref=e383]: 下一轮只需要把场景 brief、Top opportunities 和公开证明区块逐步填进来。
+      - generic [ref=e385]:
+        - link "开始分析" [ref=e386] [cursor=pointer]:
+          - /url: /tools/product-insight
+          - generic [ref=e387]: 开始分析
+          - img
+        - link "返回首页" [ref=e388] [cursor=pointer]:
+          - /url: /zh
+          - generic [ref=e389]: 返回首页
+  - contentinfo [ref=e390]:
+    - generic [ref=e391]:
+      - generic [ref=e394]:
+        - generic [ref=e395]:
+          - generic [ref=e396]:
+            - paragraph [ref=e397]: BadgerSignal
+            - paragraph [ref=e398]: 开始分析
+            - paragraph [ref=e399]: 把 AI 创业研究、公开样例和更清晰的工作流放进同一个公开站点，让搜索访客更快理解产品并进入使用。
+          - link "开始分析" [ref=e400] [cursor=pointer]:
+            - /url: /tools/product-insight
+            - generic [ref=e401]: 开始分析
+            - img [ref=e402]
+        - generic [ref=e404]:
+          - generic [ref=e405]:
+            - paragraph [ref=e406]: 产品
+            - generic [ref=e407]:
+              - link "首页" [ref=e408] [cursor=pointer]:
+                - /url: /zh
+              - link "AI 创业点子生成器" [ref=e409] [cursor=pointer]:
+                - /url: /zh/ai-startup-idea-generator
+              - link "SaaS 点子验证" [ref=e410] [cursor=pointer]:
+                - /url: /zh/saas-idea-validation
+              - link "AI 商业机会分析" [ref=e411] [cursor=pointer]:
+                - /url: /zh/ai-business-opportunity-analysis
+          - generic [ref=e412]:
+            - paragraph [ref=e413]: 样例
+            - generic [ref=e414]:
+              - link "自由职业者样例报告" [ref=e415] [cursor=pointer]:
+                - /url: /zh/examples/ai-tools-for-freelancers
+              - link "中小企业样例报告" [ref=e416] [cursor=pointer]:
+                - /url: /zh/examples/ai-tools-for-small-business
+          - generic [ref=e417]:
+            - paragraph [ref=e418]: 公司
+            - generic [ref=e419]:
+              - link "隐私政策" [ref=e420] [cursor=pointer]:
+                - /url: /privacy
+              - link "服务条款" [ref=e421] [cursor=pointer]:
+                - /url: /terms
+      - paragraph [ref=e423]: © 2026 BadgerSignal. 保留所有权利。
+  - region "Notifications alt+T"
+  - alert [ref=e424]

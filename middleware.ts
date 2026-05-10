@@ -1,6 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { getSeoLocaleOrFallback, isSeoLocale } from './lib/seo/locales'
+import {
+  SEO_LOCALE_COOKIE_NAME,
+  getSeoLocaleOrFallback,
+  isSeoLocale,
+} from './lib/seo/locales'
 import { logger } from './lib/logger'
 
 const middlewareLogger = logger.withContext('Middleware')
@@ -15,6 +19,9 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-seo-locale', resolvedLocale)
   const isAccountPage = pathname === '/account' || pathname.startsWith('/account/')
+  const localePreferenceCookie = request.cookies.get(SEO_LOCALE_COOKIE_NAME)?.value
+  const shouldSyncLocaleCookie =
+    isSeoLocale(pathnameLocale) && localePreferenceCookie !== resolvedLocale
 
   middlewareLogger.debug('Processing request', {
     path: pathname,
@@ -33,11 +40,21 @@ export async function middleware(request: NextRequest) {
       locale: resolvedLocale,
     })
 
-    return NextResponse.next({
+    const response = NextResponse.next({
       request: {
         headers: requestHeaders,
       },
     })
+
+    if (shouldSyncLocaleCookie) {
+      response.cookies.set(SEO_LOCALE_COOKIE_NAME, resolvedLocale, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: 'lax',
+      })
+    }
+
+    return response
   }
 
   // Log all cookies for debugging

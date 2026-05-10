@@ -10,7 +10,30 @@ type GoogleToken = Database['public']['Tables']['google_tokens']['Row']
 // Google OAuth 2.0 configuration
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
-const REDIRECT_URI = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/v1/auth/google/callback`
+
+function getGoogleOAuthRedirectUri(): string {
+  const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL?.trim()
+
+  if (configuredAppUrl) {
+    try {
+      return new URL('/api/v1/auth/google/callback', configuredAppUrl).toString()
+    } catch {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error(
+          'NEXT_PUBLIC_APP_URL must be a valid absolute URL before Google OAuth can be used in production.'
+        )
+      }
+    }
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'NEXT_PUBLIC_APP_URL must be configured before Google OAuth can be used in production.'
+    )
+  }
+
+  return new URL('/api/v1/auth/google/callback', 'http://localhost:3000').toString()
+}
 
 // Required scopes for Google Docs export
 const SCOPES = [
@@ -33,9 +56,11 @@ export function getGoogleDocsAuthUrl(state: string): string {
     throw new Error('GOOGLE_CLIENT_ID is not configured')
   }
 
+  const redirectUri = getGoogleOAuthRedirectUri()
+
   const params = new URLSearchParams({
     client_id: GOOGLE_CLIENT_ID,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: redirectUri,
     response_type: 'code',
     scope: SCOPES.join(' '),
     access_type: 'offline',
@@ -65,6 +90,8 @@ export async function exchangeCodeForToken(code: string): Promise<TokenResponse>
     throw new Error('Google OAuth credentials are not configured')
   }
 
+  const redirectUri = getGoogleOAuthRedirectUri()
+
   const response = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: {
@@ -74,7 +101,7 @@ export async function exchangeCodeForToken(code: string): Promise<TokenResponse>
       code,
       client_id: GOOGLE_CLIENT_ID,
       client_secret: GOOGLE_CLIENT_SECRET,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: redirectUri,
       grant_type: 'authorization_code',
     }).toString(),
   })

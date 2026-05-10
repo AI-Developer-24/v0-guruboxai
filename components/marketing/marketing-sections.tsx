@@ -1,8 +1,12 @@
 import type { CSSProperties, ReactNode } from 'react'
 import Link from 'next/link'
 import { ArrowRight, FileSearch, Layers3, ScanSearch, Sparkles } from 'lucide-react'
+import type { MarketingPageKey } from '@/lib/seo/metadata'
 import { type SeoLocale } from '@/lib/seo/locales'
-import { Button } from '@/components/ui/button'
+import {
+  TrackedMarketingActions,
+  TrackedMarketingInlineLink,
+} from '@/components/marketing/tracked-marketing-interactions'
 import { cn } from '@/lib/utils'
 
 export type MarketingAction = {
@@ -239,11 +243,11 @@ function MarketingVisualFrame({
           <div className={cn(headerVariant === 'headline' ? 'space-y-3' : 'space-y-2')}>
             <p className="marketing-kicker">{eyebrow}</p>
             {headerVariant === 'headline' && title ? (
-              <h3 className="max-w-[15ch] text-[clamp(1.6rem,2.25vw,2.4rem)] leading-[0.98] font-[560] tracking-[-0.058em] text-balance text-[var(--brand-ink)]">
+              <h3 className="marketing-card-title marketing-hero-visual-title max-w-[15ch] text-[clamp(1.6rem,2.25vw,2.4rem)] leading-[0.98] font-[560] tracking-[-0.058em] text-balance text-[var(--brand-ink)]">
                 {title}
               </h3>
             ) : title ? (
-              <p className={summaryClass}>{title}</p>
+              <p className={cn('marketing-copy-compact', summaryClass)}>{title}</p>
             ) : null}
           </div>
           <MarketingVisualBadge tone={tone} icon={icon} />
@@ -267,7 +271,7 @@ function renderOpportunityCard(
             {item.rank ? <p className="marketing-kicker">{item.rank}</p> : null}
             <h3
               className={cn(
-                'leading-[0.98] font-[560] tracking-[-0.05em] text-balance text-[var(--brand-ink)]',
+                'marketing-card-title leading-[0.98] font-[560] tracking-[-0.05em] text-balance text-[var(--brand-ink)]',
                 featured ? 'text-[1.65rem] sm:text-[2rem]' : 'text-[1.28rem] sm:text-[1.45rem]'
               )}
             >
@@ -275,13 +279,13 @@ function renderOpportunityCard(
             </h3>
           </div>
           <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--line-soft)] bg-[linear-gradient(180deg,oklch(1_0_0_/_0.88),var(--surface-tint))] px-3.5 py-1.5 text-sm font-medium text-[var(--brand-ink)] shadow-[inset_0_1px_0_oklch(1_0_0_/_0.65)]">
-            <span className="text-muted-foreground">{labels.score}</span>
+            <span className="marketing-meta-label text-muted-foreground">{labels.score}</span>
             <span>{item.score}</span>
           </div>
         </div>
         <p
           className={cn(
-            'text-muted-foreground',
+            'marketing-copy-block text-muted-foreground',
             featured ? 'text-base leading-8' : 'text-sm leading-7 sm:text-base'
           )}
         >
@@ -291,20 +295,20 @@ function renderOpportunityCard(
           <dl className="grid gap-4 text-sm sm:grid-cols-3">
             {item.audience ? (
               <div className="space-y-1.5">
-                <dt className="marketing-kicker text-[10px]">{labels.audience}</dt>
-                <dd className="text-foreground/90 leading-7">{item.audience}</dd>
+                <dt className="marketing-kicker marketing-meta-label text-[10px]">{labels.audience}</dt>
+                <dd className="marketing-copy-block text-foreground/90 leading-7">{item.audience}</dd>
               </div>
             ) : null}
             {item.whyNow ? (
               <div className="space-y-1.5">
-                <dt className="marketing-kicker text-[10px]">{labels.whyNow}</dt>
-                <dd className="text-foreground/90 leading-7">{item.whyNow}</dd>
+                <dt className="marketing-kicker marketing-meta-label text-[10px]">{labels.whyNow}</dt>
+                <dd className="marketing-copy-block text-foreground/90 leading-7">{item.whyNow}</dd>
               </div>
             ) : null}
             {item.nextMove ? (
               <div className="space-y-1.5">
-                <dt className="marketing-kicker text-[10px]">{labels.nextMove}</dt>
-                <dd className="text-foreground/90 leading-7">{item.nextMove}</dd>
+                <dt className="marketing-kicker marketing-meta-label text-[10px]">{labels.nextMove}</dt>
+                <dd className="marketing-copy-block text-foreground/90 leading-7">{item.nextMove}</dd>
               </div>
             ) : null}
           </dl>
@@ -312,7 +316,7 @@ function renderOpportunityCard(
         {item.highlights?.length ? (
           <div className="grid gap-3 border-t border-[var(--line-soft)] pt-4 sm:grid-cols-3">
             {item.highlights.map((highlight) => (
-              <div key={highlight} className="text-foreground/90 flex gap-3 text-sm leading-7">
+              <div key={highlight} className="marketing-copy-block text-foreground/90 flex gap-3 text-sm leading-7">
                 <span className="mt-2 size-1.5 shrink-0 rounded-full bg-[var(--brand-gold)]" />
                 <p>{highlight}</p>
               </div>
@@ -351,37 +355,26 @@ export function MarketingContainer({
 }
 
 export function MarketingActions({
+  pageKey,
+  locale,
   primaryAction,
   secondaryAction,
+  placement,
 }: Readonly<{
+  pageKey: MarketingPageKey
+  locale: SeoLocale
   primaryAction: MarketingAction
   secondaryAction?: MarketingAction
+  placement: 'hero' | 'closing'
 }>) {
   return (
-    <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-      <Button
-        asChild
-        size="lg"
-        className="group marketing-cta-primary text-background h-11 rounded-full px-6 text-sm transition-transform duration-300"
-      >
-        <Link href={primaryAction.href}>
-          <span>{primaryAction.label}</span>
-          <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-        </Link>
-      </Button>
-      {secondaryAction ? (
-        <Button
-          asChild
-          variant={secondaryAction.variant ?? 'outline'}
-          size="lg"
-          className="group marketing-cta-secondary h-11 rounded-full px-6 text-sm transition-transform duration-300"
-        >
-          <Link href={secondaryAction.href}>
-            <span>{secondaryAction.label}</span>
-          </Link>
-        </Button>
-      ) : null}
-    </div>
+    <TrackedMarketingActions
+      pageKey={pageKey}
+      locale={locale}
+      primaryAction={primaryAction}
+      secondaryAction={secondaryAction}
+      placement={placement}
+    />
   )
 }
 
@@ -482,17 +475,18 @@ export function MarketingSectionAside({
             <div
               className={cn(
                 'flex h-10 w-10 items-center justify-center rounded-[1rem] border text-[10px] font-semibold tracking-[0.16em]',
+                'marketing-meta-label',
                 toneClasses.badge
               )}
             >
               {item.label}
             </div>
             <div className="space-y-1.5">
-              <p className="text-[0.98rem] leading-6 font-medium text-[var(--brand-ink)] sm:text-[1.04rem]">
+              <p className="marketing-aside-title text-[0.98rem] leading-6 font-medium text-[var(--brand-ink)] sm:text-[1.04rem]">
                 {item.title}
               </p>
               {item.meta ? (
-                <p className="text-muted-foreground text-[13px] leading-6">{item.meta}</p>
+                <p className="marketing-copy-compact text-muted-foreground text-[13px] leading-6">{item.meta}</p>
               ) : null}
             </div>
           </div>
@@ -504,13 +498,19 @@ export function MarketingSectionAside({
 }
 
 export function MarketingBalancedFeatureGrid({
+  pageKey,
+  locale,
   items,
   icon,
   variant = 'grid',
+  trackLinks = false,
 }: Readonly<{
+  pageKey: MarketingPageKey
+  locale: SeoLocale
   items: MarketingColumn[]
   icon: ReactNode
   variant?: MarketingFeatureGridVariant
+  trackLinks?: boolean
 }>) {
   return (
     <div className={getFeatureGridContainerClass(variant)}>
@@ -540,7 +540,7 @@ export function MarketingBalancedFeatureGrid({
                 <div className="space-y-3">
                   <h3
                     className={cn(
-                      'leading-[1.02] font-[560] tracking-[-0.04em] text-[var(--brand-ink)]',
+                      'marketing-card-title leading-[1.02] font-[560] tracking-[-0.04em] text-[var(--brand-ink)]',
                       isStrong
                         ? 'text-[1.35rem] sm:text-[1.55rem]'
                         : 'text-[1.08rem] sm:text-[1.14rem]'
@@ -550,7 +550,7 @@ export function MarketingBalancedFeatureGrid({
                   </h3>
                   <p
                     className={cn(
-                      'text-muted-foreground',
+                      'marketing-copy-block text-muted-foreground',
                       isStrong ? 'text-base leading-8' : 'text-sm leading-7 sm:text-base'
                     )}
                   >
@@ -559,13 +559,24 @@ export function MarketingBalancedFeatureGrid({
                 </div>
               </div>
               {item.href && item.actionLabel ? (
-                <Link
-                  href={item.href}
-                  className="marketing-inline-link inline-flex w-fit items-center gap-2 pt-1 text-sm font-medium text-[var(--brand-ink)]"
-                >
-                  <span>{item.actionLabel}</span>
-                  <ArrowRight className="size-4" />
-                </Link>
+                trackLinks ? (
+                  <TrackedMarketingInlineLink
+                    pageKey={pageKey}
+                    locale={locale}
+                    href={item.href}
+                    label={item.actionLabel}
+                    title={item.title}
+                    className="marketing-inline-link inline-flex w-fit items-center gap-2 pt-1 text-sm font-medium text-[var(--brand-ink)]"
+                  />
+                ) : (
+                  <Link
+                    href={item.href}
+                    className="marketing-inline-link inline-flex w-fit items-center gap-2 pt-1 text-sm font-medium text-[var(--brand-ink)]"
+                  >
+                    <span>{item.actionLabel}</span>
+                    <ArrowRight className="size-4" />
+                  </Link>
+                )
               ) : null}
             </div>
           </SurfacePanel>
@@ -594,10 +605,10 @@ export function MarketingBalancedProcessSteps({
                 {`${index + 1}`.padStart(2, '0')}
               </span>
             </div>
-            <h3 className="text-[1.14rem] leading-[1.02] font-[560] tracking-[-0.045em] text-[var(--brand-ink)]">
+            <h3 className="marketing-card-title text-[1.14rem] leading-[1.02] font-[560] tracking-[-0.045em] text-[var(--brand-ink)]">
               {step.title}
             </h3>
-            <p className="text-muted-foreground text-sm leading-7 sm:text-base">
+            <p className="marketing-copy-block text-muted-foreground text-sm leading-7 sm:text-base">
               {step.description}
             </p>
             <div
@@ -625,10 +636,10 @@ export function MarketingBalancedFaqList({
       {items.map((item) => (
         <SurfacePanel key={item.question} className="p-5 sm:p-6">
           <div className="flex h-full flex-col gap-4">
-            <h3 className="text-[1.1rem] leading-[1.04] font-[560] tracking-[-0.04em] text-[var(--brand-ink)]">
+            <h3 className="marketing-card-title text-[1.1rem] leading-[1.04] font-[560] tracking-[-0.04em] text-[var(--brand-ink)]">
               {item.question}
             </h3>
-            <p className="text-muted-foreground text-sm leading-7 sm:text-base">{item.answer}</p>
+            <p className="marketing-copy-block text-muted-foreground text-sm leading-7 sm:text-base">{item.answer}</p>
           </div>
         </SurfacePanel>
       ))}
@@ -637,6 +648,8 @@ export function MarketingBalancedFaqList({
 }
 
 export function MarketingHeroShell({
+  pageKey,
+  locale,
   sectionLabel,
   title,
   description,
@@ -650,6 +663,8 @@ export function MarketingHeroShell({
   heroBodySize = 'regular',
   maxTitleMeasure,
 }: Readonly<{
+  pageKey: MarketingPageKey
+  locale: SeoLocale
   sectionLabel: string
   title: string
   description: string
@@ -712,12 +727,18 @@ export function MarketingHeroShell({
                   </span>
                   <p className="marketing-kicker">{sectionLabel}</p>
                 </div>
-                <h1 style={titleStyle} className="marketing-display-xl max-w-[11.8ch]">
+                <h1 style={titleStyle} className="marketing-display-xl marketing-hero-title max-w-[11.8ch]">
                   {title}
                 </h1>
                 <p className={cn('marketing-body', descriptionClass)}>{description}</p>
               </div>
-              <MarketingActions primaryAction={primaryAction} secondaryAction={secondaryAction} />
+              <MarketingActions
+                pageKey={pageKey}
+                locale={locale}
+                primaryAction={primaryAction}
+                secondaryAction={secondaryAction}
+                placement="hero"
+              />
             </div>
             <div className={visualWrapperClass}>
               {variant === 'home' ? (
@@ -763,14 +784,14 @@ export function MarketingPosterVisual({
       <div className="grid gap-4 md:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
         <div className={cn(DETAIL_SURFACE_CLASS, 'p-4 sm:p-5')}>
           <div className="relative z-10">
-            <p className="marketing-kicker text-[10px]">{getLayerLabel(locale, 0)}</p>
+            <p className="marketing-kicker marketing-meta-label text-[10px]">{getLayerLabel(locale, 0)}</p>
             <div className="mt-4 flex items-end gap-3">
               <span className="text-[4.4rem] leading-none font-semibold tracking-[-0.12em] text-[oklch(0.78_0.14_70_/_0.22)]">
                 20+
               </span>
               <div className="space-y-2 pb-2">
                 <div className="h-px w-16 bg-[linear-gradient(90deg,var(--brand-gold),transparent)]" />
-                <p className="text-foreground/80 max-w-[11rem] text-sm leading-6">{layers[0]}</p>
+                <p className="marketing-copy-compact text-foreground/80 max-w-[11rem] text-sm leading-6">{layers[0]}</p>
               </div>
             </div>
             <div className="mt-5 space-y-3">
@@ -779,10 +800,10 @@ export function MarketingPosterVisual({
                   key={label}
                   className="flex items-start gap-3 border-t border-[var(--line-soft)] pt-3"
                 >
-                  <span className="text-muted-foreground mt-0.5 text-[10px] font-semibold tracking-[0.18em]">
+                  <span className="marketing-meta-label text-muted-foreground mt-0.5 text-[10px] font-semibold tracking-[0.18em]">
                     0{index + 2}
                   </span>
-                  <p className="text-foreground/90 text-sm leading-6">{label}</p>
+                  <p className="marketing-copy-compact text-foreground/90 text-sm leading-6">{label}</p>
                 </div>
               ))}
             </div>
@@ -802,10 +823,10 @@ export function MarketingPosterVisual({
             >
               <div className="relative z-10 space-y-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="marketing-kicker text-[10px]">{getLayerLabel(locale, index)}</p>
+                  <p className="marketing-kicker marketing-meta-label text-[10px]">{getLayerLabel(locale, index)}</p>
                   <div className="h-px w-10 bg-[linear-gradient(90deg,var(--brand-gold),var(--brand-blue))]" />
                 </div>
-                <p className="text-[0.98rem] leading-6 font-medium text-[var(--brand-ink)] sm:text-[1.02rem]">
+                <p className="marketing-visual-value text-[0.98rem] leading-6 font-medium text-[var(--brand-ink)] sm:text-[1.02rem]">
                   {label}
                 </p>
               </div>
@@ -843,7 +864,7 @@ export function MarketingDiagnosticVisual({
           >
             <div className="relative z-10 flex items-start justify-between gap-4">
               <div className="space-y-2">
-                <p className="marketing-kicker text-[10px]">{row.label}</p>
+                <p className="marketing-kicker marketing-meta-label text-[10px]">{row.label}</p>
                 <div
                   className={cn(
                     'h-px w-14',
@@ -853,7 +874,7 @@ export function MarketingDiagnosticVisual({
                   )}
                 />
               </div>
-              <p className="text-[1.02rem] leading-6 font-semibold tracking-[-0.03em] text-[var(--brand-ink)]">
+              <p className="marketing-card-title marketing-visual-value text-[1.02rem] leading-6 font-semibold tracking-[-0.03em] text-[var(--brand-ink)]">
                 {row.value}
               </p>
             </div>
@@ -889,8 +910,8 @@ export function MarketingExampleVisual({
             )}
           >
             <div className="relative z-10 space-y-2.5">
-              <p className="marketing-kicker text-[10px]">{snapshot.label}</p>
-              <p className="text-[1rem] leading-6 font-semibold tracking-[-0.03em] text-[var(--brand-ink)] sm:text-[1.06rem]">
+              <p className="marketing-kicker marketing-meta-label text-[10px]">{snapshot.label}</p>
+              <p className="marketing-card-title marketing-visual-value text-[1rem] leading-6 font-semibold tracking-[-0.03em] text-[var(--brand-ink)] sm:text-[1.06rem]">
                 {snapshot.value}
               </p>
               {index < 2 ? (
@@ -951,7 +972,7 @@ export function MarketingExamplePreview({
               {column.items.map((item) => (
                 <div
                   key={item}
-                  className="text-foreground/90 flex gap-3 border-t border-[var(--line-soft)] pt-3 text-sm leading-7 sm:text-base"
+                  className="marketing-copy-block text-foreground/90 flex gap-3 border-t border-[var(--line-soft)] pt-3 text-sm leading-7 sm:text-base"
                 >
                   <span className="mt-2 size-1.5 shrink-0 rounded-full bg-[var(--brand-gold)]" />
                   <p>{item}</p>
@@ -1015,7 +1036,7 @@ export function MarketingSnapshotGrid({
             <p className="marketing-kicker">{item.label}</p>
             <p
               className={cn(
-                'leading-[0.98] font-[560] tracking-[-0.05em] text-[var(--brand-ink)]',
+                'marketing-card-title leading-[0.98] font-[560] tracking-[-0.05em] text-[var(--brand-ink)]',
                 index === 0 ? 'text-[1.8rem] sm:text-[2.2rem]' : 'text-[1.35rem] sm:text-[1.55rem]'
               )}
             >
@@ -1023,7 +1044,7 @@ export function MarketingSnapshotGrid({
             </p>
             <p
               className={cn(
-                'text-muted-foreground',
+                'marketing-copy-block text-muted-foreground',
                 index === 0 ? 'max-w-[28rem] text-base leading-8' : 'text-sm leading-7 sm:text-base'
               )}
             >
@@ -1045,8 +1066,12 @@ export function MarketingFaqList({
 }
 
 export function MarketingCtaBanner({
+  pageKey,
+  locale,
   closing,
 }: Readonly<{
+  pageKey: MarketingPageKey
+  locale: SeoLocale
   closing: MarketingClosing
 }>) {
   return (
@@ -1062,8 +1087,11 @@ export function MarketingCtaBanner({
             />
             <div className="space-y-4 lg:justify-self-end">
               <MarketingActions
+                pageKey={pageKey}
+                locale={locale}
                 primaryAction={closing.primaryAction}
                 secondaryAction={closing.secondaryAction}
+                placement="closing"
               />
             </div>
           </div>

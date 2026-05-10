@@ -257,6 +257,106 @@
   text-wrap: pretty;
 }
 
+.marketing-zh-scope,
+.marketing-zh-chrome {
+  font-family:
+    'Geist',
+    'Geist Fallback',
+    'PingFang SC',
+    'Hiragino Sans GB',
+    'Noto Sans CJK SC',
+    'Noto Sans SC',
+    'Microsoft YaHei',
+    'DengXian',
+    system-ui,
+    sans-serif;
+}
+
+.marketing-zh-scope .marketing-display-xl {
+  line-height: 1.08;
+  letter-spacing: 0;
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+.marketing-zh-scope .marketing-hero-title {
+  max-width: 13.2ch !important;
+}
+
+.marketing-zh-scope .marketing-heading {
+  line-height: 1.16;
+  letter-spacing: 0;
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+.marketing-zh-scope .marketing-body,
+.marketing-zh-chrome .marketing-body {
+  line-height: 1.86;
+}
+
+.marketing-zh-scope .marketing-kicker,
+.marketing-zh-chrome .marketing-kicker,
+.marketing-zh-scope .marketing-meta-label,
+.marketing-zh-chrome .marketing-meta-label {
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: none;
+}
+
+.marketing-zh-scope .marketing-card-title,
+.marketing-zh-scope .marketing-visual-value,
+.marketing-zh-chrome .marketing-footer-title {
+  line-height: 1.34;
+  letter-spacing: 0;
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+.marketing-zh-scope .marketing-hero-visual-title {
+  max-width: 12.4ch;
+  line-height: 1.32;
+}
+
+.marketing-zh-scope .marketing-aside-title {
+  line-height: 1.72;
+  letter-spacing: 0;
+  font-weight: 500;
+  text-wrap: pretty;
+}
+
+.marketing-zh-scope .marketing-copy-block {
+  line-height: 1.86;
+  text-wrap: pretty;
+}
+
+.marketing-zh-scope .marketing-copy-compact,
+.marketing-zh-chrome .marketing-copy-compact {
+  line-height: 1.74;
+  text-wrap: pretty;
+}
+
+.marketing-zh-chrome .marketing-brand-wordmark {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.marketing-zh-chrome .marketing-nav-text {
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+.marketing-zh-chrome .marketing-button-text,
+.marketing-zh-chrome .marketing-login-text,
+.marketing-zh-chrome .marketing-footer-link {
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.marketing-zh-chrome .marketing-footer-link {
+  line-height: 1.68;
+}
+
 .marketing-panel,
 .marketing-stage {
   position: relative;

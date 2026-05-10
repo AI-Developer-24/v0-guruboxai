@@ -158,6 +158,8 @@ export function Footer() {
   const uiTranslations = translations[uiLocale] ?? translations.en
   const marketingCopy = MARKETING_FOOTER_COPY[marketingRoute.locale]
   const activeMarketingPage = marketingRoute.pageKey ?? 'home'
+  const marketingChromeClass =
+    marketingRoute.isMarketingRoute && marketingRoute.locale === 'zh' ? 'marketing-zh-chrome' : undefined
 
   async function handleLanguageChange(code: string) {
     const newLocale = code as Language
@@ -268,7 +270,7 @@ export function Footer() {
   ]
 
   return (
-    <footer className="relative z-10 mt-auto border-t border-[var(--line-soft)] bg-transparent">
+    <footer className={cn('relative z-10 mt-auto border-t border-[var(--line-soft)] bg-transparent', marketingChromeClass)}>
       <div className="mx-auto max-w-[78rem] px-5 py-12 sm:px-6 sm:py-14 lg:px-8">
         <div className="marketing-stage px-6 py-7 sm:px-8 sm:py-8 lg:px-10">
           <div className="absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,var(--brand-gold),var(--brand-blue),transparent)]" />
@@ -276,14 +278,14 @@ export function Footer() {
             <div className="max-w-[36rem] space-y-6">
               <div className="space-y-4">
                 <p className="marketing-kicker">BadgerSignal</p>
-                <p className="text-[1.85rem] leading-[0.98] font-[560] tracking-[-0.05em] text-[var(--brand-ink)] sm:text-[2.3rem]">
+                <p className="marketing-footer-title text-[1.85rem] leading-[0.98] font-[560] tracking-[-0.05em] text-[var(--brand-ink)] sm:text-[2.3rem]">
                   {marketingCopy.startAnalysis}
                 </p>
                 <p className="marketing-body max-w-[32rem]">{marketingCopy.tagline}</p>
               </div>
               <Link
                 href="/tools/product-insight"
-                className="marketing-inline-link inline-flex items-center gap-2 text-sm font-medium text-[var(--brand-ink)]"
+                className="marketing-inline-link marketing-button-text inline-flex items-center gap-2 text-sm font-medium text-[var(--brand-ink)]"
               >
                 <span>{marketingCopy.startAnalysis}</span>
                 <ArrowRight className="size-4" />
@@ -299,7 +301,7 @@ export function Footer() {
                       key={link.href}
                       href={link.href}
                       className={cn(
-                        'block text-sm transition-colors hover:text-[var(--brand-ink)]',
+                        'marketing-footer-link block text-sm transition-colors hover:text-[var(--brand-ink)]',
                         link.isActive ? 'text-[var(--brand-ink)]' : 'text-muted-foreground'
                       )}
                     >
@@ -317,7 +319,7 @@ export function Footer() {
                       key={link.href}
                       href={link.href}
                       className={cn(
-                        'block text-sm transition-colors hover:text-[var(--brand-ink)]',
+                        'marketing-footer-link block text-sm transition-colors hover:text-[var(--brand-ink)]',
                         link.isActive ? 'text-[var(--brand-ink)]' : 'text-muted-foreground'
                       )}
                     >
@@ -332,13 +334,13 @@ export function Footer() {
                 <div className="space-y-3">
                   <Link
                     href="/privacy"
-                    className="text-muted-foreground block text-sm transition-colors hover:text-[var(--brand-ink)]"
+                    className="marketing-footer-link text-muted-foreground block text-sm transition-colors hover:text-[var(--brand-ink)]"
                   >
                     {uiTranslations.footer_privacy}
                   </Link>
                   <Link
                     href="/terms"
-                    className="text-muted-foreground block text-sm transition-colors hover:text-[var(--brand-ink)]"
+                    className="marketing-footer-link text-muted-foreground block text-sm transition-colors hover:text-[var(--brand-ink)]"
                   >
                     {uiTranslations.footer_terms}
                   </Link>

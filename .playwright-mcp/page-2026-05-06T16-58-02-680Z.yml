@@ -1,0 +1,311 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e16]:
+    - navigation [ref=e17]:
+      - generic [ref=e18]:
+        - link "BadgerSignal BadgerSignal" [ref=e19] [cursor=pointer]:
+          - /url: /zh
+          - img "BadgerSignal" [ref=e21]
+          - generic [ref=e22]: BadgerSignal
+        - generic [ref=e23]:
+          - link "首页" [ref=e24] [cursor=pointer]:
+            - /url: /zh
+          - link "点子生成" [ref=e25] [cursor=pointer]:
+            - /url: /zh/ai-startup-idea-generator
+          - link "点子验证" [ref=e26] [cursor=pointer]:
+            - /url: /zh/saas-idea-validation
+          - link "机会分析" [ref=e27] [cursor=pointer]:
+            - /url: /zh/ai-business-opportunity-analysis
+          - link "公开样例" [ref=e28] [cursor=pointer]:
+            - /url: /zh/examples/ai-tools-for-freelancers
+      - generic [ref=e29]:
+        - 'button "语言: 简体中文" [ref=e30]':
+          - img
+          - generic [ref=e31]: 简体中文
+        - link "开始分析" [ref=e32] [cursor=pointer]:
+          - /url: /tools/product-insight
+  - main [ref=e34]:
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - img [ref=e45]
+            - paragraph [ref=e48]: 对比指南
+          - heading "BadgerSignal 和 ChatGPT，谁更适合验证创业点子" [level=1] [ref=e49]
+          - paragraph [ref=e50]: 看清什么时候通用聊天已经够用，什么时候结构化评分更重要，以及哪条工作流更适合帮助你做下一步判断。
+        - generic [ref=e51]:
+          - link "开始分析" [ref=e52] [cursor=pointer]:
+            - /url: /tools/product-insight
+            - generic [ref=e53]: 开始分析
+            - img
+          - link "查看样例报告" [ref=e54] [cursor=pointer]:
+            - /url: /zh/examples/ai-tools-for-freelancers
+            - generic [ref=e55]: 查看样例报告
+      - article [ref=e58]:
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - paragraph [ref=e64]: 对比页面
+            - img [ref=e66]
+          - generic [ref=e73]:
+            - generic [ref=e75]:
+              - paragraph [ref=e77]: 发散速度
+              - paragraph [ref=e79]: ChatGPT
+            - generic [ref=e81]:
+              - paragraph [ref=e83]: 排序清晰度
+              - paragraph [ref=e85]: BadgerSignal
+            - generic [ref=e87]:
+              - paragraph [ref=e89]: 决策目标
+              - paragraph [ref=e91]: 更清楚的下一步
+    - generic [ref=e94]:
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - paragraph [ref=e97]: 为什么需要这页对比
+          - heading "ChatGPT 很适合做粗粒度探索，但当你需要稳定比较、显式评分和更清楚的下一步决策时，创业点子验证会变得更难。" [level=2] [ref=e98]
+          - paragraph [ref=e99]: 这页是给正在犹豫“通用提示词够不够”的访客看的。真正的选择并不是哪一个更聪明，而是你当前的任务到底是开放式发散，还是围绕一个候选切口做结构化验证。
+        - generic [ref=e101]:
+          - paragraph [ref=e102]: 为什么需要这页对比
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - generic [ref=e105]: "01"
+              - paragraph [ref=e107]: ChatGPT 更擅长什么
+            - generic [ref=e108]:
+              - generic [ref=e109]: "02"
+              - paragraph [ref=e111]: BadgerSignal 更擅长什么
+            - generic [ref=e112]:
+              - generic [ref=e113]: "03"
+              - paragraph [ref=e115]: 真正要做的判断是什么
+      - generic [ref=e117]:
+        - article [ref=e118]:
+          - generic [ref=e121]:
+            - img [ref=e123]
+            - generic [ref=e126]:
+              - heading "ChatGPT 更擅长什么" [level=3] [ref=e127]
+              - paragraph [ref=e128]: 当问题还很松、你还在找角度、改表述或扩展更多方向时，通用聊天通常更快，也更适合来回试探。
+        - article [ref=e129]:
+          - generic [ref=e132]:
+            - img [ref=e134]
+            - generic [ref=e137]:
+              - heading "BadgerSignal 更擅长什么" [level=3] [ref=e138]
+              - paragraph [ref=e139]: 当你需要可见评分、可重复排序，以及一套专门为了“决定下一步该继续研究什么”而设计的流程时，结构化工作流会更强。
+        - article [ref=e140]:
+          - generic [ref=e143]:
+            - img [ref=e145]
+            - generic [ref=e148]:
+              - heading "真正要做的判断是什么" [level=3] [ref=e149]
+              - paragraph [ref=e150]: 不是“哪个工具更厉害”，而是你当前需要的是继续发散，还是需要一套更稳定的框架去判断哪个切口值得继续。
+    - generic [ref=e153]:
+      - generic [ref=e154]:
+        - generic [ref=e155]:
+          - paragraph [ref=e156]: 适用场景
+          - heading "当你正在比较通用聊天和专门验证工作流时，用这页对比来选正确路径。" [level=2] [ref=e157]
+          - paragraph [ref=e158]: 这页最适合已经在用 ChatGPT，但开始怀疑自己是否需要一套更稳定的验证框架的人。它帮助你根据当前任务，选择更合适的路径。
+        - generic [ref=e160]:
+          - paragraph [ref=e161]: 适用场景
+          - generic [ref=e162]:
+            - generic [ref=e163]:
+              - generic [ref=e164]: "01"
+              - paragraph [ref=e166]: 适合谁
+            - generic [ref=e167]:
+              - generic [ref=e168]: "02"
+              - paragraph [ref=e170]: 不适合谁
+            - generic [ref=e171]:
+              - generic [ref=e172]: "03"
+              - paragraph [ref=e174]: 什么时候用
+      - generic [ref=e176]:
+        - article [ref=e177]:
+          - generic [ref=e180]:
+            - img [ref=e182]
+            - generic [ref=e187]:
+              - heading "适合谁" [level=3] [ref=e188]
+              - paragraph [ref=e189]: 已经会用 ChatGPT，但现在想判断 dedicated validation workflow 是否能带来更清楚决策的人。
+        - article [ref=e190]:
+          - generic [ref=e193]:
+            - img [ref=e195]
+            - generic [ref=e200]:
+              - heading "不适合谁" [level=3] [ref=e201]
+              - paragraph [ref=e202]: 只是想看一篇泛泛 AI 工具评测，却没有明确验证任务的人。
+        - article [ref=e203]:
+          - generic [ref=e206]:
+            - img [ref=e208]
+            - generic [ref=e213]:
+              - heading "什么时候用" [level=3] [ref=e214]
+              - paragraph [ref=e215]: 当你想决定是继续做松散探索，还是进入一套会排序、会评分、会帮你收窄下一步的流程时使用。
+    - generic [ref=e218]:
+      - generic [ref=e219]:
+        - generic [ref=e220]:
+          - paragraph [ref=e221]: 决策框架
+          - heading "关键差别不在于输出多少，而在于它能不能帮助你比较、排序，并留下一个清楚的下一步。" [level=2] [ref=e222]
+          - paragraph [ref=e223]: 做第一轮发散时，通用聊天通常已经足够；一旦你开始需要围绕重复痛点、买家贴合度和是否值得继续投入来判断一个切口，结构化验证会更有价值。
+        - generic [ref=e225]:
+          - paragraph [ref=e226]: 决策框架
+          - generic [ref=e227]:
+            - generic [ref=e228]:
+              - generic [ref=e229]: "01"
+              - paragraph [ref=e231]: 你不再想继续堆点子，而是想得到一组可排序、可比较的输出。
+            - generic [ref=e232]:
+              - generic [ref=e233]: "02"
+              - paragraph [ref=e235]: 你需要在同一套评分框架下比较多个切口，再决定哪一个值得更深验证。
+            - generic [ref=e236]:
+              - generic [ref=e237]: "03"
+              - paragraph [ref=e239]: 你希望在登录前先看公开样例，并用一套围绕下一步决策设计的流程来收窄方向。
+      - generic [ref=e241]:
+        - article [ref=e242]:
+          - generic [ref=e244]:
+            - paragraph [ref=e245]: 什么时候 ChatGPT 往往已经够用
+            - generic [ref=e246]:
+              - paragraph [ref=e249]: 你只是想为一个宽泛市场找到更多角度，暂时还没准备好认真判断一个切口。
+              - paragraph [ref=e252]: 你还在拓展更多创业方向，想先快速改写、追问和试探不同表达。
+              - paragraph [ref=e255]: 你当前更需要即时对话，而不是稳定的排序框架。
+        - article [ref=e256]:
+          - generic [ref=e258]:
+            - paragraph [ref=e259]: 什么时候 BadgerSignal 更有帮助
+            - generic [ref=e260]:
+              - paragraph [ref=e263]: 你不再想继续堆点子，而是想得到一组可排序、可比较的输出。
+              - paragraph [ref=e266]: 你需要在同一套评分框架下比较多个切口，再决定哪一个值得更深验证。
+              - paragraph [ref=e269]: 你希望在登录前先看公开样例，并用一套围绕下一步决策设计的流程来收窄方向。
+    - generic [ref=e272]:
+      - generic [ref=e273]:
+        - generic [ref=e274]:
+          - paragraph [ref=e275]: 常见问题
+          - heading "在比较 BadgerSignal 和 ChatGPT 时，用户最常问什么" [level=2] [ref=e276]
+          - paragraph [ref=e277]: 这些问题会帮助访客理解各自适合什么任务、怎么一起使用，以及为什么结构化验证往往比通用聊天更适合做下一步判断。
+        - generic [ref=e279]:
+          - paragraph [ref=e280]: 常见问题
+          - generic [ref=e281]:
+            - generic [ref=e282]:
+              - generic [ref=e283]: Q1
+              - paragraph [ref=e285]: ChatGPT 完全不能帮我验证创业点子吗？
+            - generic [ref=e286]:
+              - generic [ref=e287]: Q2
+              - paragraph [ref=e289]: BadgerSignal 和一个写得很好的 prompt 有什么本质差别？
+            - generic [ref=e290]:
+              - generic [ref=e291]: Q3
+              - paragraph [ref=e293]: 如果我用 BadgerSignal，就不该再用 ChatGPT 了吗？
+      - generic [ref=e295]:
+        - article [ref=e296]:
+          - generic [ref=e298]:
+            - heading "ChatGPT 完全不能帮我验证创业点子吗？" [level=3] [ref=e299]
+            - paragraph [ref=e300]: 不是。它可以帮你想风险、反例和不同表达。它的弱点在于，当你需要稳定地比较多个切口，或者想留下一个更明确的下一步时，它不会自然形成那套框架。
+        - article [ref=e301]:
+          - generic [ref=e303]:
+            - heading "BadgerSignal 和一个写得很好的 prompt 有什么本质差别？" [level=3] [ref=e304]
+            - paragraph [ref=e305]: 它会把流程锚定在一个方向上，给你更稳定的比较框架，并把输出设计成可以排序和继续推进，而不是只停留在对话式探索里。
+        - article [ref=e306]:
+          - generic [ref=e308]:
+            - heading "如果我用 BadgerSignal，就不该再用 ChatGPT 了吗？" [level=3] [ref=e309]
+            - paragraph [ref=e310]: 不是。二者可以配合。ChatGPT 仍适合做松散探索和改写；BadgerSignal 更适合在问题开始收窄、需要结构化判断时接手。
+        - article [ref=e311]:
+          - generic [ref=e313]:
+            - heading "看完这页之后，最适合进入哪个页面？" [level=3] [ref=e314]
+            - paragraph [ref=e315]: 如果你已经有一个候选切口，就去 SaaS 点子验证；如果切口还太松，就先回到 AI 创业点子生成器，或者先看一份公开样例。
+    - generic [ref=e318]:
+      - generic [ref=e319]:
+        - generic [ref=e320]:
+          - paragraph [ref=e321]: 继续浏览
+          - heading "进入下一页，把判断再收紧一步。" [level=2] [ref=e322]
+          - paragraph [ref=e323]: 每个核心工作流都应该自然连回首页、相邻工作流和至少一个公开样例，让访客不用走回头路，也能继续推进判断。
+        - generic [ref=e325]:
+          - paragraph [ref=e326]: 继续浏览
+          - generic [ref=e327]:
+            - generic [ref=e328]:
+              - generic [ref=e329]: "01"
+              - generic [ref=e330]:
+                - paragraph [ref=e331]: SaaS 点子验证
+                - paragraph [ref=e332]: 进入验证工作流
+            - generic [ref=e333]:
+              - generic [ref=e334]: "02"
+              - generic [ref=e335]:
+                - paragraph [ref=e336]: AI 创业点子生成器
+                - paragraph [ref=e337]: 查看生成器页面
+            - generic [ref=e338]:
+              - generic [ref=e339]: "03"
+              - generic [ref=e340]:
+                - paragraph [ref=e341]: 招聘样例报告
+                - paragraph [ref=e342]: 查看招聘样例
+      - generic [ref=e344]:
+        - article [ref=e345]:
+          - generic [ref=e347]:
+            - generic [ref=e348]:
+              - img [ref=e350]
+              - generic [ref=e354]:
+                - heading "SaaS 点子验证" [level=3] [ref=e355]
+                - paragraph [ref=e356]: 进入更聚焦的工作流，围绕一个候选切口做继续还是停下的判断。
+            - link "进入验证工作流" [ref=e357] [cursor=pointer]:
+              - /url: /zh/saas-idea-validation
+              - generic [ref=e358]: 进入验证工作流
+              - img [ref=e359]
+        - article [ref=e361]:
+          - generic [ref=e363]:
+            - generic [ref=e364]:
+              - img [ref=e366]
+              - generic [ref=e370]:
+                - heading "AI 创业点子生成器" [level=3] [ref=e371]
+                - paragraph [ref=e372]: 如果方向还太宽，就先回到更前一步，把方向展开成更多候选切口。
+            - link "查看生成器页面" [ref=e373] [cursor=pointer]:
+              - /url: /zh/ai-startup-idea-generator
+              - generic [ref=e374]: 查看生成器页面
+              - img [ref=e375]
+        - article [ref=e377]:
+          - generic [ref=e379]:
+            - generic [ref=e380]:
+              - img [ref=e382]
+              - generic [ref=e386]:
+                - heading "招聘样例报告" [level=3] [ref=e387]
+                - paragraph [ref=e388]: 先看一份公开招聘报告，感受登录前的排序输出到底有多具体。
+            - link "查看招聘样例" [ref=e389] [cursor=pointer]:
+              - /url: /zh/examples/ai-tools-for-recruiters
+              - generic [ref=e390]: 查看招聘样例
+              - img [ref=e391]
+    - generic [ref=e397]:
+      - generic [ref=e398]:
+        - paragraph [ref=e399]: 选对下一条流程
+        - heading "当“下一步该做什么”比继续发散更重要时，进入结构化验证。" [level=2] [ref=e400]
+        - paragraph [ref=e401]: 如果你要的已经不再是更多 brainstorm，而是更清楚的下一步，那就进入一条会比较、会排序、会帮助你收窄方向的验证流程。
+      - generic [ref=e403]:
+        - link "开始分析" [ref=e404] [cursor=pointer]:
+          - /url: /tools/product-insight
+          - generic [ref=e405]: 开始分析
+          - img
+        - link "进入验证工作流" [ref=e406] [cursor=pointer]:
+          - /url: /zh/saas-idea-validation
+          - generic [ref=e407]: 进入验证工作流
+  - contentinfo [ref=e408]:
+    - generic [ref=e409]:
+      - generic [ref=e412]:
+        - generic [ref=e413]:
+          - generic [ref=e414]:
+            - paragraph [ref=e415]: BadgerSignal
+            - paragraph [ref=e416]: 开始分析
+            - paragraph [ref=e417]: 把 AI 创业研究、公开样例和更清晰的工作流放进同一个公开站点，让搜索访客更快理解产品并进入使用。
+          - link "开始分析" [ref=e418] [cursor=pointer]:
+            - /url: /tools/product-insight
+            - generic [ref=e419]: 开始分析
+            - img [ref=e420]
+        - generic [ref=e422]:
+          - generic [ref=e423]:
+            - paragraph [ref=e424]: 产品
+            - generic [ref=e425]:
+              - link "首页" [ref=e426] [cursor=pointer]:
+                - /url: /zh
+              - link "AI 创业点子生成器" [ref=e427] [cursor=pointer]:
+                - /url: /zh/ai-startup-idea-generator
+              - link "SaaS 点子验证" [ref=e428] [cursor=pointer]:
+                - /url: /zh/saas-idea-validation
+              - link "AI 商业机会分析" [ref=e429] [cursor=pointer]:
+                - /url: /zh/ai-business-opportunity-analysis
+          - generic [ref=e430]:
+            - paragraph [ref=e431]: 样例
+            - generic [ref=e432]:
+              - link "自由职业者样例报告" [ref=e433] [cursor=pointer]:
+                - /url: /zh/examples/ai-tools-for-freelancers
+              - link "中小企业样例报告" [ref=e434] [cursor=pointer]:
+                - /url: /zh/examples/ai-tools-for-small-business
+          - generic [ref=e435]:
+            - paragraph [ref=e436]: 公司
+            - generic [ref=e437]:
+              - link "隐私政策" [ref=e438] [cursor=pointer]:
+                - /url: /privacy
+              - link "服务条款" [ref=e439] [cursor=pointer]:
+                - /url: /terms
+      - paragraph [ref=e441]: © 2026 BadgerSignal. 保留所有权利。
+  - region "Notifications alt+T"
+  - alert [ref=e442]

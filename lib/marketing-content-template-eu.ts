@@ -145,6 +145,27 @@ export const EURO_TEMPLATE_FIELDS: Partial<
             'Der Detailbereich trennt bereits sauber, was Nutzer eingeben und was sie als Ergebnis zurückbekommen.',
         },
       ],
+      intentEyebrow: 'Den richtigen Workflow wählen',
+      intentTitle: 'Nutze die Seite, die zu deiner nächsten Entscheidung passt.',
+      intentDescription:
+        'Kernseiten funktionieren am besten, wenn Besucher schnell erkennen, ob dieser Workflow jetzt passt oder ob zuerst eine andere Seite sinnvoller ist.',
+      intentColumns: [
+        {
+          title: 'Geeignet für',
+          description:
+            'Besucher, die bereits einen Markt, Workflow oder eine Kandidatenidee im Blick haben und gezielter weiterarbeiten wollen.',
+        },
+        {
+          title: 'Nicht geeignet für',
+          description:
+            'Menschen, die nur ein generisches Brainstorming suchen oder ohne ausreichenden Kontext eine endgültige Antwort erwarten.',
+        },
+        {
+          title: 'Nutze es, wenn',
+          description:
+            'Du vor dem Login eine klarere nächste Entscheidung als bloßes Weiterstöbern brauchst.',
+        },
+      ],
       detailEyebrow: 'Input-und-Output-Rahmen',
       detailTitle: 'Das Template trennt Eingabe und Ergebnis, damit die Produktlogik sofort verständlich wird.',
       detailDescription:
@@ -288,6 +309,27 @@ export const EURO_TEMPLATE_FIELDS: Partial<
         {
           title: 'Warum es gewinnt',
           description: 'Der letzte Bereich erklärt Bewertung, Begründung und den CTA für den nächsten Schritt.',
+        },
+      ],
+      faqEyebrow: 'FAQ',
+      faqTitle: 'Häufige Fragen zum Lesen eines öffentlichen Beispielberichts',
+      faqDescription:
+        'Diese Antworten helfen Besuchern zu verstehen, was ein öffentlicher Bericht beweist, wie man ihn liest und wann die eigene Analyse sinnvoll ist.',
+      faqItems: [
+        {
+          question: 'Wofür sollte ich diesen öffentlichen Bericht nutzen?',
+          answer:
+            'Nutze ihn, um zu beurteilen, ob das Ergebnis konkret, priorisiert und brauchbar genug wirkt, bevor du deine eigene Richtung einreichst.',
+        },
+        {
+          question: 'Basiert dieses Beispiel auf einem realen Workflow-Szenario?',
+          answer:
+            'Ja. Öffentliche Beispiele sind immer um eine konkrete Zielgruppe und einen realen Workflow organisiert, damit die Ausgabe glaubwürdig wirkt.',
+        },
+        {
+          question: 'Was sollte ich nach dem Lesen des Beispiels tun?',
+          answer:
+            'Wenn Ranking-Logik und Ergebnisqualität relevant wirken, starte deine eigene Analyse oder vergleiche zuerst einen weiteren öffentlichen Workflow.',
         },
       ],
       relatedEyebrow: 'Weiter erkunden',
@@ -452,6 +494,27 @@ export const EURO_TEMPLATE_FIELDS: Partial<
             'La zone de détail sépare déjà ce que l utilisateur apporte et ce qu il récupère ensuite.',
         },
       ],
+      intentEyebrow: 'Choisir le bon workflow',
+      intentTitle: 'Utilisez la page qui correspond à la décision que vous devez prendre maintenant.',
+      intentDescription:
+        'Les pages centrales fonctionnent mieux quand le visiteur comprend vite si ce workflow est le bon ou si une autre page convient d abord.',
+      intentColumns: [
+        {
+          title: 'Idéal pour',
+          description:
+            'Les visiteurs qui connaissent déjà le marché, le workflow ou l idée candidate qu ils veulent examiner plus sérieusement.',
+        },
+        {
+          title: 'Pas idéal pour',
+          description:
+            'Les personnes qui cherchent seulement un brainstorming générique ou une réponse finale sans assez de contexte.',
+        },
+        {
+          title: 'À utiliser quand',
+          description:
+            'Vous avez besoin d une prochaine décision plus nette que “continuer à explorer” et voulez une structure visible avant la connexion.',
+        },
+      ],
       detailEyebrow: 'Cadre entrée-sortie',
       detailTitle: 'Le template distingue déjà l entrée et la sortie pour rendre la logique produit lisible.',
       detailDescription:
@@ -595,6 +658,27 @@ export const EURO_TEMPLATE_FIELDS: Partial<
         {
           title: 'Pourquoi ça gagne',
           description: 'La dernière zone sert à la logique, au score et au CTA qui fait avancer le visiteur.',
+        },
+      ],
+      faqEyebrow: 'FAQ',
+      faqTitle: 'Questions fréquentes sur la lecture d un rapport public',
+      faqDescription:
+        'Ces réponses aident le visiteur à comprendre ce que prouve un rapport public, comment le lire et quand lancer sa propre analyse.',
+      faqItems: [
+        {
+          question: 'À quoi sert ce rapport public ?',
+          answer:
+            'Il sert à juger si le résultat paraît assez concret, classé et exploitable avant de soumettre votre propre direction.',
+        },
+        {
+          question: 'Cet exemple repose-t-il sur un workflow réel ?',
+          answer:
+            'Oui. Les exemples publics sont construits autour d une audience et d un workflow concrets pour montrer une sortie crédible plutôt qu une démo générique.',
+        },
+        {
+          question: 'Que faire après avoir lu cet exemple ?',
+          answer:
+            'Si la logique de classement et la qualité du résultat vous semblent pertinentes, lancez votre propre analyse ou comparez un autre workflow public.',
         },
       ],
       relatedEyebrow: 'Continuer à explorer',
@@ -759,6 +843,27 @@ export const EURO_TEMPLATE_FIELDS: Partial<
             'La sezione di dettaglio separa già ciò che l utente porta e ciò che riceve in uscita.',
         },
       ],
+      intentEyebrow: 'Scegli il workflow giusto',
+      intentTitle: 'Usa la pagina che corrisponde alla decisione che devi prendere adesso.',
+      intentDescription:
+        'Le pagine core funzionano meglio quando il visitatore capisce subito se questo workflow è quello giusto o se prima serve un altra pagina.',
+      intentColumns: [
+        {
+          title: 'Ideale per',
+          description:
+            'Visitatori che conoscono già il mercato, il workflow o l idea candidata che vogliono esaminare più seriamente.',
+        },
+        {
+          title: 'Non ideale per',
+          description:
+            'Persone che cercano solo brainstorming generico o una risposta finale senza abbastanza contesto.',
+        },
+        {
+          title: 'Usalo quando',
+          description:
+            'Hai bisogno di una decisione successiva più netta di “continuare a esplorare” e vuoi vedere struttura prima del login.',
+        },
+      ],
       detailEyebrow: 'Cornice input-output',
       detailTitle: 'Il template separa input e risultato per rendere chiara la logica del prodotto.',
       detailDescription:
@@ -902,6 +1007,27 @@ export const EURO_TEMPLATE_FIELDS: Partial<
         {
           title: 'Perché vince',
           description: 'L ultima zona serve a score, ragionamento e CTA che fanno avanzare il visitatore.',
+        },
+      ],
+      faqEyebrow: 'FAQ',
+      faqTitle: 'Domande frequenti sulla lettura di un report pubblico',
+      faqDescription:
+        'Queste risposte aiutano il visitatore a capire cosa prova un report pubblico, come leggerlo e quando lanciare la propria analisi.',
+      faqItems: [
+        {
+          question: 'A cosa serve questo report pubblico?',
+          answer:
+            'Serve a giudicare se l output sembra abbastanza concreto, ordinato e azionabile prima di inviare la tua direzione.',
+        },
+        {
+          question: 'Questo esempio si basa su un workflow reale?',
+          answer:
+            'Sì. Gli esempi pubblici sono costruiti attorno a un audience e a un workflow concreti per mostrare un output credibile, non una demo generica.',
+        },
+        {
+          question: 'Cosa dovrei fare dopo aver letto l esempio?',
+          answer:
+            'Se la logica di ranking e la qualità dell output ti sembrano rilevanti, avvia la tua analisi o confronta un altro workflow pubblico.',
         },
       ],
       relatedEyebrow: 'Continua a esplorare',
@@ -1066,6 +1192,27 @@ export const EURO_TEMPLATE_FIELDS: Partial<
             'La zona de detalle ya separa lo que trae el usuario y lo que recibe al final.',
         },
       ],
+      intentEyebrow: 'Elegir el workflow correcto',
+      intentTitle: 'Usa la página que coincide con la decisión que necesitas tomar ahora.',
+      intentDescription:
+        'Las páginas core funcionan mejor cuando el visitante entiende rápido si este workflow es el adecuado o si antes conviene otra página.',
+      intentColumns: [
+        {
+          title: 'Ideal para',
+          description:
+            'Visitantes que ya conocen el mercado, el workflow o la idea candidata que quieren revisar con más seriedad.',
+        },
+        {
+          title: 'No ideal para',
+          description:
+            'Personas que solo buscan brainstorming genérico o una respuesta final sin suficiente contexto.',
+        },
+        {
+          title: 'Úsalo cuando',
+          description:
+            'Necesitas una siguiente decisión más clara que “seguir explorando” y quieres ver estructura antes del login.',
+        },
+      ],
       detailEyebrow: 'Marco entrada-salida',
       detailTitle: 'El template ya separa entrada y salida para que la lógica del producto sea evidente.',
       detailDescription:
@@ -1209,6 +1356,27 @@ export const EURO_TEMPLATE_FIELDS: Partial<
         {
           title: 'Por qué gana',
           description: 'La última zona sirve para score, razonamiento y CTA que hacen avanzar al visitante.',
+        },
+      ],
+      faqEyebrow: 'FAQ',
+      faqTitle: 'Preguntas frecuentes sobre cómo leer un reporte público',
+      faqDescription:
+        'Estas respuestas ayudan al visitante a entender qué demuestra un reporte público, cómo leerlo y cuándo lanzar su propio análisis.',
+      faqItems: [
+        {
+          question: '¿Para qué sirve este reporte público?',
+          answer:
+            'Sirve para juzgar si el output parece lo bastante concreto, ordenado y accionable antes de enviar tu propia dirección.',
+        },
+        {
+          question: '¿Este ejemplo está basado en un workflow real?',
+          answer:
+            'Sí. Los ejemplos públicos se construyen alrededor de una audiencia y un workflow concretos para mostrar una salida creíble, no una demo genérica.',
+        },
+        {
+          question: '¿Qué debería hacer después de leer este ejemplo?',
+          answer:
+            'Si la lógica de ranking y la calidad del output te parecen relevantes, lanza tu propio análisis o compara otro workflow público.',
         },
       ],
       relatedEyebrow: 'Seguir explorando',
@@ -1373,6 +1541,27 @@ export const EURO_TEMPLATE_FIELDS: Partial<
             'A área de detalhe já separa o que o usuário traz e o que ele recebe de volta.',
         },
       ],
+      intentEyebrow: 'Escolha o workflow certo',
+      intentTitle: 'Use a página que combina com a decisão que você precisa tomar agora.',
+      intentDescription:
+        'As páginas core funcionam melhor quando o visitante entende rápido se este workflow é o certo ou se outra página faz mais sentido antes.',
+      intentColumns: [
+        {
+          title: 'Ideal para',
+          description:
+            'Visitantes que já conhecem o mercado, o workflow ou a ideia candidata que querem examinar com mais seriedade.',
+        },
+        {
+          title: 'Não ideal para',
+          description:
+            'Pessoas que só querem brainstorming genérico ou uma resposta final sem contexto suficiente.',
+        },
+        {
+          title: 'Use quando',
+          description:
+            'Você precisa de uma próxima decisão mais clara que “continuar explorando” e quer ver estrutura antes do login.',
+        },
+      ],
       detailEyebrow: 'Quadro entrada-saída',
       detailTitle: 'O template já separa entrada e saída para tornar a lógica do produto evidente.',
       detailDescription:
@@ -1516,6 +1705,27 @@ export const EURO_TEMPLATE_FIELDS: Partial<
         {
           title: 'Por que vence',
           description: 'A última zona serve para score, raciocínio e CTA que fazem o visitante avançar.',
+        },
+      ],
+      faqEyebrow: 'FAQ',
+      faqTitle: 'Perguntas frequentes sobre como ler um relatório público',
+      faqDescription:
+        'Estas respostas ajudam o visitante a entender o que um relatório público prova, como lê-lo e quando iniciar a própria análise.',
+      faqItems: [
+        {
+          question: 'Para que serve este relatório público?',
+          answer:
+            'Ele serve para julgar se o output parece concreto, ordenado e acionável o bastante antes de enviar a sua própria direção.',
+        },
+        {
+          question: 'Este exemplo é baseado em um workflow real?',
+          answer:
+            'Sim. Os exemplos públicos são construídos em torno de uma audiência e de um workflow concretos para mostrar uma saída crível, não uma demo genérica.',
+        },
+        {
+          question: 'O que devo fazer depois de ler este exemplo?',
+          answer:
+            'Se a lógica de ranking e a qualidade do output parecerem relevantes, inicie a sua própria análise ou compare outro workflow público.',
         },
       ],
       relatedEyebrow: 'Continuar explorando',

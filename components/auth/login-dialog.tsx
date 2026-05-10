@@ -10,18 +10,34 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { trackAuthGoogleSignInClick } from "@/lib/analytics/marketing-funnel"
 
 interface LoginDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onLoginSuccess?: () => void
+  trackingSource?: {
+    surface: string
+    currentPath: string
+    locale?: string
+    sourcePageKey?: string
+  }
 }
 
-export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogProps) {
+export function LoginDialog({
+  open,
+  onOpenChange,
+  onLoginSuccess,
+  trackingSource,
+}: LoginDialogProps) {
   const { login } = useAuth()
   const { t } = useI18n()
 
   const handleLogin = async () => {
+    if (trackingSource) {
+      trackAuthGoogleSignInClick(trackingSource)
+    }
+
     // Open blank popup SYNCHRONOUSLY (Safari requires window.open in direct click handler)
     const width = 500
     const height = 600

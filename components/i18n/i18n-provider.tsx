@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
 import type { Language } from "@/lib/types"
+import { SEO_LOCALE_COOKIE_NAME } from "@/lib/seo/locales"
 import { translations, type TranslationKeys } from "@/lib/translations"
 
 interface I18nContextType {
@@ -15,17 +16,23 @@ const I18nContext = createContext<I18nContextType | null>(null)
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Language>("en")
 
+  const syncLocaleCookie = useCallback((newLocale: Language) => {
+    document.cookie = `${SEO_LOCALE_COOKIE_NAME}=${newLocale}; path=/; max-age=31536000; samesite=lax`
+  }, [])
+
   useEffect(() => {
     const saved = localStorage.getItem("badgersignal_locale") as Language | null
     if (saved && translations[saved]) {
       setLocaleState(saved)
+      syncLocaleCookie(saved)
     }
-  }, [])
+  }, [syncLocaleCookie])
 
   const setLocale = useCallback((newLocale: Language) => {
     setLocaleState(newLocale)
     localStorage.setItem("badgersignal_locale", newLocale)
-  }, [])
+    syncLocaleCookie(newLocale)
+  }, [syncLocaleCookie])
 
   const t = useCallback(
     (key: keyof TranslationKeys): string => {

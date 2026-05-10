@@ -1,0 +1,312 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e16]:
+    - navigation [ref=e17]:
+      - generic [ref=e18]:
+        - link "BadgerSignal BadgerSignal" [ref=e19] [cursor=pointer]:
+          - /url: /en
+          - img "BadgerSignal" [ref=e21]
+          - generic [ref=e22]: BadgerSignal
+        - generic [ref=e23]:
+          - link "Home" [ref=e24] [cursor=pointer]:
+            - /url: /en
+          - link "Idea Generator" [ref=e25] [cursor=pointer]:
+            - /url: /en/ai-startup-idea-generator
+          - link "Validation" [ref=e26] [cursor=pointer]:
+            - /url: /en/saas-idea-validation
+          - link "Opportunity Analysis" [ref=e27] [cursor=pointer]:
+            - /url: /en/ai-business-opportunity-analysis
+          - link "Public Examples" [ref=e28] [cursor=pointer]:
+            - /url: /en/examples/ai-tools-for-freelancers
+      - generic [ref=e29]:
+        - 'button "Language: English" [ref=e30]':
+          - img
+          - generic [ref=e31]: English
+        - link "Start Analysis" [ref=e32] [cursor=pointer]:
+          - /url: /tools/product-insight
+        - button "Login" [ref=e33]
+  - main [ref=e34]:
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - img [ref=e45]
+            - paragraph [ref=e48]: Use case
+          - heading "AI tools for recruiters, narrowed to repeated workflow pain." [level=1] [ref=e49]
+          - paragraph [ref=e50]: Explore recruiter-specific AI wedges around interview notes, candidate follow-up, and operational handoff before you commit to a product direction.
+        - generic [ref=e51]:
+          - link "Start Analysis" [ref=e52] [cursor=pointer]:
+            - /url: /tools/product-insight
+            - generic [ref=e53]: Start Analysis
+            - img
+          - link "View Sample Report" [ref=e54] [cursor=pointer]:
+            - /url: /en/examples/ai-tools-for-freelancers
+            - generic [ref=e55]: View Sample Report
+      - article [ref=e58]:
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - paragraph [ref=e64]: Recruiter use case
+            - img [ref=e66]
+          - generic [ref=e73]:
+            - generic [ref=e75]:
+              - paragraph [ref=e77]: Audience fit
+              - paragraph [ref=e79]: Recruiters
+            - generic [ref=e81]:
+              - paragraph [ref=e83]: Pain shape
+              - paragraph [ref=e85]: Repeated
+            - generic [ref=e87]:
+              - paragraph [ref=e89]: Wedge goal
+              - paragraph [ref=e91]: Operational
+    - generic [ref=e94]:
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - paragraph [ref=e97]: Why this page exists
+          - heading "Recruiter AI opportunities are strongest when they solve repeated handoff friction, not when they try to be general-purpose recruiting assistants." [level=2] [ref=e98]
+          - paragraph [ref=e99]: This page focuses on recruiter workflows where interview notes, candidate summaries, follow-up, and role-to-fit handoffs create repeated operational drag. Those are the places where narrow product wedges are easier to explain and test.
+        - generic [ref=e101]:
+          - paragraph [ref=e102]: Why this page exists
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - generic [ref=e105]: "01"
+              - paragraph [ref=e107]: Interview notes stay messy
+            - generic [ref=e108]:
+              - generic [ref=e109]: "02"
+              - paragraph [ref=e111]: Follow-up quality drops under load
+            - generic [ref=e112]:
+              - generic [ref=e113]: "03"
+              - paragraph [ref=e115]: The best wedges are operational
+      - generic [ref=e117]:
+        - article [ref=e118]:
+          - generic [ref=e121]:
+            - img [ref=e123]
+            - generic [ref=e126]:
+              - heading "Interview notes stay messy" [level=3] [ref=e127]
+              - paragraph [ref=e128]: Recruiters capture a high volume of conversations, but the handoff from notes to candidate summary is still manual, uneven, and time sensitive.
+        - article [ref=e129]:
+          - generic [ref=e132]:
+            - img [ref=e134]
+            - generic [ref=e137]:
+              - heading "Follow-up quality drops under load" [level=3] [ref=e138]
+              - paragraph [ref=e139]: When recruiter volume rises, the best candidates can go cold because next steps, recap quality, and internal handoff speed all start to slip.
+        - article [ref=e140]:
+          - generic [ref=e143]:
+            - img [ref=e145]
+            - generic [ref=e148]:
+              - heading "The best wedges are operational" [level=3] [ref=e149]
+              - paragraph [ref=e150]: The most credible AI tools here are not broad “recruiting copilots.” They are narrower workflows that reduce admin drag inside candidate movement.
+    - generic [ref=e153]:
+      - generic [ref=e154]:
+        - generic [ref=e155]:
+          - paragraph [ref=e156]: Best fit
+          - heading "Use this page when you want recruiter-specific AI wedges rooted in repeated workflow pain." [level=2] [ref=e157]
+          - paragraph [ref=e158]: This page is best for founders, independent recruiters, and hiring operators who already know the recruiting context but need sharper product wedges than broad AI-for-HR positioning usually provides.
+        - generic [ref=e160]:
+          - paragraph [ref=e161]: Best fit
+          - generic [ref=e162]:
+            - generic [ref=e163]:
+              - generic [ref=e164]: "01"
+              - paragraph [ref=e166]: Best for
+            - generic [ref=e167]:
+              - generic [ref=e168]: "02"
+              - paragraph [ref=e170]: Not for
+            - generic [ref=e171]:
+              - generic [ref=e172]: "03"
+              - paragraph [ref=e174]: Use it when
+      - generic [ref=e176]:
+        - article [ref=e177]:
+          - generic [ref=e180]:
+            - img [ref=e182]
+            - generic [ref=e187]:
+              - heading "Best for" [level=3] [ref=e188]
+              - paragraph [ref=e189]: People exploring interview-note cleanup, candidate-summary workflows, or recruiter follow-up systems with clear time-to-response pressure.
+        - article [ref=e190]:
+          - generic [ref=e193]:
+            - img [ref=e195]
+            - generic [ref=e200]:
+              - heading "Not for" [level=3] [ref=e201]
+              - paragraph [ref=e202]: Teams looking for a generic HR stack overview or a very broad article about hiring automation trends.
+        - article [ref=e203]:
+          - generic [ref=e206]:
+            - img [ref=e208]
+            - generic [ref=e213]:
+              - heading "Use it when" [level=3] [ref=e214]
+              - paragraph [ref=e215]: You want to see whether recruiter-specific workflow pain can turn into a product wedge worth validating next.
+    - generic [ref=e218]:
+      - generic [ref=e219]:
+        - generic [ref=e220]:
+          - paragraph [ref=e221]: Input and output example
+          - heading "The most useful recruiter input starts from one workflow bottleneck, not the whole recruiting stack at once." [level=2] [ref=e222]
+          - paragraph [ref=e223]: A narrow workflow makes it easier to compare candidate wedges by operational urgency, follow-up risk, and whether the product story is simple enough for recruiters to adopt quickly.
+        - generic [ref=e225]:
+          - paragraph [ref=e226]: Input and output example
+          - generic [ref=e227]:
+            - generic [ref=e228]:
+              - generic [ref=e229]: "01"
+              - paragraph [ref=e231]: A clearer ranking of which recruiter workflow pain is repeated enough to justify a real product wedge.
+            - generic [ref=e232]:
+              - generic [ref=e233]: "02"
+              - paragraph [ref=e235]: A better read on whether the product saves time inside candidate movement, not just around generic writing.
+            - generic [ref=e236]:
+              - generic [ref=e237]: "03"
+              - paragraph [ref=e239]: "A sharper next move: validate the top operational wedge or step back into a broader opportunity map."
+      - generic [ref=e241]:
+        - article [ref=e242]:
+          - generic [ref=e244]:
+            - paragraph [ref=e245]: Example recruiter directions
+            - generic [ref=e246]:
+              - paragraph [ref=e249]: A workflow that turns interview notes into candidate summaries and recommended next actions.
+              - paragraph [ref=e252]: A system for recruiter post-call recap and follow-up drafting after screening interviews.
+              - paragraph [ref=e255]: A product wedge for matching role briefs to candidate-ready narrative summaries before internal handoff.
+        - article [ref=e256]:
+          - generic [ref=e258]:
+            - paragraph [ref=e259]: What a stronger recruiter wedge should reveal
+            - generic [ref=e260]:
+              - paragraph [ref=e263]: A clearer ranking of which recruiter workflow pain is repeated enough to justify a real product wedge.
+              - paragraph [ref=e266]: A better read on whether the product saves time inside candidate movement, not just around generic writing.
+              - paragraph [ref=e269]: "A sharper next move: validate the top operational wedge or step back into a broader opportunity map."
+    - generic [ref=e272]:
+      - generic [ref=e273]:
+        - generic [ref=e274]:
+          - paragraph [ref=e275]: FAQ
+          - heading "Questions people ask when exploring AI tools for recruiters" [level=2] [ref=e276]
+          - paragraph [ref=e277]: These answers explain what kind of recruiter pain is strongest, why operational wedges rank well, and how to move from workflow pain into product validation.
+        - generic [ref=e279]:
+          - paragraph [ref=e280]: FAQ
+          - generic [ref=e281]:
+            - generic [ref=e282]:
+              - generic [ref=e283]: Q1
+              - paragraph [ref=e285]: Why focus on recruiter workflow pain instead of broad AI recruiting tools?
+            - generic [ref=e286]:
+              - generic [ref=e287]: Q2
+              - paragraph [ref=e289]: What makes recruiter follow-up a strong AI wedge?
+            - generic [ref=e290]:
+              - generic [ref=e291]: Q3
+              - paragraph [ref=e293]: How should I use this page if I serve a different hiring context?
+      - generic [ref=e295]:
+        - article [ref=e296]:
+          - generic [ref=e298]:
+            - heading "Why focus on recruiter workflow pain instead of broad AI recruiting tools?" [level=3] [ref=e299]
+            - paragraph [ref=e300]: Because broad categories usually hide where the real buying signal sits. Narrow workflow pain such as note cleanup, summary handoff, and follow-up recovery is easier to explain, pilot, and monetize.
+        - article [ref=e301]:
+          - generic [ref=e303]:
+            - heading "What makes recruiter follow-up a strong AI wedge?" [level=3] [ref=e304]
+            - paragraph [ref=e305]: It happens repeatedly, carries clear time pressure, and directly affects candidate movement. That combination makes the ROI story easier to understand than a general assistant pitch.
+        - article [ref=e306]:
+          - generic [ref=e308]:
+            - heading "How should I use this page if I serve a different hiring context?" [level=3] [ref=e309]
+            - paragraph [ref=e310]: Use it as a workflow lens. If your audience also loses time between conversation, summary, and next action, the same logic can help you spot a stronger recruiting wedge.
+        - article [ref=e311]:
+          - generic [ref=e313]:
+            - heading "What should I do after I identify a promising recruiter wedge?" [level=3] [ref=e314]
+            - paragraph [ref=e315]: Take the strongest one into structured validation or compare it against a public recruiter sample report to see whether the product framing still looks specific enough.
+    - generic [ref=e318]:
+      - generic [ref=e319]:
+        - generic [ref=e320]:
+          - paragraph [ref=e321]: Keep exploring
+          - heading "Move to the next page that sharpens your decision." [level=2] [ref=e322]
+          - paragraph [ref=e323]: Each core workflow should connect to the homepage, a neighboring workflow, and at least one public sample so visitors can keep narrowing the decision without hitting a dead end.
+        - generic [ref=e325]:
+          - paragraph [ref=e326]: Keep exploring
+          - generic [ref=e327]:
+            - generic [ref=e328]:
+              - generic [ref=e329]: "01"
+              - generic [ref=e330]:
+                - paragraph [ref=e331]: Recruiter sample report
+                - paragraph [ref=e332]: View recruiter sample
+            - generic [ref=e333]:
+              - generic [ref=e334]: "02"
+              - generic [ref=e335]:
+                - paragraph [ref=e336]: SaaS idea validation
+                - paragraph [ref=e337]: Open validation workflow
+            - generic [ref=e338]:
+              - generic [ref=e339]: "03"
+              - generic [ref=e340]:
+                - paragraph [ref=e341]: Validation guide
+                - paragraph [ref=e342]: Open validation guide
+      - generic [ref=e344]:
+        - article [ref=e345]:
+          - generic [ref=e347]:
+            - generic [ref=e348]:
+              - img [ref=e350]
+              - generic [ref=e354]:
+                - heading "Recruiter sample report" [level=3] [ref=e355]
+                - paragraph [ref=e356]: Inspect a public recruiting report to see ranked workflow wedges before you run your own direction.
+            - link "View recruiter sample" [ref=e357] [cursor=pointer]:
+              - /url: /en/examples/ai-tools-for-recruiters
+              - generic [ref=e358]: View recruiter sample
+              - img [ref=e359]
+        - article [ref=e361]:
+          - generic [ref=e363]:
+            - generic [ref=e364]:
+              - img [ref=e366]
+              - generic [ref=e370]:
+                - heading "SaaS idea validation" [level=3] [ref=e371]
+                - paragraph [ref=e372]: Move one promising recruiter wedge into a tighter keep-going or stop decision.
+            - link "Open validation workflow" [ref=e373] [cursor=pointer]:
+              - /url: /en/saas-idea-validation
+              - generic [ref=e374]: Open validation workflow
+              - img [ref=e375]
+        - article [ref=e377]:
+          - generic [ref=e379]:
+            - generic [ref=e380]:
+              - img [ref=e382]
+              - generic [ref=e386]:
+                - heading "Validation guide" [level=3] [ref=e387]
+                - paragraph [ref=e388]: Read the practical sequence for deciding whether a wedge is strong enough before you build.
+            - link "Open validation guide" [ref=e389] [cursor=pointer]:
+              - /url: /en/guides/how-to-validate-an-ai-startup-idea
+              - generic [ref=e390]: Open validation guide
+              - img [ref=e391]
+    - generic [ref=e397]:
+      - generic [ref=e398]:
+        - paragraph [ref=e399]: Try a recruiting direction
+        - heading "Test a recruiter workflow before you build a broad hiring copilot." [level=2] [ref=e400]
+        - paragraph [ref=e401]: Use a narrower recruiting wedge with repeated operational pain, then validate whether the buyer, workflow, and time pressure are strong enough to carry the product forward.
+      - generic [ref=e403]:
+        - link "Start Analysis" [ref=e404] [cursor=pointer]:
+          - /url: /tools/product-insight
+          - generic [ref=e405]: Start Analysis
+          - img
+        - link "View Recruiter Sample" [ref=e406] [cursor=pointer]:
+          - /url: /en/examples/ai-tools-for-recruiters
+          - generic [ref=e407]: View Recruiter Sample
+  - contentinfo [ref=e408]:
+    - generic [ref=e409]:
+      - generic [ref=e412]:
+        - generic [ref=e413]:
+          - generic [ref=e414]:
+            - paragraph [ref=e415]: BadgerSignal
+            - paragraph [ref=e416]: Start Analysis
+            - paragraph [ref=e417]: Structured AI startup research with public examples, clearer workflows, and a faster path from search intent to product use.
+          - link "Start Analysis" [ref=e418] [cursor=pointer]:
+            - /url: /tools/product-insight
+            - generic [ref=e419]: Start Analysis
+            - img [ref=e420]
+        - generic [ref=e422]:
+          - generic [ref=e423]:
+            - paragraph [ref=e424]: Product
+            - generic [ref=e425]:
+              - link "Home" [ref=e426] [cursor=pointer]:
+                - /url: /en
+              - link "AI Startup Idea Generator" [ref=e427] [cursor=pointer]:
+                - /url: /en/ai-startup-idea-generator
+              - link "SaaS Idea Validation" [ref=e428] [cursor=pointer]:
+                - /url: /en/saas-idea-validation
+              - link "AI Opportunity Analysis" [ref=e429] [cursor=pointer]:
+                - /url: /en/ai-business-opportunity-analysis
+          - generic [ref=e430]:
+            - paragraph [ref=e431]: Examples
+            - generic [ref=e432]:
+              - link "Freelancer sample report" [ref=e433] [cursor=pointer]:
+                - /url: /en/examples/ai-tools-for-freelancers
+              - link "Small-business sample report" [ref=e434] [cursor=pointer]:
+                - /url: /en/examples/ai-tools-for-small-business
+          - generic [ref=e435]:
+            - paragraph [ref=e436]: Company
+            - generic [ref=e437]:
+              - link "Privacy Policy" [ref=e438] [cursor=pointer]:
+                - /url: /privacy
+              - link "Terms of Service" [ref=e439] [cursor=pointer]:
+                - /url: /terms
+      - paragraph [ref=e441]: © 2026 BadgerSignal. All rights reserved.
+  - region "Notifications alt+T"
+  - alert [ref=e442]

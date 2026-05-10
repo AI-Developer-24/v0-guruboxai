@@ -1,5 +1,6 @@
 import {
   MARKETING_PAGE_KEYS,
+  getMarketingPageLocales,
   getMarketingPagePath,
   type MarketingPageKey,
 } from '@/lib/seo/metadata'
@@ -22,8 +23,8 @@ export const SEO_LOCALE_LABELS: Record<SeoLocale, string> = {
 }
 
 const MARKETING_ROUTE_MAP = new Map(
-  ALL_SEO_LOCALES.flatMap((activeLocale) =>
-    MARKETING_PAGE_KEYS.map((pageKey) => [
+  MARKETING_PAGE_KEYS.flatMap((pageKey) =>
+    getMarketingPageLocales(pageKey).map((activeLocale) => [
       getMarketingPagePath(pageKey, activeLocale),
       { locale: activeLocale, pageKey },
     ] as const)
@@ -62,6 +63,10 @@ export function getMarketingRouteState(pathname: string | null): MarketingRouteS
 export function isExampleMarketingPage(pageKey: MarketingPageKey | null) {
   return (
     pageKey === 'examples-ai-tools-for-freelancers' ||
-    pageKey === 'examples-ai-tools-for-small-business'
+    pageKey === 'examples-ai-tools-for-small-business' ||
+    pageKey === 'examples-ai-tools-for-recruiters' ||
+    pageKey === 'examples-ai-tools-for-agencies' ||
+    pageKey === 'examples-ai-tools-for-ecommerce-operations' ||
+    pageKey === 'examples-ai-tools-for-customer-support-operations'
   )
 }

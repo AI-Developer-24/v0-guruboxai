@@ -6,25 +6,66 @@ import { Database } from './supabase-types'
 // Next.js inlines these values at build time
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseProjectRef = new URL(supabaseUrl).hostname.split('.')[0]
+
+export const SUPABASE_AUTH_STORAGE_KEY = `sb-${supabaseProjectRef}-auth-token`
+export const SUPABASE_AUTH_COOKIE_PREFIX = `sb-${supabaseProjectRef}-`
+
+function readCurrentProjectSupabaseCookies() {
+  const cookies: { name: string; value: string }[] = []
+
+  if (typeof document === 'undefined' || !document.cookie) {
+    return cookies
+  }
+
+  document.cookie.split(';').forEach((cookie) => {
+    const [name, ...valueParts] = cookie.trim().split('=')
+    if (name && name.startsWith(SUPABASE_AUTH_COOKIE_PREFIX)) {
+      cookies.push({ name, value: valueParts.join('=') })
+    }
+  })
+
+  return cookies
+}
+
+export function getSupabaseBrowserCookieNames(): string[] {
+  if (typeof document === 'undefined') return []
+  return readCurrentProjectSupabaseCookies().map((cookie) => cookie.name)
+}
+
+export function clearSupabaseBrowserAuthState() {
+  if (typeof window === 'undefined') return
+
+  const storageKeys = [
+    SUPABASE_AUTH_STORAGE_KEY,
+    `${SUPABASE_AUTH_STORAGE_KEY}-code-verifier`,
+    `${SUPABASE_AUTH_STORAGE_KEY}-user`,
+  ]
+
+  for (const key of storageKeys) {
+    window.localStorage.removeItem(key)
+    window.sessionStorage.removeItem(key)
+  }
+
+  const cookieNames = getSupabaseBrowserCookieNames()
+  for (const name of cookieNames) {
+    document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+  }
+}
 
 // Use createBrowserClient from @supabase/ssr for proper cookie-based auth
 // IMPORTANT: cookies handlers are required for SSR to work correctly
 // This allows the browser client to read cookies set by the server
 export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storageKey: SUPABASE_AUTH_STORAGE_KEY,
+  },
   cookies: {
     getAll() {
-      // Read all cookies from document.cookie
-      // This is necessary for the browser client to access server-set session cookies
-      const cookies: { name: string; value: string }[] = []
-      if (typeof document !== 'undefined' && document.cookie) {
-        document.cookie.split(';').forEach((cookie) => {
-          const [name, ...valueParts] = cookie.trim().split('=')
-          if (name) {
-            cookies.push({ name, value: valueParts.join('=') })
-          }
-        })
-      }
-      return cookies
+      // Only expose auth cookies for the current Supabase project.
+      // This prevents stale localhost cookies from other repos/projects
+      // from being interpreted as the active session.
+      return readCurrentProjectSupabaseCookies()
     },
     setAll(cookiesToSet) {
       // When Supabase needs to set cookies (e.g., session refresh)
